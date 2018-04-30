@@ -1,0 +1,109 @@
+---
+title: "Authenticating AzureSMR to call the Azure API"
+author: "Hong Ooi, after Alan Weaver and Andrie de Vries"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AzureSMR authentication}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+## Configuration instructions
+
+To use the `AzureSMR` package, you must create an Azure Active Directory application with permisssions. This vignette contains instructions to do this.
+
+You must collect three pieces of information to authenticate with the `createAzureContext()` function:
+
+* tenant ID (`tenantID`)
+* application ID (`appID`)
+* authentication key (`secret`) 
+
+## Create an Active Directory application.
+
+1. Login to the [Azure Portal](https://portal.azure.com).
+
+1. On the left side of the screen, there should be a list of the different things you can create in Azure. Click on "Azure Active Directory".
+
+1. The AAD blade should appear. Under "Manage", click on "App registrations".
+
+1. Along the top menu, click "New application registration".
+
+1. In the Create blade, enter the details for your new application. The name should be unique, and the "application type must be Web app/API". It doesn't matter what sign-on URL you provide (it won't be used), but it must be a valid URL.
+
+1. Click on "Create". After a few seconds, a new blade will appear containing a list of all registered AAD applications.
+
+1. First, get your tenant ID from this screen. Click on "Endpoints" at the top of the blade. This will popup a new blade giving several URLs for accessing the client.
+
+1. Choose one of these (it doesn't matter which one) and click the button on the side to copy the URL to the clipboard.
+
+1. Paste the URL into Notepad or another text editor. It will contain a sequence of hex digits in the middle, which is your **tenant ID**.
+
+1. Return to the list of apps by closing the Endpoints blade. Find your app by entering the name you chose into the search box.
+
+1. When your app appears in the list, click on it. In the details, note the **application ID**.
+
+1. The Settings blade for your app should also be on the screen. Click on the "Keys" entry.
+
+1. You will need to create a new **authentication key**. Enter a name for it, choose a 1 year duration (or 2) and click "Save" at the top of the blade. When the key is generated, copy it and save it somewhere. _You won't be able to see it again, so make sure you copy it now._
+
+1. Return to your app settings by closing the Keys blade. Click the "Required permissions" entry.
+
+1. In the permissions blade, click "Add". Click on "Select an API" and choose "Windows Azure Service Management API". Then click Select at the bottom of the blade.
+
+1. This should bring up the Enable Access blade. Check the tick box next to "Delegated permissions" and click Select at the bottom of the blade.
+
+1. Click Done at the bottom of the permissions blade.
+
+
+## Access control
+
+You can apply access control at either the resource group level or the subscription level.
+
+### At resource group level
+
+1. Click on Resource Groups menu item on the left in the portal.
+
+16. Identify the resource group you will associate with this application.
+
+17. Choose the `Access Control (IAM)` menu item from the Resource scope.
+
+18. In the resulting scope click the `+ Add` button.
+
+19. Choose the role as Owner and under the user search box enter the name of the App, e.g. `AzureSMR`.
+
+20. Select the resulting list item for that App then click Select in that scope then OK in the `Add access` scope. The user will be added to the list.
+
+
+### At subscription Level
+
+1. Click on Subscriptions on the left menu item in the portal.
+
+1. Identify the Subscription you will associate with this application.
+
+1. Choose the `Access Control (IAM)` menu item.
+
+1. In the resulting scope click the `+ Add` button.
+
+1. Choose the role as Owner and under the user search box enter the name of the App, e.g. `AzureSMR`.
+
+2. Select the resulting list item for that App then click Select in that scope then OK in the "Add access" scope. The user will be added to the list.
+
+## Conclusion
+
+That is all.  You can test this by trying:
+
+```{r, eval = FALSE}
+sc <- az_context$new(tenant_id="{TID}", app_id="{CID}", secret="{KEY}")
+sc
+```
+
+or using the two-factor authentication flow if supported by that resource by trying:
+
+```{r, eval = FALSE}
+sc <- az_context(tenant_id="{TID}", app_id="{CID}", auth_type="device")
+# Manually authenicate using DeviceCode flow
+sc
+```
+
+For more information see the tutorial [Use portal to create Active Directory application and service principal that can access resources](https://azure.microsoft.com/en-us/documentation/articles/resource-group-create-service-principal-portal/)

@@ -64,7 +64,7 @@ private=list(
 
         url <- file.path(self$host, "subscriptions?api-version=2015-01-01")
         res <- httr::GET(url, httr::add_headers(.headers=.headers))
-        stop_for_status(res)
+        httr::stop_for_status(res)
         cont <- httr::content(res, as="parsed")
 
         df <- lapply(cont, data.frame, stringsAsFactors=FALSE)
