@@ -1,0 +1,17 @@
+Package: AzureSMRbase
+Title: Base functionality for Azure SMR: authenticate, get subscriptions, get resource groups
+Version: 0.0.1
+Authors@R: c(
+    person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
+    person("Microsoft", role="cph")
+    )
+Description: A package for managing a selection of Azure resources, using the Azure Service Manager API. The package exposes functions to manage subscriptions and resource groups. Managing other types of resources is handled via add-on packages that call AzureSMRbase.
+License: file LICENSE
+Encoding: UTF-8
+Depends: 
+    R (>= 3.3)
+Imports: 
+    httr (>= 1.3),
+    jsonlite,
+    R6
+RoxygenNote: 6.0.1
