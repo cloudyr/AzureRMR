@@ -26,7 +26,7 @@ public=list(
         self$properties <- cont$properties
         self$tags <- cont$tags
 
-        private$set_res()
+        private$set_reslist()
         NULL
     },
 
@@ -38,7 +38,7 @@ public=list(
 
 private=list(
 
-    set_res=function()
+    set_reslist=function()
     {
         op <- paste0("resourcegroups/", self$name, "/resources")
         cont <- call_azure_sm(self$token, self$subscription, op)

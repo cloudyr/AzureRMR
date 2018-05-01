@@ -32,7 +32,7 @@ public=list(
         self$auth_type <- match.arg(auth_type)
         self$token <- get_azure_token(aad_host, tenant, app, self$auth_type, secret, host)
 
-        private$set_subs()
+        private$set_subslist()
         NULL
     },
 
@@ -42,15 +42,15 @@ public=list(
         if(is.null(self$subscriptions))
             stop("No subscriptions associated with this app")
         if(is.numeric(subscription))
-            subscription <- self$subscriptions[subscription][1]
-        az_subscription$new(self$token, subscription)
+            subscription <- self$subscriptions[subscription]
+        az_subscription$new(self$token, subscription[1])
     }
 ),
 
 private=list(
 
     # obtain subscription IDs owned by this app
-    set_subs=function()
+    set_subslist=function()
     {
         cont <- call_azure_sm(self$token, subscription="", operation="")
 

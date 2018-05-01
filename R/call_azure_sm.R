@@ -29,7 +29,7 @@ call_azure_sm <- function(token, subscription, operation, ...,
     catch <- match.arg(http_condition_handler)
     if(catch != "pass")
     {
-        catch <- get(paste0(match.arg(catch), "_for_status"), getNamespace("httr"))
+        catch <- get(paste0(catch, "_for_status"), getNamespace("httr"))
         catch(res)
     }
     httr::content(res, as="parsed")

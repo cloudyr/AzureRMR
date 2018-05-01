@@ -21,7 +21,7 @@ public=list(
         self$policies <- info$subscriptionPolicies
         self$authorization_source <- info$authorizationSource
 
-        private$set_rgrps()
+        private$set_rglist()
         NULL
     },
 
@@ -31,8 +31,8 @@ public=list(
         if(is.null(self$resource_groups))
             stop("No resource groups associated with this subscription")
         if(is.numeric(resource_group))
-            resource_group <- self$resource_groups[resource_group][1]
-        az_resource_group$new(self$token, self$id, resource_group)
+            resource_group <- self$resource_groups[resource_group]
+        az_resource_group$new(self$token, self$id, resource_group[1])
     },
 
     create_resource_group=function(resource_group) { },
@@ -43,7 +43,7 @@ public=list(
 
 private=list(
 
-    set_rgrps=function()
+    set_rglist=function()
     {
         cont <- call_azure_sm(self$token, self$id, "resourcegroups")
         self$resource_groups <- sapply(cont$value, `[[`, "name")
