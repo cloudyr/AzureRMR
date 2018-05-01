@@ -1,5 +1,6 @@
 call_azure_sm <- function(token, subscription, operation, api_version,
-                          http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"), ...)
+                          http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
+                          catch=c("stop", "warn", "message", "pass"), ...)
 {
     creds <- token$credentials
 
@@ -11,5 +12,13 @@ call_azure_sm <- function(token, subscription, operation, api_version,
                                  `Content-type`="application/json")
 
     verb <- get(match.arg(http_verb), getNamespace("httr"))
-    verb(httr::build_url(url), headers, ...)
+    res <- verb(httr::build_url(url), headers, ...)
+
+    catch <- match.arg(catch)
+    if(catch != "pass")
+    {
+        catch <- get(paste0(match.arg(catch), "_for_status"), getNamespace("httr"))
+        catch(res)
+    }
+    httr::content(res, as="parsed")
 }
