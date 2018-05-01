@@ -20,7 +20,7 @@ public=list(
             if(!is.null(conf$auth_type)) auth_type <- conf$auth_type
             if(!is.null(conf$secret)) secret <- conf$secret
             if(!is.null(conf$host)) host <- conf$host
-        }
+            }
 
         self$host <- host
         self$tenant_id <- tenant_id
@@ -38,6 +38,16 @@ public=list(
             private$set_token(tok$app$key, tok$app$secret) # re-authenticate if no refresh token
         else private$token$refresh()
         NULL
+    },
+
+    # return a subscription object
+    get_subscription=function(sub)
+    {
+        if(is.null(self$subscriptions))
+            stop("No subscriptions associated with this app")
+        if(is.numeric(sub))
+            sub <- self$subscriptions[[1]]
+        az_subscription$new(private$token, sub)
     }
 ),
 
@@ -55,7 +65,7 @@ private=list(
         NULL
     },
 
-    # obtain subscription IDs for this app
+    # obtain subscription IDs owned by this app
     set_subs=function()
     {
         host <- httr::parse_url(self$host)$hostname
@@ -95,4 +105,5 @@ auth_with_device <- function(base_url, app_id, resource)
 
     httr::oauth2.0_token(endp, app, user_params=list(resource=resource), use_basic_auth=TRUE, cache=FALSE)
 }
+
 
