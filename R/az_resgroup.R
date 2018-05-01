@@ -10,15 +10,16 @@ public=list(
     properties=NULL,
     tags=NULL,
     resources=NA, # NULL = no resources, NA = not yet populated
+    token=NULL,
 
     initialize=function(token, subscription, name)  # TODO: also allow initialisation with explicit data args
     {
-        private$token <- token
+        self$token <- token
         self$subscription <- subscription
         self$name <- name
 
         op <- paste0("resourcegroups/", self$name)
-        cont <- call_azure_sm(private$token, self$subscription, op)
+        cont <- call_azure_sm(self$token, self$subscription, op)
         self$id <- cont$id
         self$location <- cont$location
         self$managed_by <- cont$managedBy
@@ -36,11 +37,11 @@ public=list(
 ),
 
 private=list(
-    token=NULL,
+
     set_res=function()
     {
         op <- paste0("resourcegroups/", self$name, "/resources")
-        cont <- call_azure_sm(private$token, self$subscription, op)
+        cont <- call_azure_sm(self$token, self$subscription, op)
         self$resources <- sapply(cont$value, `[[`, "name")
         NULL
     }

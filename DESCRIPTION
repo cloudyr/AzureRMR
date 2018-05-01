@@ -15,3 +15,10 @@ Imports:
     jsonlite,
     R6
 RoxygenNote: 6.0.1
+Collate: 
+    'AzureSMRbase.R'
+    'AzureToken.R'
+    'az_auth.R'
+    'az_resgroup.R'
+    'az_subscription.R'
+    'call_azure_sm.R'

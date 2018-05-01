@@ -1,10 +1,18 @@
-call_azure_sm <- function(token, subscription, operation, api_version=getOption("azure_api_version"),
+#' @export
+call_azure_sm <- function(token, subscription, operation, ...,
                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
-                          catch=c("stop", "warn", "message", "pass"), ...)
+                          http_condition_handler=c("stop", "warn", "message", "pass"),
+                          api_version=getOption("azure_api_version"),
+                          auto_refresh=TRUE)
 {
-    creds <- token$credentials
+    # if token has expired, renew it
+    if(auto_refresh && !token$validate())
+    {
+        message("Access token has expired or is no longer valid; refreshing")
+        token$refresh()
+    }
 
-    # TODO: if token has expired, renew it
+    creds <- token$credentials
 
     url <- httr::parse_url(creds$resource)
     url$path <- file.path("subscriptions", subscription, operation, fsep="/")
@@ -14,9 +22,11 @@ call_azure_sm <- function(token, subscription, operation, api_version=getOption(
                                  `Content-type`="application/json")
 
     verb <- get(match.arg(http_verb), getNamespace("httr"))
+
+    # do actual API call
     res <- verb(httr::build_url(url), headers, ...)
 
-    catch <- match.arg(catch)
+    catch <- match.arg(http_condition_handler)
     if(catch != "pass")
     {
         catch <- get(paste0(match.arg(catch), "_for_status"), getNamespace("httr"))
