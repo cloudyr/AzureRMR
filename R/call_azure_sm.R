@@ -1,8 +1,10 @@
-call_azure_sm <- function(token, subscription, operation, api_version,
+call_azure_sm <- function(token, subscription, operation, api_version=getOption("azure_api_version"),
                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
                           catch=c("stop", "warn", "message", "pass"), ...)
 {
     creds <- token$credentials
+
+    # TODO: if token has expired, renew it
 
     url <- httr::parse_url(creds$resource)
     url$path <- file.path("subscriptions", subscription, operation, fsep="/")

@@ -14,7 +14,7 @@ public=list(
     {
         private$token <- token
         self$id <- id
-        info <- call_azure_sm(token, id, "", api_version="2018-05-01")
+        info <- call_azure_sm(token, id, "")
         self$name <- info$displayName
         self$state <- info$state
         self$policies <- info$subscriptionPolicies
@@ -44,7 +44,7 @@ private=list(
     token=NULL,
     set_rgrps=function()
     {
-        cont <- call_azure_sm(private$token, self$id, operation="resourcegroups", api_version="2018-05-01")
+        cont <- call_azure_sm(private$token, self$id, "resourcegroups")
         self$resource_groups <- sapply(cont$value, `[[`, "name")
         NULL
     }

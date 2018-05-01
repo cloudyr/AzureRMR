@@ -68,9 +68,9 @@ private=list(
     # obtain subscription IDs owned by this app
     set_subs=function()
     {
-        cont <- call_azure_sm(private$token, subscription="", operation="", api_version="2016-06-01")
+        cont <- call_azure_sm(private$token, subscription="", operation="")
 
-        df <- lapply(cont, data.frame, stringsAsFactors=FALSE)
+        df <- lapply(cont$value, data.frame, stringsAsFactors=FALSE)
         df <- do.call(rbind, df)
 
         # update subscription IDs; notify if more than one found

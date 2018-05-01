@@ -18,7 +18,7 @@ public=list(
         self$name <- name
 
         op <- paste0("resourcegroups/", self$name)
-        cont <- call_azure_sm(private$token, self$subscription, operation=op, api_version="2018-05-01")
+        cont <- call_azure_sm(private$token, self$subscription, op)
         self$id <- cont$id
         self$location <- cont$location
         self$managed_by <- cont$managedBy
@@ -40,7 +40,7 @@ private=list(
     set_res=function()
     {
         op <- paste0("resourcegroups/", self$name, "/resources")
-        cont <- call_azure_sm(private$token, self$subscription, operation=op, api_version="2018-05-01")
+        cont <- call_azure_sm(private$token, self$subscription, op)
         self$resources <- sapply(cont$value, `[[`, "name")
         NULL
     }
