@@ -58,21 +58,21 @@ private=list(
 
         req_params <- list(client_id=app$key, grant_type="device_code", code=self$credentials$device_code)
         req_params <- utils::modifyList(user_params, req_params)
-
         endpoint$access <- sub("devicecode$", "token", endpoint$access)
+
         interval <- as.numeric(self$credentials$interval)
         ntries <- as.numeric(self$credentials$expires_in) %/% interval
-
         for(i in seq_len(ntries))
         {
             Sys.sleep(interval)
 
-            res <- POST(endpoint$access, encode="form", body=req_params, config=list())
+            res <- httr::POST(endpoint$access, encode="form", body=req_params)
 
             status <- httr::status_code(res)
-            if(status == 400 && content(res)$error == "authorization_pending")
+            cont <- httr::content(res)
+            if(status == 400 && cont$error == "authorization_pending")
             {
-                msg <- sub("[\r\n].*", "", content(res)$error_description)
+                msg <- sub("[\r\n].*", "", cont$error_description)
                 cat(msg, "\n")
             }
             else if(status >= 300)
@@ -84,7 +84,7 @@ private=list(
 
         # replace original fields with authenticated fields
         self$endpoint <- endpoint
-        self$credentials <- content(res)
+        self$credentials <- cont
         NULL
     }
 ))
