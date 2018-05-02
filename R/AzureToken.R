@@ -54,12 +54,16 @@ private=list(
     # after init_oauth2.0, oauth2.0_access_token
     init_with_device=function(endpoint, app, user_params)
     {
+        cat(self$credentials$message, "\n")  # tell user to enter the code
+
         req_params <- list(client_id=app$key, grant_type="device_code", code=self$credentials$device_code)
         req_params <- utils::modifyList(user_params, req_params)
 
         endpoint$access <- sub("devicecode$", "token", endpoint$access)
         interval <- as.numeric(self$credentials$interval)
-        for(i in 1:100)
+        ntries <- as.numeric(self$credentials$expires_in) %/% interval
+
+        for(i in seq_len(ntries))
         {
             Sys.sleep(interval)
 
@@ -80,7 +84,7 @@ private=list(
 
         # replace original fields with authenticated fields
         self$endpoint <- endpoint
-        self$credentials <- content(res, as="parsed")
+        self$credentials <- content(res)
         NULL
     }
 ))
