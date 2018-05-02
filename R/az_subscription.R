@@ -2,6 +2,7 @@
 
 #' @export
 az_subscription <- R6::R6Class("az_subscription",
+
 public=list(
     id=NULL,
     name=NULL,
