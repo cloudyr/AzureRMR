@@ -9,7 +9,7 @@ public=list(
         private$az_use_device <- use_device
 
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=FALSE, config_init=list(), client_credentials=TRUE)
+                       use_basic_auth=use_device, config_init=list(), client_credentials=TRUE)
 
         super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
 
@@ -58,7 +58,7 @@ private=list(
 
         req_params <- list(client_id=app$key, grant_type="device_code", code=self$credentials$device_code)
         req_params <- utils::modifyList(user_params, req_params)
-        endpoint$access <- sub("devicecode$", "token", endpoint$access)
+        endpoint$access <- sub("devicecode", "token", endpoint$access)
 
         interval <- as.numeric(self$credentials$interval)
         ntries <- as.numeric(self$credentials$expires_in) %/% interval
@@ -66,7 +66,8 @@ private=list(
         {
             Sys.sleep(interval)
 
-            res <- httr::POST(endpoint$access, encode="form", body=req_params)
+            res <- httr::POST(endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+                              body=req_params)
 
             status <- httr::status_code(res)
             cont <- httr::content(res)
@@ -112,7 +113,7 @@ auth_with_creds <- function(base_url, app, secret, resource)
 auth_with_device <- function(base_url, app, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
-    app <- httr::oauth_app("azure", key=app)
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
 
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
 }
