@@ -27,7 +27,7 @@ public=list(
     # overrides httr::Token2.0 method
     validate=function()
     {
-        if(!is.null(self$endpoint$request))
+        if(!is.null(self$endpoint$validate))
             return(super$validate())
 
         expdate <- as.POSIXct(as.numeric(self$credentials$expires_on), origin="1970-01-01")
