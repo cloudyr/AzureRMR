@@ -1,5 +1,5 @@
 #' @export
-call_azure_sm <- function(token, subscription, operation, ...,
+call_azure_rm <- function(token, subscription, operation, ...,
                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
                           http_condition_handler=c("stop", "warn", "message", "pass"),
                           api_version=getOption("azure_api_version"),
@@ -33,4 +33,11 @@ call_azure_sm <- function(token, subscription, operation, ...,
         catch(res)
     }
     httr::content(res, as="parsed")
+}
+
+
+# TRUE for NULL and length-0 objects
+is_empty <- function(x)
+{
+    length(x) == 0
 }
