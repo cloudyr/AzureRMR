@@ -25,11 +25,31 @@ public=list(
 
         self$id <- parms$id
         self$properties <- parms$properties
+
+        private$is_valid <- TRUE
         NULL
     },
 
-    delete=function(free_resources=FALSE) { },
-    check=function() { }
+    delete=function(free_resources=FALSE)
+    {
+        if(free_resources)
+        {
+            message("Deleting resources for template '", self$name, "'...'")
+            # recursively delete all resources for this template
+        }
+
+        private$tpl_op(http_verb="DELETE")
+        message("Template '", self$name, "' deleted")
+        private$is_valid <- FALSE
+        invisible(NULL)
+    },
+
+    check=function()
+    {
+        res <- private$tpl_op(http_verb="HEAD", http_status_handler="pass")
+        private$is_valid <- httr::status_code(res) < 300
+        private$is_valid
+    }
 ),
 
 private=list(
@@ -50,6 +70,7 @@ private=list(
         parms
     },
 
+    # deployment workhorse function
     init_and_create=function(name, parms) { },
 
     validate_parms=function(parms)
