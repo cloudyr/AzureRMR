@@ -42,9 +42,21 @@ public=list(
         lst
     },
 
-    create_resource_group=function(name, ...)
+    list_locations=function()
     {
-        az_resource_group$new(self$token, self$id, name, ..., create=TRUE)
+        cont <- call_azure_rm(self$token, self$id, "locations")
+        locs <- do.call(rbind, lapply(cont$value, data.frame, stringsAsFactors=FALSE))
+        within(locs,
+        {
+            id <- NULL
+            longitude <- as.numeric(longitude)
+            latitude <- as.numeric(latitude)
+        })
+    },
+
+    create_resource_group=function(name, location)
+    {
+        az_resource_group$new(self$token, self$id, name, location=location, create=TRUE)
     },
 
     delete_resource_group=function(name)
