@@ -29,31 +29,28 @@ public=list(
         NULL
     },
 
-    # return a resource group object
     get_resource_group=function(name)
     {
         az_resource_group$new(self$token, self$id, name)
     },
 
-    # return all resource groups for this subscription
     list_resource_groups=function()
     {
         cont <- call_azure_rm(self$token, self$id, "resourcegroups")
-        lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
+        lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
+        names(lst) <- sapply(lst, `[[`, "name")
+        lst
     },
 
-    # create and return a new resource group
     create_resource_group=function(name, ...)
     {
         az_resource_group$new(self$token, self$id, name, ..., create=TRUE)
     },
 
-    # delete a resource group
     delete_resource_group=function(name)
     {
         self$get_resource_group(name)$delete()
     },
 
-    # return all individual resources for this subscription
     list_resources=function() { }
 ))
