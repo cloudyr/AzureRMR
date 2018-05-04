@@ -10,18 +10,19 @@ public=list(
     token=NULL,
 
     # constructor: get an existing template, or deploy new template
-    initialize=function(token, subscription, resource_group, name=NULL, ..., parms=list(...), create=FALSE)
+    initialize=function(token, subscription, resource_group, name=NULL, template, parameters, ...,
+                        deployed_properties=list(...), create=FALSE)
     {
-        if(is_empty(name) && is_empty(parms))
-            stop("Must supply either template name, or parameter list")
+        if(is_empty(name) && is_empty(deployed_properties))
+            stop("Must supply either template name, or deployed properties list")
 
         self$token <- token
         self$subscription <- subscription
         self$resource_group <- resource_group
 
         parms <- if(create)
-            private$init_and_create(name, parms)
-        else private$init(name, parms)
+            private$init_and_create(name, template, parameters, deployed_properties)
+        else private$init(name, deployed_properties)
 
         self$id <- parms$id
         self$properties <- parms$properties
@@ -63,7 +64,7 @@ private=list(
             parms <- private$tpl_op()
         }
         else
-            {
+        {
             private$validate_parms(parms)
             self$name <- parms$name
         }
@@ -71,49 +72,44 @@ private=list(
     },
 
     # deployment workhorse function
-    init_and_create=function(name, template, parameters, deployment_properties)
+    init_and_create=function(name, template, parameters, deploy_properties)
     {
-        validate_deploy_names(deployment_properties)
+        validate_deploy_properties(deploy_properties)
 
         default_properties <- list(
             debugSetting=list(detailLevel="requestContent, responseContent"),
-            #onErrorDeployment=list(deploymentName="error", type="lastsuccessful"),
             mode="Incremental"
         )
-        parms <- modifyList(default_properties, deployment_properties)
+        properties <- modifyList(default_properties, deploy_properties)
 
-        parms <- if(is.list(template))
-            modifyList(parms, list(template=template))
-        else if(jsonlite::validate(template))
-            modifyList(parms, list(template=jsonlite::fromJSON(template)))
+        properties <- if(is.list(template))
+            modifyList(properties, list(template=template))
         else if(is_url(template))
-            modifyList(parms, list(templateLink=list(uri=template)))
-        else stop("Invalid template")
+            modifyList(properties, list(templateLink=list(uri=template)))
+        else modifyList(properties, list(template=jsonlite::fromJSON(template)))
 
-        parms <- if(is.list(parameters))
-            modifyList(parms, list(parameters=parameters))
-        else if(jsonlite::validate(parameters))
-            modifyList(parms, list(parameters=jsonlite::fromJSON(parameters)))
+        properties <- if(is.list(parameters))
+            modifyList(properties, list(parameters=parameters))
         else if(is_url(parameters))
-            modifyList(parms, list(parametersLink=list(uri=parameters)))
-        else stop("Invalid template parameters")
+            modifyList(properties, list(parametersLink=list(uri=parameters)))
+        else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters)))
 
         self$name <- name
-        private$tpl_op(body=parms, encode="json", http_verb="PUT")
+        private$tpl_op(body=properties, encode="json", http_verb="PUT")
     },
 
-    validate_parms=function(parms)
+    validate_parms=function(properties)
     {
         required_names <- c("name")
         optional_names <- c("id", "properties")
-        validate_object_names(names(parms), required_names, optional_names)
+        validate_object_names(names(properties), required_names, optional_names)
     },
 
-    validate_deploy_parms=function(parms)
+    validate_deploy_properties=function(properties)
     {
         required_names <- c("debugSetting", "mode")
         optional_names <- c("onErrorDeployment")
-        validate_object_names(names(parms), required_names, optional_names)
+        validate_object_names(names(properties), required_names, optional_names)
     },
 
     tpl_op=function(op="", ...)

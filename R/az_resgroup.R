@@ -53,12 +53,14 @@ public=list(
     {
         res <- private$rg_op("providers/Microsoft.Resources/deployments")$value
         res <- named_list(res)
-        lapply(res, function(parms) az_template$new(self$token, self$subscription, self$name, parms=parms))
+        lapply(res, function(parms) az_template$new(self$token, self$subscription, self$name,
+            deployed_properties=parms))
     },
 
-    deploy_template=function(template_name, ...)
+    deploy_template=function(template_name, template, parameters, ...)
     {
-        az_template$new(self$token, self$subscription, self$name, template_name, ..., create=TRUE)
+        az_template$new(self$token, self$subscription, self$name, template_name,
+                        template, parameters, ..., create=TRUE)
     },
 
     get_template=function(template_name)
