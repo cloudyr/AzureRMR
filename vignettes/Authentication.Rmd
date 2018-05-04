@@ -31,7 +31,7 @@ You must collect three pieces of information to authenticate with the `createAzu
 
 1. In the Create blade, enter the details for your new application. The name should be unique. It doesn't matter what sign-on URL you provide (it won't be used), but it must be a valid URL.
 
-1. In the "Application type" box, choose "Web App/API" if you want to authenticate using a secret key, or "Native" if you want to authenticate with a code that the server sends to you at runtime. If you're not sure which one to pick, choose "Web App".
+1. In the "Application type" box, choose "Web App/API" if you want to authenticate using a secret key, or "Native" if you want to authenticate with a code that the server sends to you at runtime. If you're not sure, choose "Native" as this provides more security.
 
 1. Click on "Create". After a few seconds, a new blade will appear containing a list of all registered AAD applications.
 
@@ -73,7 +73,7 @@ Azure lets you apply access controls at multiple levels: by subscription, by res
 
 1. In the resulting scope click the `+ Add` button.
 
-1. Choose the role as Owner and under the user search box enter the name of the App, e.g. `AzureSMR`.
+1. Choose the role as Owner and under the user search box enter the name of the App, e.g. `Azure R management app`.
 
 2. Select the resulting list item for that App then click Select in that scope then OK in the "Add access" scope. The user will be added to the list.
 
