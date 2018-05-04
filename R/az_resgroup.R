@@ -52,7 +52,8 @@ public=list(
     list_templates=function()
     {
         res <- private$rg_op("providers/Microsoft.Resources/deployments")$value
-        named_list(res)
+        res <- named_list(res)
+        lapply(res, function(parms) az_template$new(self$token, self$subscription, self$name, parms=parms))
     },
 
     deploy_template=function(template_name, ...)

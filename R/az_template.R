@@ -1,3 +1,4 @@
+#' @export
 az_template <- R6::R6Class("az_template",
 
 public=list(
@@ -21,6 +22,10 @@ public=list(
         parms <- if(create)
             private$init_and_create(name, parms)
         else private$init(name, parms)
+
+        self$id <- parms$id
+        self$properties <- parms$properties
+        NULL
     },
 
     delete=function(free_resources=FALSE) { },
@@ -37,7 +42,11 @@ private=list(
             self$name <- name
             parms <- private$tpl_op()
         }
-        #else private$validate_parms(parms)
+        else
+        {
+            private$validate_parms(parms)
+            self$name <- parms$name
+        }
         parms
     },
 
