@@ -52,6 +52,7 @@ is_empty <- function(x)
 # check that 1) all required names are present; 2) optional names may be present; 3) no other names are present
 validate_object_names <- function(x, required, optional)
 {
-    if(!all(required %in% x) && all(x %in% c(required, optional)))
+    valid <- all(required %in% x) && all(x %in% c(required, optional))
+    if(!valid)
         stop("Invalid object names")
 }
