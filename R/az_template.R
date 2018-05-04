@@ -63,7 +63,7 @@ private=list(
             parms <- private$tpl_op()
         }
         else
-        {
+            {
             private$validate_parms(parms)
             self$name <- parms$name
         }
@@ -71,7 +71,36 @@ private=list(
     },
 
     # deployment workhorse function
-    init_and_create=function(name, parms) { },
+    init_and_create=function(name, template, parameters, deployment_properties)
+    {
+        validate_deploy_names(deployment_properties)
+
+        default_properties <- list(
+            debugSetting=list(detailLevel="requestContent, responseContent"),
+            #onErrorDeployment=list(deploymentName="error", type="lastsuccessful"),
+            mode="Incremental"
+        )
+        parms <- modifyList(default_properties, deployment_properties)
+
+        parms <- if(is.list(template))
+            modifyList(parms, list(template=template))
+        else if(jsonlite::validate(template))
+            modifyList(parms, list(template=jsonlite::fromJSON(template)))
+        else if(is_url(template))
+            modifyList(parms, list(templateLink=list(uri=template)))
+        else stop("Invalid template")
+
+        parms <- if(is.list(parameters))
+            modifyList(parms, list(parameters=parameters))
+        else if(jsonlite::validate(parameters))
+            modifyList(parms, list(parameters=jsonlite::fromJSON(parameters)))
+        else if(is_url(parameters))
+            modifyList(parms, list(parametersLink=list(uri=parameters)))
+        else stop("Invalid template parameters")
+
+        self$name <- name
+        private$tpl_op(body=parms, encode="json", http_verb="PUT")
+    },
 
     validate_parms=function(parms)
     {
@@ -80,10 +109,23 @@ private=list(
         validate_object_names(names(parms), required_names, optional_names)
     },
 
+    validate_deploy_parms=function(parms)
+    {
+        required_names <- c("debugSetting", "mode")
+        optional_names <- c("onErrorDeployment")
+        validate_object_names(names(parms), required_names, optional_names)
+    },
+
     tpl_op=function(op="", ...)
     {
         op <- file.path("resourcegroups", self$resource_group, "providers/Microsoft.Resources/deployments", self$name, op)
         call_azure_rm(self$token, self$subscription, op, ...)
+    },
+
+    # check if a string appears to be a URL (only https allowed)
+    is_url=function(x)
+    {
+        is.character(x) && length(x) == 1 && grepl("^https://", x)
     }
 ))
 
