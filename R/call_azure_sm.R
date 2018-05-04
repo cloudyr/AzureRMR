@@ -56,3 +56,17 @@ validate_object_names <- function(x, required, optional)
     if(!valid)
         stop("Invalid object names")
 }
+
+
+# set names on a list of objects, given each object contains its name field
+named_list <- function(lst, name_field="name")
+{
+    names(lst) <- sapply(lst, `[[`, name_field)
+    dups <- duplicated(tolower(names(lst)))
+    if(any(dups))
+    {
+        duped_names <- names(lst)[dups]
+        warning("Some names are duplicated: ", paste(duped_names, collapse=" "))
+    }
+    lst
+}

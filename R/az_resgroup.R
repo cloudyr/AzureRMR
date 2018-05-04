@@ -24,7 +24,6 @@ public=list(
             private$init_and_create(name, parms)
         else private$init(name, parms)
 
-        self$name <- parms$name
         self$id <- parms$id
         self$location <- parms$location
         self$managed_by <- parms$managedBy
@@ -37,8 +36,7 @@ public=list(
 
     delete=function()
     {
-        op <- paste0("resourcegroups/", self$name)
-        call_azure_rm(self$token, self$subscription, op, http_verb="DELETE")
+        private$rg_op(http_verb="DELETE")
         message("Resource group '", self$name, "' deleted")
         private$is_valid <- FALSE
         invisible(NULL)
@@ -46,16 +44,41 @@ public=list(
 
     check=function()
     {
-        op <- paste0("resourcegroups/", self$name)
-        res <- call_azure_rm(self$token, self$subscription, op, http_verb="HEAD", http_status_handler="pass")
+        res <- private$rg_op(http_verb="HEAD", http_status_handler="pass")
         private$is_valid <- httr::status_code(res) < 300
         private$is_valid
     },
 
+    list_templates=function()
+    {
+        res <- private$rg_op("providers/Microsoft.Resources/deployments")$value
+        named_list(res)
+    },
+
+    deploy_template=function(template_name, ...)
+    {
+        az_template$new(self$token, self$subscription, self$name, template_name, ..., create=TRUE)
+    },
+
+    get_template=function(template_name)
+    {
+        az_template$new(self$token, self$subscription, self$name, template_name)
+    },
+
+    delete_template=function(template_name, free_resources=FALSE)
+    {
+        self$get_template(template_name)$delete(free_resources=free_resources)
+    },
+
+    list_resources=function()
+    {
+        res <- private$rg_op("resources")$value
+        named_list(res)
+    },
+
     create_resource=function(...) { },
     delete_resource=function(...) { },
-    get_resource=function(...) { },
-    list_resources=function() { }
+    get_resource=function(...) { }
 ),
 
 private=list(
@@ -65,10 +88,14 @@ private=list(
     {
         if(is_empty(parms))
         {
-            op <- paste0("resourcegroups/", name)
-            parms <- call_azure_rm(self$token, self$subscription, op)
+            self$name <- name
+            parms <- private$rg_op()
         }
-        else private$validate_parms(parms)
+        else
+        {
+            private$validate_parms(parms)
+            self$name <- name
+        }
         parms
     },
 
@@ -76,8 +103,8 @@ private=list(
     {
         parms <- c(name=name, parms)
         private$validate_parms(parms)
-        op <- paste0("resourcegroups/", name)
-        parms <- call_azure_rm(self$token, self$subscription, op, body=parms, encode="json", http_verb="PUT")
+        self$name <- name
+        private$rg_op(body=parms, encode="json", http_verb="PUT")
     },
 
     validate_parms=function(parms)
@@ -85,5 +112,11 @@ private=list(
         required_names <- c("location", "name")
         optional_names <- c("id", "managedBy", "tags", "properties")
         validate_object_names(names(parms), required_names, optional_names)
+    },
+
+    rg_op=function(op="", ...)
+    {
+        op <- file.path("resourcegroups", self$name, op)
+        call_azure_rm(self$token, self$subscription, op, ...)
     }
 ))

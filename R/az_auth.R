@@ -42,8 +42,7 @@ public=list(
     {
         cont <- call_azure_rm(self$token, subscription="", operation="")
         lst <- lapply(cont$value, function(parms) az_subscription$new(self$token, parms=parms))
-        names(lst) <- sapply(lst, `[[`, "id")
-        lst
+        named_list(lst, "id")
     }
 ))
 

@@ -21,4 +21,5 @@ Collate:
     'az_auth.R'
     'az_resgroup.R'
     'az_subscription.R'
+    'az_template.R'
     'call_azure_sm.R'

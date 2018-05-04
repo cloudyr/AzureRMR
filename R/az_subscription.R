@@ -38,8 +38,7 @@ public=list(
     {
         cont <- call_azure_rm(self$token, self$id, "resourcegroups")
         lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
-        names(lst) <- sapply(lst, `[[`, "name")
-        lst
+        named_list(lst)
     },
 
     list_locations=function()
