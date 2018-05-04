@@ -1,7 +1,7 @@
 #' @export
 call_azure_rm <- function(token, subscription, operation, ...,
                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
-                          http_condition_handler=c("stop", "warn", "message", "pass"),
+                          http_status_handler=c("stop", "warn", "message", "pass"),
                           api_version=getOption("azure_api_version"),
                           auto_refresh=TRUE)
 {
@@ -17,22 +17,28 @@ call_azure_rm <- function(token, subscription, operation, ...,
     url <- httr::parse_url(creds$resource)
     url$path <- file.path("subscriptions", subscription, operation, fsep="/")
     url$query <- list(`api-version`=api_version)
-    headers <- httr::add_headers(Host=url$host,
-                                 Authorization=paste(creds$token_type, creds$access_token),
-                                 `Content-type`="application/json")
 
+    headers <- c(Host=url$host, Authorization=paste(creds$token_type, creds$access_token))
+
+    # default content-type is json, set this if encoding not specified
+    dots <- list(...)
+    if(is_empty(dots) || !("encode" %in% names(dots)))
+        headers <- c(headers, `Content-type`="application/json")
+
+    headers <- httr::add_headers(.headers=headers)
     verb <- get(match.arg(http_verb), getNamespace("httr"))
 
     # do actual API call
     res <- verb(httr::build_url(url), headers, ...)
 
-    catch <- match.arg(http_condition_handler)
+    catch <- match.arg(http_status_handler)
     if(catch != "pass")
     {
         catch <- get(paste0(catch, "_for_status"), getNamespace("httr"))
         catch(res)
+        httr::content(res)
     }
-    httr::content(res, as="parsed")
+    else res
 }
 
 
@@ -40,4 +46,12 @@ call_azure_rm <- function(token, subscription, operation, ...,
 is_empty <- function(x)
 {
     length(x) == 0
+}
+
+
+# check that 1) all required names are present; 2) optional names may be present; 3) no other names are present
+validate_object_names <- function(x, required, optional)
+{
+    if(!all(required %in% x) && all(x %in% c(required, optional)))
+        stop("Invalid object names")
 }

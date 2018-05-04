@@ -9,46 +9,51 @@ public=list(
     state=NULL,
     policies=NULL,
     authorization_source=NULL,
-    resource_groups=NULL, # char() = no resource groups, NULL = not yet populated
     token=NULL,
 
-    initialize=function(token, id)
+    initialize=function(token, id=NULL, parms=list())
     {
-        self$token <- token
-        self$id <- id
-        info <- call_azure_rm(token, id, "")
-        self$name <- info$displayName
-        self$state <- info$state
-        self$policies <- info$subscriptionPolicies
-        self$authorization_source <- info$authorizationSource
+        if(is_empty(id) && is_empty(parms))
+            stop("Must supply either subscription ID, or parameter list")
 
-        private$set_rglist()
+        self$token <- token
+
+        if(is_empty(parms))
+            parms <- call_azure_rm(self$token, subscription=id, operation="")
+
+        self$id <- parms$subscriptionId
+        self$name <- parms$displayName
+        self$state <- parms$state
+        self$policies <- parms$subscriptionPolicies
+        self$authorization_source <- parms$authorizationSource
         NULL
     },
 
     # return a resource group object
-    get_resource_group=function(resource_group)
+    get_resource_group=function(name)
     {
-        if(is_empty(self$resource_groups))
-            stop("No resource groups associated with this subscription")
-        if(is.numeric(resource_group))
-            resource_group <- self$resource_groups[resource_group]
-        az_resource_group$new(self$token, self$id, resource_group[1])
+        az_resource_group$new(self$token, self$id, name)
     },
 
-    create_resource_group=function(resource_group) { },
-    update_resource_group=function(resource_group) { },
-    delete_resource_group=function(resource_group) { },
-    list_resource_groups=function() { },
-    list_resources=function() { }
-),
-
-private=list(
-
-    set_rglist=function()
+    # return all resource groups for this subscription
+    list_resource_groups=function()
     {
         cont <- call_azure_rm(self$token, self$id, "resourcegroups")
-        self$resource_groups <- vapply(cont$value, `[[`, "name", FUN.VALUE=character(1))
-        NULL
-    }
+        lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
+    },
+
+    # create and return a new resource group
+    create_resource_group=function(name, ...)
+    {
+        az_resource_group$new(self$token, self$id, name, ..., create=TRUE)
+    },
+
+    # delete a resource group
+    delete_resource_group=function(name)
+    {
+        self$get_resource_group(name)$delete()
+    },
+
+    # return all individual resources for this subscription
+    list_resources=function() { }
 ))

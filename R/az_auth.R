@@ -7,7 +7,6 @@ az_context <- R6::R6Class("az_context",
 public=list(
     host=NULL,
     tenant=NULL,
-    subscriptions=NULL,
     token=NULL,
 
     # authenticate and get subscriptions
@@ -29,34 +28,20 @@ public=list(
         self$host <- host
         self$tenant <- tenant
         self$token <- get_azure_token(aad_host, tenant, app, match.arg(auth_type), secret, host)
-
-        private$set_subslist()
         NULL
     },
 
     # return a subscription object
-    get_subscription=function(subscription)
+    get_subscription=function(id)
     {
-        if(is_empty(self$subscriptions))
-            stop("No subscriptions associated with this app")
-        if(is.numeric(subscription))
-            subscription <- self$subscriptions[subscription]
-        az_subscription$new(self$token, subscription[1])
-    }
-),
+        az_subscription$new(self$token, id)
+    },
 
-private=list(
-
-    # obtain subscription IDs owned by this app
-    set_subslist=function()
+    # return all subscriptions for this app
+    list_subscriptions=function()
     {
         cont <- call_azure_rm(self$token, subscription="", operation="")
-        self$subscriptions <- vapply(cont$value, `[[`, "subscriptionId", FUN.VALUE=character(1))
-
-        # notify if more than one subscription ID found
-        if(length(self$subscriptions) > 1)
-            message("Note: more than one subscription ID for this application")
-        NULL
+        lapply(cont$value, function(parms) az_subscription$new(self$token, parms=parms))
     }
 ))
 
