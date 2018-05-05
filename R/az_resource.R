@@ -33,7 +33,7 @@ public=list(
             private$init_and_deploy(resource_group, provider, path, type, name, id, ...)
         else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
-        else init_from_host(resource_group, provider, path, type, name, id)
+        else private$init_from_host(resource_group, provider, path, type, name, id)
 
         self$identity <- parms$identity
         self$kind <- parms$kind
@@ -173,7 +173,7 @@ private=list(
     {
         # strip off subscription, which is handled by call_azure_rm separately
         id <- sub("^.+/resourcegroups", "resourcegroups", self$id, ignore.case=TRUE)
-        op <- file.path(self$id, op)
+        op <- file.path(id, op)
         call_azure_rm(self$token, self$subscription, op, ...)
     }
 ))
