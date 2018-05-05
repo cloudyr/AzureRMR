@@ -44,7 +44,7 @@ public=list(
     # API versions vary across different providers; find the latest
     get_provider_api_version=function(provider=NULL, resource_type=NULL, which=1)
     {
-        if(is.null(provider))
+        if(is_empty(provider))
         {
             apis <- named_list(call_azure_rm(self$token, self$id, "providers")$value, "namespace")
             lapply(apis, function(api)
@@ -57,7 +57,7 @@ public=list(
         {
             op <- file.path("providers", provider)
             apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
-            if(!is.null(resource_type))
+            if(!is_empty(resource_type))
             {
                 this_api <- apis[[resource_type]]
                 this_api$apiVersions[[which]]

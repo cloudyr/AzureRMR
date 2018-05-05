@@ -24,14 +24,10 @@ public=list(
     # 4. get from host: resgroup, {provider, path}|type, name
     # 5. get from host by id: id
     initialize=function(token, subscription, resource_group, provider, path, type, name, id, ...,
-                        deployed_properties=list(), api_version=NULL)
+                        deployed_properties=list())
     {
         self$token <- token
         self$subscription <- subscription
-
-        if(is.null(api_version))
-            private$set_api_version(provider, path, type, id)
-        else private$api_version <- api_version
 
         parms <- if(!is_empty(list(...)))
             private$init_and_deploy(resource_group, provider, path, type, name, id, ...)
@@ -86,9 +82,9 @@ private=list(
         }
         init_from_host_by_args <- function(resource_group, type, name)
         {
-            self$resource_group <- parms$resource_group
-            self$type <- parms$type
-            self$name <- parms$name
+            self$resource_group <- resource_group
+            self$type <- type
+            self$name <- name
 
             parms <- private$res_op()
 
@@ -182,19 +178,23 @@ private=list(
         }
 
         op <- file.path("providers", provider)
-        apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
+        apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
 
         private$api_version <- apis[[path]]$apiVersions[[1]]
     },
 
     res_op=function(op="", ...)
     {
+        if(is.null(private$api_version))
+            private$set_api_version(type=self$type)
         op <- file.path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
         call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
     },
 
     res_id_op=function(op="", ...)
     {
+        if(is.null(private$api_version))
+            private$set_api_version(id=self$id)
         # strip off subscription, which is handled by call_azure_rm separately
         id <- sub("^.+/resourcegroups", "resourcegroups", self$id, ignore.case=TRUE)
         op <- file.path(id, op)
