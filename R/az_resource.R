@@ -24,12 +24,15 @@ public=list(
     # 4. get from host: resgroup, {provider, path}|type, name
     # 5. get from host by id: id
     initialize=function(token, subscription, resource_group, provider, path, type, name, id, ...,
-                        deployed_properties=list())
+                        deployed_properties=list(), api_version=NULL)
     {
         self$token <- token
         self$subscription <- subscription
 
         private$init_id_fields(resource_group, provider, path, type, name, id, deployed_properties)
+
+        # by default this is unset at initialisation, for efficiency
+        private$api_version <- api_version
 
         parms <- if(!is_empty(list(...)))
             private$init_and_deploy(...)
@@ -50,8 +53,41 @@ public=list(
         NULL
     },
 
-    delete=function() { },
-    check=function() { }
+    # API versions vary across different providers; find the latest for this resource
+    set_api_version=function(api_version=NULL)
+    {
+        if(!is_empty(api_version))
+        {
+            private$api_version <- api_version
+            return()
+        }
+
+        slash <- regexpr("/", self$type)
+        provider <- substr(self$type, 1, slash - 1)
+        path <- substr(self$type, slash + 1, nchar(self$type))
+
+        op <- file.path("providers", provider)
+        apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
+
+        private$api_version <- apis[[path]]$apiVersions[[1]]
+        invisible(private$api_version)
+    },
+
+    delete=function()
+    { 
+        # TODO: allow wait until complete
+        private$res_op(http_verb="DELETE")
+        message("Resource '", self$name, "' deleted")
+        private$is_valid <- FALSE
+        invisible(NULL)
+    },
+
+    check=function()
+    {
+        res <- private$res_op(http_verb="HEAD", http_status_handler="pass")
+        private$is_valid <- httr::status_code(res) < 300
+        private$is_valid
+    }
 ),
 
 private=list(
@@ -64,10 +100,10 @@ private=list(
         # if this is supplied, fill in everything else from it
         if(!is_empty(parms))
         {
+            resource_group <- parms$resource_group
+            type <- parms$type
+            name <- parms$name
             id <- parms$id
-            resource_group <- sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
-            type <- dirname(sub("^.+providers/", "", id))
-            name <- basename(id)
         }
         else if(!missing(id))
         {
@@ -124,30 +160,11 @@ private=list(
         validate_object_names(names(parms), required_names, optional_names)
     },
 
-    # API versions vary across different providers; find the latest for this resource
-    set_api_version=function(provider, path, type, id)
-    {
-        if(missing(provider) && missing(path))
-        {
-            if(missing(type))
-                type <- dirname(sub("^.+providers/", "", id))
-
-            slash <- regexpr("/", type)
-            provider <- substr(type, 1, slash - 1)
-            path <- substr(type, slash + 1, nchar(type))
-        }
-
-        op <- file.path("providers", provider)
-        apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
-
-        private$api_version <- apis[[path]]$apiVersions[[1]]
-    },
-
     res_op=function(op="", ...)
     {
-        # make sure we have an API to call: this is unset at initialisation for efficiency
+        # make sure we have an API to call
         if(is.null(private$api_version))
-            private$set_api_version(type=self$type)
+            self$set_api_version()
 
         op <- file.path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
         call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
