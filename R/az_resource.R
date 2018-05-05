@@ -29,11 +29,13 @@ public=list(
         self$token <- token
         self$subscription <- subscription
 
+        private$init_id_fields(resource_group, provider, path, type, name, id, deployed_properties)
+
         parms <- if(!is_empty(list(...)))
-            private$init_and_deploy(resource_group, provider, path, type, name, id, ...)
-        else if(!is_empty(deployed_properties))
-            private$init_from_parms(deployed_properties)
-        else private$init_from_host(resource_group, provider, path, type, name, id)
+            private$init_and_deploy(...)
+        else if(is_empty(deployed_properties))
+            private$init_from_host()
+        else private$init_from_parms(deployed_properties)
 
         self$identity <- parms$identity
         self$kind <- parms$kind
@@ -56,77 +58,48 @@ private=list(
     is_valid=NULL,
     api_version=NULL,
 
+    # initialise identifier fields from multiple ways of constructing object
+    init_id_fields=function(resource_group, provider, path, type, name, id, parms)
+    {
+        # if this is supplied, fill in everything else from it
+        if(!is_empty(parms))
+        {
+            id <- parms$id
+            resource_group <- sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
+            type <- dirname(sub("^.+providers/", "", id))
+            name <- basename(id)
+        }
+        else if(!missing(id))
+        {
+            resource_group <- sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
+            type <- dirname(sub("^.+providers/", "", id))
+            name <- basename(id)
+        }
+        else
+        {
+            if(missing(type))
+                type <- file.path(provider, path)
+            id <- file.path("/subscriptions", self$subscription, "resourceGroups", resource_group, "providers", type, name)
+        }
+        self$resource_group <- resource_group
+        self$type <- type
+        self$name <- name
+        self$id <- id
+    },
+
     init_from_parms=function(parms)
     {
         private$validate_response_parms(parms)
-
-        self$resource_group <- private$extract_rg(parms$id)
-        self$type <- parms$type
-        self$name <- parms$name
-        self$id <- parms$id
         parms
     },
 
-    init_from_host=function(resource_group, provider, path, type, name, id)
+    init_from_host=function()
     {
-        init_from_host_by_id <- function(id)
-        {
-            self$id <- id
-
-            parms <- private$res_id_op()
-
-            self$resource_group <- private$extract_rg(parms$id)
-            self$type <- parms$type
-            self$name <- parms$name
-            parms
-        }
-        init_from_host_by_args <- function(resource_group, type, name)
-        {
-            self$resource_group <- resource_group
-            self$type <- type
-            self$name <- name
-
-            parms <- private$res_op()
-
-            self$id <- parms$id
-            parms
-        }
-
-        if(!missing(id))
-            init_from_host_by_id(id)
-        else
-        {
-            if(!missing(provider) && !missing(path))
-                type <- file.path(provider, path)
-            init_from_host_by_args(resource_group, type, name)
-        }
+        private$res_op()
     },
 
-    init_and_deploy=function(resource_group, provider, path, type, name, id, ...)
+    init_and_deploy=function(...)
     {
-        init_and_deploy_by_id <- function(id, properties)
-        {
-            self$id <- id
-
-            parms <- res_id_op(body=properties, encode="json", http_verb="PUT")
-
-            self$resource_group <- private$extract_rg(parms$id)
-            self$type <- parms$type
-            self$name <- parms$name
-            parms
-        }
-        init_and_deploy_by_args <- function(resource_group, type, name, properties)
-        {
-            self$resource_group <- parms$resource_group
-            self$type <- parms$type
-            self$name <- parms$name
-
-            res_op(body=properties, encode="json", http_verb="PUT")
-
-            self$id <- parms$id
-            parms
-        }
-
         properties <- list(...)
 
         # check if properties is a json object (?)
@@ -134,15 +107,7 @@ private=list(
             properties <- jsonlite::fromJSON(properties[[1]])
 
         validate_deploy_parms(properties)
-
-        if(!missing(id))
-            init_and_deploy_by_id(id, properties)
-        else
-        {
-            if(!missing(provider) && !missing(path))
-                type <- file.path(provider, path)
-            init_and_deploy_by_args(resource_group, type, name, properties)
-        }
+        res_op(body=properties, encode="json", http_verb="PUT")
     },
 
     validate_deploy_parms=function(parms)
@@ -157,11 +122,6 @@ private=list(
         required_names <- c("id", "name", "type", "location")
         optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags")
         validate_object_names(names(parms), required_names, optional_names)
-    },
-
-    extract_rg=function(id)
-    {
-        sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
     },
 
     # API versions vary across different providers; find the latest for this resource
@@ -185,19 +145,11 @@ private=list(
 
     res_op=function(op="", ...)
     {
+        # make sure we have an API to call: this is unset at initialisation for efficiency
         if(is.null(private$api_version))
             private$set_api_version(type=self$type)
-        op <- file.path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
-        call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
-    },
 
-    res_id_op=function(op="", ...)
-    {
-        if(is.null(private$api_version))
-            private$set_api_version(id=self$id)
-        # strip off subscription, which is handled by call_azure_rm separately
-        id <- sub("^.+/resourcegroups", "resourcegroups", self$id, ignore.case=TRUE)
-        op <- file.path(id, op)
+        op <- file.path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
         call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
     }
 ))
