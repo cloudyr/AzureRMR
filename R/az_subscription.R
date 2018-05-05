@@ -41,6 +41,31 @@ public=list(
         })
     },
 
+    # API versions vary across different providers; find the latest
+    get_provider_api_version=function(provider=NULL, resource_type=NULL, which=1)
+    {
+        if(is.null(provider))
+        {
+            apis <- named_list(call_azure_rm(self$token, self$id, "providers")$value, "namespace")
+            lapply(apis, function(api)
+            {
+                api <- named_list(api$resourceTypes, "resourceType")
+                sapply(api, function(x) x$apiVersions[[which]])
+            })
+        }
+        else
+        {
+            op <- file.path("providers", provider)
+            apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
+            if(!is.null(resource_type))
+            {
+                this_api <- apis[[resource_type]]
+                this_api$apiVersions[[which]]
+            }
+            else sapply(apis, function(x) x$apiVersions[[which]])
+        }
+    },
+
     get_resource_group=function(name)
     {
         az_resource_group$new(self$token, self$id, name)

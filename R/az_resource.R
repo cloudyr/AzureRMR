@@ -24,10 +24,14 @@ public=list(
     # 4. get from host: resgroup, {provider, path}|type, name
     # 5. get from host by id: id
     initialize=function(token, subscription, resource_group, provider, path, type, name, id, ...,
-                        deployed_properties=list())
+                        deployed_properties=list(), api_version=NULL)
     {
         self$token <- token
         self$subscription <- subscription
+
+        if(is.null(api_version))
+            private$set_api_version(provider, path, type, id)
+        else private$api_version <- api_version
 
         parms <- if(!is_empty(list(...)))
             private$init_and_deploy(resource_group, provider, path, type, name, id, ...)
@@ -73,7 +77,7 @@ private=list(
         {
             self$id <- id
 
-            parms <- private$res_id_op(api_version=private$api_version)
+            parms <- private$res_id_op()
 
             self$resource_group <- private$extract_rg(parms$id)
             self$type <- parms$type
@@ -86,7 +90,7 @@ private=list(
             self$type <- parms$type
             self$name <- parms$name
 
-            parms <- private$res_op(api_version=private$api_version)
+            parms <- private$res_op()
 
             self$id <- parms$id
             parms
@@ -108,7 +112,7 @@ private=list(
         {
             self$id <- id
 
-            parms <- res_id_op(body=properties, encode="json", http_verb="PUT", api_version=private$api_version)
+            parms <- res_id_op(body=properties, encode="json", http_verb="PUT")
 
             self$resource_group <- private$extract_rg(parms$id)
             self$type <- parms$type
@@ -121,7 +125,7 @@ private=list(
             self$type <- parms$type
             self$name <- parms$name
 
-            res_op(body=properties, encode="json", http_verb="PUT", api_version=private$api_version)
+            res_op(body=properties, encode="json", http_verb="PUT")
 
             self$id <- parms$id
             parms
@@ -129,7 +133,7 @@ private=list(
 
         properties <- list(...)
 
-        # check if properties is a json object
+        # check if properties is a json object (?)
         if(length(properties) == 1 && is.character(properties[[1]]) && jsonlite::validate(properties[[1]]))
             properties <- jsonlite::fromJSON(properties[[1]])
 
@@ -164,26 +168,29 @@ private=list(
         sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
     },
 
-    # API versions vary across different providers; find the latest using the resource type or ID
-    set_api_version=function(type, id)
+    # API versions vary across different providers; find the latest for this resource
+    set_api_version=function(provider, path, type, id)
     {
-        if(missing(type))
-            type <- dirname(sub("^.+providers/", "", id))
+        if(missing(provider) && missing(path))
+        {
+            if(missing(type))
+                type <- dirname(sub("^.+providers/", "", id))
 
-        provider <- dirname(type)
-        path <- basename(type)
+            slash <- regexpr("/", type)
+            provider <- substr(type, 1, slash - 1)
+            path <- substr(type, slash + 1, nchar(type))
+        }
 
         op <- file.path("providers", provider)
-        apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
-        this_api <- apis[[path]]
+        apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
 
-        this_api$api_version[[1]]
+        private$api_version <- apis[[path]]$apiVersions[[1]]
     },
 
     res_op=function(op="", ...)
     {
         op <- file.path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
-        call_azure_rm(self$token, self$subscription, op, ...)
+        call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
     },
 
     res_id_op=function(op="", ...)
@@ -191,6 +198,6 @@ private=list(
         # strip off subscription, which is handled by call_azure_rm separately
         id <- sub("^.+/resourcegroups", "resourcegroups", self$id, ignore.case=TRUE)
         op <- file.path(id, op)
-        call_azure_rm(self$token, self$subscription, op, ...)
+        call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
     }
 ))
