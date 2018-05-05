@@ -71,6 +71,7 @@ private=list(
     },
 
     # deployment workhorse function
+    # TODO: allow wait until complete
     init_and_deploy=function(name, template, parameters, ...)
     {
         default_properties <- list(
@@ -83,14 +84,14 @@ private=list(
         # fold template data into list of properties
         properties <- if(is.list(template))
             modifyList(properties, list(template=template))
-        else if(private$is_url(template))
+        else if(is_url(template))
             modifyList(properties, list(templateLink=list(uri=template)))
         else modifyList(properties, list(template=jsonlite::fromJSON(template, simplifyVector=FALSE)))
 
         # fold parameter data into list of properties
         properties <- if(is.list(parameters))
             modifyList(properties, list(parameters=parameters))
-        else if(private$is_url(parameters))
+        else if(is_url(parameters))
             modifyList(properties, list(parametersLink=list(uri=parameters)))
         else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters, simplifyVector=FALSE)))
 
@@ -116,12 +117,6 @@ private=list(
     {
         op <- file.path("resourcegroups", self$resource_group, "providers/Microsoft.Resources/deployments", self$name, op)
         call_azure_rm(self$token, self$subscription, op, ...)
-    },
-
-    # check if a string appears to be a URL (only https allowed)
-    is_url=function(x)
-    {
-        is.character(x) && length(x) == 1 && grepl("^https://", x)
     }
 ))
 

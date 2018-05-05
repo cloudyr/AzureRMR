@@ -35,30 +35,23 @@ call_azure_rm <- function(token, subscription, operation, ...,
     if(catch != "pass")
     {
         catch <- get(paste0(catch, "_for_status"), getNamespace("httr"))
-        catch(res, arm_error_message(res))
+        catch(res, paste0("complete Resource Manager operation. Message:\n", arm_error_message(res)))
         httr::content(res)
     }
     else res
 }
 
 
+# provide complete error messages from ARM
 arm_error_message <- function(response)
 {
     cont <- httr::content(response)
-    msg <- paste0(strwrap(cont$error$message), collapse="\n")
-    paste0("complete Resource Manager operation. Message:\n", msg)
-}
-
-
-# TRUE for NULL and length-0 objects
-is_empty <- function(x)
-{
-    length(x) == 0
+    paste0(strwrap(cont$error$message), collapse="\n")
 }
 
 
 # check that 1) all required names are present; 2) optional names may be present; 3) no other names are present
-validate_object_names <- function(x, required, optional)
+validate_object_names <- function(x, required, optional=character(0))
 {
     valid <- all(required %in% x) && all(x %in% c(required, optional))
     if(!valid)
@@ -66,7 +59,7 @@ validate_object_names <- function(x, required, optional)
 }
 
 
-# set names on a list of objects, given each object contains its name field
+# set names on a list of objects, where each object contains its name field
 named_list <- function(lst, name_field="name")
 {
     names(lst) <- sapply(lst, `[[`, name_field)
@@ -79,3 +72,16 @@ named_list <- function(lst, name_field="name")
     lst
 }
 
+
+# check if a string appears to be a URL (only https allowed)
+is_url=function(x)
+{
+    is.character(x) && length(x) == 1 && grepl("^https://", x)
+}
+
+
+# TRUE for NULL and length-0 objects
+is_empty <- function(x)
+{
+    length(x) == 0
+}

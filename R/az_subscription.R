@@ -29,18 +29,6 @@ public=list(
         NULL
     },
 
-    get_resource_group=function(name)
-    {
-        az_resource_group$new(self$token, self$id, name)
-    },
-
-    list_resource_groups=function()
-    {
-        cont <- call_azure_rm(self$token, self$id, "resourcegroups")
-        lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
-        named_list(lst, "id")
-    },
-
     list_locations=function()
     {
         cont <- call_azure_rm(self$token, self$id, "locations")
@@ -53,6 +41,19 @@ public=list(
         })
     },
 
+    get_resource_group=function(name)
+    {
+        az_resource_group$new(self$token, self$id, name)
+    },
+
+    list_resource_groups=function()
+    {
+        # TODO: handle paging
+        cont <- call_azure_rm(self$token, self$id, "resourcegroups")
+        lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
+        named_list(lst, "id")
+    },
+
     create_resource_group=function(name, location)
     {
         az_resource_group$new(self$token, self$id, name, location=location, create=TRUE)
@@ -63,5 +64,11 @@ public=list(
         self$get_resource_group(name)$delete()
     },
 
-    list_resources=function() { }
+    list_resources=function()
+    {
+        # TODO: handle paging
+        cont <- call_azure_rm(self$token, self$id, "resources")
+        lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
+        named_list(lst)
+    }
 ))

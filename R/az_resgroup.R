@@ -36,6 +36,7 @@ public=list(
 
     delete=function()
     {
+        # TODO: allow wait until complete
         private$rg_op(http_verb="DELETE")
         message("Resource group '", self$name, "' deleted")
         private$is_valid <- FALSE
@@ -51,6 +52,7 @@ public=list(
 
     list_templates=function()
     {
+        # TODO: handle paging
         res <- private$rg_op("providers/Microsoft.Resources/deployments")$value
         res <- named_list(res)
         lapply(res, function(parms) az_template$new(self$token, self$subscription, self$name,
@@ -75,13 +77,27 @@ public=list(
 
     list_resources=function()
     {
+        # TODO: handle paging
         res <- private$rg_op("resources")$value
-        named_list(res)
+        lst <- lapply(res, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
+        named_list(lst)
     },
 
-    create_resource=function(...) { },
-    delete_resource=function(...) { },
-    get_resource=function(...) { }
+    get_resource=function(provider, path, type, name, id)
+    {
+        if(missing(id))
+            az_resource$new(self$token, self$subscription,
+                            resource_group=self$name, provider=provider, path=path, type=type, name=name)
+        else az_resource$new(self$token, self$subscription, id=id)
+    },
+
+
+    delete_resource=function(...)
+    {
+        self$get_resource(...)$delete()
+    },
+
+    create_resource=function(...) { }
 ),
 
 private=list(

@@ -2,7 +2,9 @@
 
 export(AzureToken)
 export(az_context)
+export(az_resource)
 export(az_resource_group)
 export(az_subscription)
+export(az_template)
 export(call_azure_rm)
 export(get_azure_token)
