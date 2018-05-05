@@ -35,10 +35,18 @@ call_azure_rm <- function(token, subscription, operation, ...,
     if(catch != "pass")
     {
         catch <- get(paste0(catch, "_for_status"), getNamespace("httr"))
-        catch(res)
+        catch(res, arm_error_message(res))
         httr::content(res)
     }
     else res
+}
+
+
+arm_error_message <- function(response)
+{
+    cont <- httr::content(response)
+    msg <- paste0(strwrap(cont$error$message), collapse="\n")
+    paste0("complete Resource Manager operation. Message:\n", msg)
 }
 
 
@@ -70,3 +78,4 @@ named_list <- function(lst, name_field="name")
     }
     lst
 }
+
