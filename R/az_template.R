@@ -9,20 +9,21 @@ public=list(
     properties=NULL,
     token=NULL,
 
-    # constructor: get an existing template, or deploy new template
+    # constructor overloads: 1) get an existing template from host; 2) from passed-in data; 3) deploy new template
     initialize=function(token, subscription, resource_group, name=NULL, template, parameters, ...,
-                        deployed_properties=list(...), create=FALSE)
+                        deployed_properties=list())
     {
-        if(is_empty(name) && is_empty(deployed_properties))
-            stop("Must supply either template name, or deployed properties list")
-
         self$token <- token
         self$subscription <- subscription
         self$resource_group <- resource_group
 
-        parms <- if(create)
-            private$init_and_create(name, template, parameters, deployed_properties)
-        else private$init(name, deployed_properties)
+        parms <- if(!is_empty(name) && !missing(template) && !missing(parameters))
+            private$init_and_deploy(name, template, parameters, ...)
+        else if(!is_empty(name))
+            private$init_from_host(name)
+        else if(!is_empty(deployed_properties))
+            private$init_from_parms(deployed_properties)
+        else stop("Invalid initialization call")
 
         self$id <- parms$id
         self$properties <- parms$properties
@@ -36,7 +37,7 @@ public=list(
         if(free_resources)
         {
             message("Deleting resources for template '", self$name, "'...'")
-            # recursively delete all resources for this template
+            # TODO: recursively delete all resources for this template
         }
 
         private$tpl_op(http_verb="DELETE")
@@ -56,46 +57,45 @@ public=list(
 private=list(
     is_valid=NULL,
 
-    init=function(name, parms)
+    init_from_host=function(name)
     {
-        if(is_empty(parms))
-        {
-            self$name <- name
-            parms <- private$tpl_op()
-        }
-        else
-        {
-            private$validate_parms(parms)
-            self$name <- parms$name
-        }
+        self$name <- name
+        private$tpl_op()
+    },
+
+    init_from_parms=function(parms)
+    {
+        private$validate_parms(parms)
+        self$name <- parms$name
         parms
     },
 
     # deployment workhorse function
-    init_and_create=function(name, template, parameters, deploy_properties)
+    init_and_deploy=function(name, template, parameters, ...)
     {
-        validate_deploy_properties(deploy_properties)
-
         default_properties <- list(
             debugSetting=list(detailLevel="requestContent, responseContent"),
             mode="Incremental"
         )
-        properties <- modifyList(default_properties, deploy_properties)
+        properties <- modifyList(default_properties, list(...))
+        private$validate_deploy_properties(properties)
 
+        # fold template data into list of properties
         properties <- if(is.list(template))
             modifyList(properties, list(template=template))
-        else if(is_url(template))
+        else if(private$is_url(template))
             modifyList(properties, list(templateLink=list(uri=template)))
-        else modifyList(properties, list(template=jsonlite::fromJSON(template)))
+        else modifyList(properties, list(template=jsonlite::fromJSON(template, simplifyVector=FALSE)))
 
+        # fold parameter data into list of properties
         properties <- if(is.list(parameters))
             modifyList(properties, list(parameters=parameters))
-        else if(is_url(parameters))
+        else if(private$is_url(parameters))
             modifyList(properties, list(parametersLink=list(uri=parameters)))
-        else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters)))
+        else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters, simplifyVector=FALSE)))
 
         self$name <- name
-        private$tpl_op(body=properties, encode="json", http_verb="PUT")
+        private$tpl_op(body=list(properties=properties), encode="json", http_verb="PUT")
     },
 
     validate_parms=function(properties)

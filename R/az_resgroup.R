@@ -60,7 +60,7 @@ public=list(
     deploy_template=function(template_name, template, parameters, ...)
     {
         az_template$new(self$token, self$subscription, self$name, template_name,
-                        template, parameters, ..., create=TRUE)
+                        template, parameters, ...)
     },
 
     get_template=function(template_name)
