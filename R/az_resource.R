@@ -54,6 +54,7 @@ public=list(
 
 private=list(
     is_valid=NULL,
+    api_version=NULL,
 
     init_from_parms=function(parms)
     {
@@ -72,7 +73,7 @@ private=list(
         {
             self$id <- id
 
-            parms <- private$res_id_op()
+            parms <- private$res_id_op(api_version=private$api_version)
 
             self$resource_group <- private$extract_rg(parms$id)
             self$type <- parms$type
@@ -85,7 +86,7 @@ private=list(
             self$type <- parms$type
             self$name <- parms$name
 
-            parms <- private$res_op()
+            parms <- private$res_op(api_version=private$api_version)
 
             self$id <- parms$id
             parms
@@ -94,7 +95,7 @@ private=list(
         if(!missing(id))
             init_from_host_by_id(id)
         else
-            {
+        {
             if(!missing(provider) && !missing(path))
                 type <- file.path(provider, path)
             init_from_host_by_args(resource_group, type, name)
@@ -107,7 +108,7 @@ private=list(
         {
             self$id <- id
 
-            parms <- res_id_op(body=properties, encode="json", http_verb="PUT")
+            parms <- res_id_op(body=properties, encode="json", http_verb="PUT", api_version=private$api_version)
 
             self$resource_group <- private$extract_rg(parms$id)
             self$type <- parms$type
@@ -120,7 +121,7 @@ private=list(
             self$type <- parms$type
             self$name <- parms$name
 
-            res_op(body=properties, encode="json", http_verb="PUT")
+            res_op(body=properties, encode="json", http_verb="PUT", api_version=private$api_version)
 
             self$id <- parms$id
             parms
@@ -161,6 +162,22 @@ private=list(
     extract_rg=function(id)
     {
         sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
+    },
+
+    # API versions vary across different providers; find the latest using the resource type or ID
+    set_api_version=function(type, id)
+    {
+        if(missing(type))
+            type <- dirname(sub("^.+providers/", "", id))
+
+        provider <- dirname(type)
+        path <- basename(type)
+
+        op <- file.path("providers", provider)
+        apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
+        this_api <- apis[[path]]
+
+        this_api$api_version[[1]]
     },
 
     res_op=function(op="", ...)
