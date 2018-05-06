@@ -16,6 +16,7 @@ public=list(
     sku=NULL,
     tags=NULL,
     token=NULL,
+    is_synced=FALSE,
 
     # constructor overloads:
     # 1. deploy resource: resgroup, {provider, path}|type, name, ...
@@ -73,6 +74,13 @@ public=list(
         invisible(private$api_version)
     },
 
+    sync_fields=function(force=FALSE)
+    {
+        if(self$is_synced && !force)
+            return(invisible(NULL))
+        self$initialize(self$token, self$subscription, id=self$id)
+    },
+
     delete=function()
     { 
         # TODO: allow wait until complete
@@ -95,7 +103,7 @@ private=list(
     api_version=NULL,
 
     # initialise identifier fields from multiple ways of constructing object
-    init_id_fields=function(resource_group, provider, path, type, name, id, parms)
+    init_id_fields=function(resource_group, provider, path, type, name, id, parms=list())
     {
         # if this is supplied, fill in everything else from it
         if(!is_empty(parms))
@@ -131,7 +139,9 @@ private=list(
 
     init_from_host=function()
     {
-        private$res_op()
+        res <- private$res_op()
+        self$is_synced <- attr(res, "status") < 202
+        res
     },
 
     init_and_deploy=function(...)
@@ -144,8 +154,12 @@ private=list(
 
         properties <- modifyList(properties, list(name=self$name, type=self$type))
         private$validate_deploy_parms(properties)
-
+        self$is_synced <- TRUE
         private$res_op(body=properties, encode="json", http_verb="PUT")
+
+        # allow time for provisioning, then get properties
+        Sys.sleep(1)
+        private$init_from_host()
     },
 
     validate_deploy_parms=function(parms)
