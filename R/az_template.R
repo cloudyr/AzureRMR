@@ -32,16 +32,26 @@ public=list(
         NULL
     },
 
+    cancel=function(free_resources=FALSE)
+    {
+        message("Cancelling deployment of template '", self$name, "'")
+        if(free_resources)
+            private$free_resources()
+        else message("Associated resources have not been freed.")
+
+        private$tpl_op("cancel", http_verb="POST")
+        private$is_valid <- FALSE
+        invisible(NULL)
+    },
+
     delete=function(free_resources=FALSE)
     {
+        message("Deleting template '", self$name, "'")
         if(free_resources)
-        {
-            message("Deleting resources for template '", self$name, "'...'")
-            # TODO: recursively delete all resources for this template
-        }
+            private$free_resources()
+        else message("Associated resources have not been freed.")
 
         private$tpl_op(http_verb="DELETE")
-        message("Template '", self$name, "' deleted")
         private$is_valid <- FALSE
         invisible(NULL)
     },
@@ -111,6 +121,28 @@ private=list(
         required_names <- c("debugSetting", "mode")
         optional_names <- c("onErrorDeployment")
         validate_object_names(names(properties), required_names, optional_names)
+    },
+
+    free_resources=function()
+    {
+        free_dependency <- function(id)
+        {
+            res <- try(az_resource$new(self$token, self$subscription, id=id), silent=TRUE)
+            if(!inherits(res, "try-error"))
+                res$delete(wait=TRUE)
+        }
+
+        # assumptions:
+        # - this is a flattened 2-level list of dependencies, not an actual tree
+        # - earlier dependencies depend on later ones
+        # - later entries in list will have been deleted in earlier entries
+        deps <- self$properties$dependencies
+        for(d in deps)
+        {
+            free_dependency(d$id)
+            for(d2 in d$dependsOn)
+                free_dependency(d2$id)
+        }
     },
 
     tpl_op=function(op="", ...)

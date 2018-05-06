@@ -38,7 +38,7 @@ public=list(
     {
         # TODO: allow wait until complete
         private$rg_op(http_verb="DELETE")
-        message("Resource group '", self$name, "' will be deleted. This operation may take some time to complete.")
+        message("Deleting resource group '", self$name, "'. This operation may take some time to complete.")
         private$is_valid <- FALSE
         invisible(NULL)
     },

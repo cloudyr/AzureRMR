@@ -82,11 +82,18 @@ public=list(
         invisible(NULL)
     },
 
-    delete=function()
-    { 
-        # TODO: allow wait until complete
+    delete=function(wait=FALSE)
+    {
         private$res_op(http_verb="DELETE")
-        message("Resource '", self$name, "' will be deleted. This operation may take some time to complete.")
+        message("Deleting resource '", file.path(self$type, self$name), "'")
+
+        status <- 200
+        while(wait && status < 300)
+        {
+            res <- private$res_op(http_status_handler="pass")
+            status <- httr::status_code(res)
+        }
+
         private$is_valid <- FALSE
         invisible(NULL)
     },
