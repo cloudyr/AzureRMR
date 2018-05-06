@@ -79,6 +79,7 @@ public=list(
         if(self$is_synced && !force)
             return(invisible(NULL))
         self$initialize(self$token, self$subscription, id=self$id)
+        invisible(NULL)
     },
 
     delete=function()

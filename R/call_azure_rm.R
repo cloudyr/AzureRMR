@@ -1,21 +1,12 @@
 #' @export
-call_azure_rm <- function(token, subscription, operation, ...,
-                          http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
-                          http_status_handler=c("stop", "warn", "message", "pass"),
-                          api_version=getOption("azure_api_version"),
-                          auto_refresh=TRUE)
+call_azure_rm <- function(token, subscription, operation, ... api_version=getOption("azure_api_version"))
 {
     url <- httr::parse_url(token$credentials$resource)
     url$path <- file.path("subscriptions", subscription, operation, fsep="/")
     url$query <- list(`api-version`=api_version)
 
-    headers <- process_headers(token, ..., auto_refresh=auto_refresh)
-    verb <- get(match.arg(http_verb), getNamespace("httr"))
-
-    # do actual API call
-    res <- verb(httr::build_url(url), headers, ...)
-
-    process_response(res, match.arg(http_status_handler))
+    call_azure_url(token, httr::build_url(url), ...,
+                   http_verb=http_verb, http_status_handler=http_status_handler, auto_refresh=auto_refresh)
 }
 
 

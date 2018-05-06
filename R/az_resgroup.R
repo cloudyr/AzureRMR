@@ -95,10 +95,11 @@ public=list(
         named_list(lst)
     },
 
-    get_resource=function(provider, path, type, name, id)
+    get_resource=function(provider, path, type, name, id, api_version=NULL)
     {
         az_resource$new(self$token, self$subscription,
-                        resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id)
+                        resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id,
+                        api_version=api_version)
     },
 
     delete_resource=function(...)
