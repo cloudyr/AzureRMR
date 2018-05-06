@@ -148,16 +148,15 @@ private=list(
     {
         properties <- list(...)
 
-        # check if properties is a json object (?)
+        # check if we were passed a json object
         if(length(properties) == 1 && is.character(properties[[1]]) && jsonlite::validate(properties[[1]]))
             properties <- jsonlite::fromJSON(properties[[1]], simplifyVector=FALSE)
 
         properties <- modifyList(properties, list(name=self$name, type=self$type))
         private$validate_deploy_parms(properties)
-        self$is_synced <- TRUE
         private$res_op(body=properties, encode="json", http_verb="PUT")
 
-        # allow time for provisioning, then get properties
+        # allow time for provisioning setup, then get properties
         Sys.sleep(1)
         private$init_from_host()
     },
