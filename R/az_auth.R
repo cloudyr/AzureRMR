@@ -1,5 +1,4 @@
 ### Azure Context class: authentication functionality for AAD
-#' @include AzureToken.R
 
 #' @export
 az_context <- R6::R6Class("az_context",
@@ -51,5 +50,4 @@ public=list(
         named_list(lst, "id")
     }
 ))
-
 
