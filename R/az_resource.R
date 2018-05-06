@@ -143,9 +143,8 @@ private=list(
             properties <- jsonlite::fromJSON(properties[[1]], simplifyVector=FALSE)
 
         properties <- modifyList(properties, list(name=self$name, type=self$type))
-
-        print(prettify(toJSON(properties)))
         private$validate_deploy_parms(properties)
+
         private$res_op(body=properties, encode="json", http_verb="PUT")
     },
 
