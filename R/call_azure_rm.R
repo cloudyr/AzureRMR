@@ -35,7 +35,8 @@ call_azure_rm <- function(token, subscription, operation, ...,
     if(catch != "pass")
     {
         catch <- get(paste0(catch, "_for_status"), getNamespace("httr"))
-        catch(res, paste0("complete Resource Manager operation. Message:\n", arm_error_message(res)))
+        catch(res, paste0("complete Resource Manager operation. Message:\n",
+                          sub("\\.$", "", arm_error_message(res))))
         httr::content(res)
     }
     else res

@@ -100,7 +100,7 @@ private=list(
         # if this is supplied, fill in everything else from it
         if(!is_empty(parms))
         {
-            resource_group <- parms$resource_group
+            resource_group <- sub("^.+resourceGroups/([^/]+)/.*$", "\\1", parms$id, ignore.case=TRUE)
             type <- parms$type
             name <- parms$name
             id <- parms$id
@@ -140,16 +140,19 @@ private=list(
 
         # check if properties is a json object (?)
         if(length(properties) == 1 && is.character(properties[[1]]) && jsonlite::validate(properties[[1]]))
-            properties <- jsonlite::fromJSON(properties[[1]])
+            properties <- jsonlite::fromJSON(properties[[1]], simplifyVector=FALSE)
 
-        validate_deploy_parms(properties)
-        res_op(body=properties, encode="json", http_verb="PUT")
+        properties <- modifyList(properties, list(name=self$name, type=self$type))
+
+        print(prettify(toJSON(properties)))
+        private$validate_deploy_parms(properties)
+        private$res_op(body=properties, encode="json", http_verb="PUT")
     },
 
     validate_deploy_parms=function(parms)
     {
-        required_names <- c("location")
-        optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags")
+        required_names <- c("name", "type", "location")
+        optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags", "scale", "comments")
         validate_object_names(names(parms), required_names, optional_names)
     },
 

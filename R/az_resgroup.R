@@ -79,7 +79,7 @@ public=list(
     {
         # TODO: handle paging
         res <- private$rg_op("resources")$value
-        lst <- lapply(res, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
+        lst <- lapply(res, function(parms) az_resource$new(self$token, self$subscription, deployed_properties=parms))
         named_list(lst)
     },
 

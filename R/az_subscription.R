@@ -74,9 +74,9 @@ public=list(
     list_resource_groups=function()
     {
         # TODO: handle paging
-        cont <- call_azure_rm(self$token, self$id, "resourcegroups")
-        lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
-        named_list(lst, "id")
+        cont <- call_azure_rm(self$token, self$id, "resourcegroups")$value
+        lst <- lapply(cont, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
+        named_list(lst)
     },
 
     create_resource_group=function(name, location)
@@ -92,8 +92,8 @@ public=list(
     list_resources=function()
     {
         # TODO: handle paging
-        cont <- call_azure_rm(self$token, self$id, "resources")
-        lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
+        cont <- call_azure_rm(self$token, self$id, "resources")$value
+        lst <- lapply(cont, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
         named_list(lst)
     }
 ))
