@@ -24,3 +24,4 @@ Collate:
     'az_subscription.R'
     'az_template.R'
     'call_azure_rm.R'
+    'utils.R'

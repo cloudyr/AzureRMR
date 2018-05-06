@@ -38,7 +38,7 @@ public=list(
     {
         # TODO: allow wait until complete
         private$rg_op(http_verb="DELETE")
-        message("Resource group '", self$name, "' deleted")
+        message("Resource group '", self$name, "' will be deleted. This operation may take some time to complete.")
         private$is_valid <- FALSE
         invisible(NULL)
     },
@@ -52,10 +52,16 @@ public=list(
 
     list_templates=function()
     {
-        # TODO: handle paging
-        res <- private$rg_op("providers/Microsoft.Resources/deployments")$value
-        lst <- lapply(res, function(parms) az_template$new(self$token, self$subscription, self$name,
-            deployed_properties=parms))
+        cont <- private$rg_op("providers/Microsoft.Resources/deployments")
+        lst <- lapply(cont$value,
+            function(parms) az_template$new(self$token, self$subscription, self$name, deployed_properties=parms))
+        # keep going until paging is complete
+        while(!is_empty(cont$nextLink))
+        {
+            cont <- call_azure_url(self$token, cont$nextLink)
+            lst <- c(lst, lapply(cont$value,
+                function(parms) az_template$new(self$token, self$subscription, self$name, deployed_properties=parms)))
+        }
         named_list(lst)
     },
 
@@ -77,9 +83,15 @@ public=list(
 
     list_resources=function()
     {
-        # TODO: handle paging
-        res <- private$rg_op("resources")$value
-        lst <- lapply(res, function(parms) az_resource$new(self$token, self$subscription, deployed_properties=parms))
+        cont <- private$rg_op("resources")
+        lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$subscription, deployed_properties=parms))
+        # keep going until paging is complete
+        while(!is_empty(cont$nextLink))
+        {
+            cont <- call_azure_url(self$token, cont$nextLink)
+            lst <- c(lst, lapply(cont$value,
+                function(parms) az_resource$new(self$token, self$subscription, deployed_properties=parms)))
+        }
         named_list(lst)
     },
 
@@ -112,9 +124,9 @@ private=list(
             parms <- private$rg_op()
         }
         else
-            {
+        {
             private$validate_parms(parms)
-            self$name <- name
+            self$name <- parms$name
         }
         parms
     },

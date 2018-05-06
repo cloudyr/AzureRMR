@@ -5,6 +5,38 @@ call_azure_rm <- function(token, subscription, operation, ...,
                           api_version=getOption("azure_api_version"),
                           auto_refresh=TRUE)
 {
+    url <- httr::parse_url(token$credentials$resource)
+    url$path <- file.path("subscriptions", subscription, operation, fsep="/")
+    url$query <- list(`api-version`=api_version)
+
+    headers <- process_headers(token, ..., auto_refresh=auto_refresh)
+    verb <- get(match.arg(http_verb), getNamespace("httr"))
+
+    # do actual API call
+    res <- verb(httr::build_url(url), headers, ...)
+
+    process_response(res, match.arg(http_status_handler))
+}
+
+
+#' @export
+call_azure_url <- function(token, url, ...,
+                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
+                           http_status_handler=c("stop", "warn", "message", "pass"),
+                           auto_refresh=TRUE)
+{
+    headers <- process_headers(token, ..., auto_refresh=auto_refresh)
+    verb <- get(match.arg(http_verb), getNamespace("httr"))
+
+    # do actual API call
+    res <- verb(url, headers, ...)
+
+    process_response(res, match.arg(http_status_handler))
+}
+
+
+process_headers <- function(token, ..., auto_refresh)
+{
     # if token has expired, renew it
     if(auto_refresh && !token$validate())
     {
@@ -13,80 +45,39 @@ call_azure_rm <- function(token, subscription, operation, ...,
     }
 
     creds <- token$credentials
-
-    url <- httr::parse_url(creds$resource)
-    url$path <- file.path("subscriptions", subscription, operation, fsep="/")
-    url$query <- list(`api-version`=api_version)
-
-    headers <- c(Host=url$host, Authorization=paste(creds$token_type, creds$access_token))
+    host <- httr::parse_url(creds$resource)$host
+    headers <- c(Host=host, Authorization=paste(creds$token_type, creds$access_token))
 
     # default content-type is json, set this if encoding not specified
     dots <- list(...)
     if(is_empty(dots) || !("encode" %in% names(dots)))
         headers <- c(headers, `Content-type`="application/json")
 
-    headers <- httr::add_headers(.headers=headers)
-    verb <- get(match.arg(http_verb), getNamespace("httr"))
-
-    # do actual API call
-    res <- verb(httr::build_url(url), headers, ...)
-
-    catch <- match.arg(http_status_handler)
-    if(catch != "pass")
-    {
-        catch <- get(paste0(catch, "_for_status"), getNamespace("httr"))
-        catch(res, paste0("complete Resource Manager operation. Message:\n",
-                          sub("\\.$", "", arm_error_message(res))))
-        cont <- httr::content(res)
-        if(is.null(cont))
-            cont <- list()
-        attr(cont, "status") <- httr::status_code(res)
-        cont
-    }
-    else res
+    httr::add_headers(.headers=headers)
 }
 
 
-# provide complete error messages from ARM
+process_response <- function(response, handler)
+{
+    if(handler != "pass")
+    {
+        handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
+        handler(response, paste0("complete Resource Manager operation. Message:\n",
+                                 sub("\\.$", "", arm_error_message(response))))
+        cont <- httr::content(response)
+        if(is.null(cont))
+            cont <- list()
+        attr(cont, "status") <- httr::status_code(response)
+        cont
+    }
+    else response
+}
+
+
+# provide complete error messages from Resource Manager
 arm_error_message <- function(response)
 {
     cont <- httr::content(response)
     paste0(strwrap(cont$error$message), collapse="\n")
 }
 
-
-# check that 1) all required names are present; 2) optional names may be present; 3) no other names are present
-validate_object_names <- function(x, required, optional=character(0))
-{
-    valid <- all(required %in% x) && all(x %in% c(required, optional))
-    if(!valid)
-        stop("Invalid object names")
-}
-
-
-# set names on a list of objects, where each object contains its name field
-named_list <- function(lst, name_field="name")
-{
-    names(lst) <- sapply(lst, `[[`, name_field)
-    dups <- duplicated(tolower(names(lst)))
-    if(any(dups))
-    {
-        duped_names <- names(lst)[dups]
-        warning("Some names are duplicated: ", paste(duped_names, collapse=" "), call.=FALSE)
-    }
-    lst
-}
-
-
-# check if a string appears to be a URL (only https allowed)
-is_url=function(x)
-{
-    is.character(x) && length(x) == 1 && grepl("^https://", x)
-}
-
-
-# TRUE for NULL and length-0 objects
-is_empty <- function(x)
-{
-    length(x) == 0
-}

@@ -85,7 +85,7 @@ public=list(
     { 
         # TODO: allow wait until complete
         private$res_op(http_verb="DELETE")
-        message("Resource '", self$name, "' deleted")
+        message("Resource '", self$name, "' will be deleted. This operation may take some time to complete.")
         private$is_valid <- FALSE
         invisible(NULL)
     },
