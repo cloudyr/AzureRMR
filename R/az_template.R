@@ -84,7 +84,6 @@ private=list(
     },
 
     # deployment workhorse function
-    # TODO: allow wait until complete
     init_and_deploy=function(name, template, parameters, ..., wait=FALSE)
     {
         message("Deploying template '", name, "'")
