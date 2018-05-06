@@ -79,9 +79,9 @@ public=list(
         named_list(lst)
     },
 
-    create_resource_group=function(name, location)
+    create_resource_group=function(name, location, ...)
     {
-        az_resource_group$new(self$token, self$id, name, location=location, create=TRUE)
+        az_resource_group$new(self$token, self$id, name, location=location, ...)
     },
 
     delete_resource_group=function(name)

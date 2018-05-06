@@ -12,7 +12,7 @@ public=list(
     token=NULL,
 
     # constructor: can refer to an existing RG, or create a new RG
-    initialize=function(token, subscription, name=NULL, ..., parms=list(...), create=FALSE)
+    initialize=function(token, subscription, name=NULL, ..., parms=list())
     {
         if(is_empty(name) && is_empty(parms))
             stop("Must supply either resource group name, or parameter list")
@@ -20,8 +20,8 @@ public=list(
         self$token <- token
         self$subscription <- subscription
 
-        parms <- if(create)
-            private$init_and_create(name, parms)
+        parms <- if(!is_empty(list(...)))
+            private$init_and_create(name, ...)
         else private$init(name, parms)
 
         self$id <- parms$id
@@ -119,9 +119,9 @@ private=list(
         parms
     },
 
-    init_and_create=function(name, parms)
+    init_and_create=function(name, ...)
     {
-        parms <- c(name=name, parms)
+        parms <- modifyList(list(...), list(name=name))
         private$validate_parms(parms)
         self$name <- name
         private$rg_op(body=parms, encode="json", http_verb="PUT")
