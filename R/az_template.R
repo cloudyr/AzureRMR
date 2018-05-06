@@ -11,14 +11,14 @@ public=list(
 
     # constructor overloads: 1) get an existing template from host; 2) from passed-in data; 3) deploy new template
     initialize=function(token, subscription, resource_group, name=NULL, template, parameters, ...,
-                        deployed_properties=list())
+                        deployed_properties=list(), wait=FALSE)
     {
         self$token <- token
         self$subscription <- subscription
         self$resource_group <- resource_group
 
         parms <- if(!is_empty(name) && !missing(template) && !missing(parameters))
-            private$init_and_deploy(name, template, parameters, ...)
+            private$init_and_deploy(name, template, parameters, ..., wait=wait)
         else if(!is_empty(name))
             private$init_from_host(name)
         else if(!is_empty(deployed_properties))
@@ -49,18 +49,21 @@ public=list(
         message("Deleting template '", self$name, "'")
         if(free_resources)
             private$free_resources()
-        else message("Associated resources have not been freed.")
+        else message("Associated resources will not be freed")
 
         private$tpl_op(http_verb="DELETE")
         private$is_valid <- FALSE
         invisible(NULL)
     },
 
+    # update state of template: deployment accepted/deployment failed/updating/running/failed
     check=function()
     {
-        res <- private$tpl_op(http_verb="HEAD", http_status_handler="pass")
-        private$is_valid <- httr::status_code(res) < 300
-        private$is_valid
+        self$initialize(self$token, self$subscription, self$resource_group, self$name)
+        status <- self$properties$provisioningState
+        if(status %in% c("Error", "Failed"))
+            private$is_valid <- FALSE
+        status
     }
 ),
 
@@ -82,8 +85,10 @@ private=list(
 
     # deployment workhorse function
     # TODO: allow wait until complete
-    init_and_deploy=function(name, template, parameters, ...)
+    init_and_deploy=function(name, template, parameters, ..., wait=FALSE)
     {
+        message("Deploying template '", name, "'")
+
         default_properties <- list(
             debugSetting=list(detailLevel="requestContent, responseContent"),
             mode="Incremental"
@@ -107,6 +112,24 @@ private=list(
 
         self$name <- name
         private$tpl_op(body=list(properties=properties), encode="json", http_verb="PUT")
+
+        # do we wait until template has finished provisioning?
+        if(wait)
+        {
+            message("Waiting for provisioning to complete")
+            for(i in 1:1000) # some resources can take a long time to provision (HDInsight)
+            {
+                Sys.sleep(5)
+                message(".", appendLF=FALSE)
+
+                status <- self$check()
+                if(status == "Succeeded")
+                    break
+                else if(status %in% c("Error", "Failed"))
+                    stop("Unable to deploy template", call.=FALSE)
+            }
+            message("\nDeployment successful")
+        }
     },
 
     validate_parms=function(properties)

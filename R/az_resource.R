@@ -90,6 +90,7 @@ public=list(
         status <- 200
         while(wait && status < 300)
         {
+            Sys.sleep(5)
             res <- private$res_op(http_status_handler="pass")
             status <- httr::status_code(res)
         }
