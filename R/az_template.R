@@ -36,8 +36,11 @@ public=list(
     {
         message("Cancelling deployment of template '", self$name, "'")
         if(free_resources)
+        {
+            message("Also freeing associated resources:")
             private$free_resources()
-        else message("Associated resources have not been freed.")
+        }
+        else message("Associated resources will not be freed")
 
         private$tpl_op("cancel", http_verb="POST")
         private$is_valid <- FALSE
