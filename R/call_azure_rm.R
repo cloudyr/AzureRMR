@@ -1,9 +1,11 @@
 #' @export
-call_azure_rm <- function(token, subscription, operation, ..., api_version=getOption("azure_api_version"))
+call_azure_rm <- function(token, subscription, operation, ...,
+                          options=list(),
+                          api_version=getOption("azure_api_version"))
 {
     url <- httr::parse_url(token$credentials$resource)
     url$path <- file.path("subscriptions", subscription, operation, fsep="/")
-    url$query <- list(`api-version`=api_version)
+    url$query <- modifyList(options, list(`api-version`=api_version))
 
     call_azure_url(token, httr::build_url(url), ...)
 }
