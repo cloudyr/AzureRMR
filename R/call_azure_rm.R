@@ -5,7 +5,7 @@ call_azure_rm <- function(token, subscription, operation, ...,
 {
     url <- httr::parse_url(token$credentials$resource)
     url$path <- file.path("subscriptions", subscription, operation, fsep="/")
-    url$query <- modifyList(options, list(`api-version`=api_version))
+    url$query <- modifyList(list(`api-version`=api_version), options)
 
     call_azure_url(token, httr::build_url(url), ...)
 }
