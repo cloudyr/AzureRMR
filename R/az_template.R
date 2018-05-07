@@ -116,19 +116,20 @@ private=list(
         if(wait)
         {
             message("Waiting for provisioning to complete")
-            for(i in 1:1000) # some resources can take a long time to provision (HDInsight)
+            for(i in 1:1000) # some templates can take a long time to provision (HDInsight)
             {
                 Sys.sleep(5)
                 message(".", appendLF=FALSE)
-
                 status <- self$check()
-                if(status == "Succeeded")
+                if(status %in% c("Succeeded", "Error", "Failed"))
                     break
-                else if(status %in% c("Error", "Failed"))
-                    stop("Unable to deploy template", call.=FALSE)
             }
-            message("\nDeployment successful")
+            if(status == "Succeeded")
+                message("\nDeployment successful")
+            else stop("\nUnable to deploy template", call.=FALSE)
         }
+
+        private$tpl_op()
     },
 
     validate_parms=function(properties)
