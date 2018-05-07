@@ -9,7 +9,7 @@ public=list(
     token=NULL,
 
     # authenticate and get subscriptions
-    initialize=function(tenant, app, auth_type=c("client credentials", "device code"), secret,
+    initialize=function(tenant, app, auth_type="client credentials", secret,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                         config_file=NULL)
     {
@@ -26,7 +26,7 @@ public=list(
 
         self$host <- host
         self$tenant <- tenant
-        self$token <- get_azure_token(aad_host, tenant, app, match.arg(auth_type), secret, host)
+        self$token <- get_azure_token(aad_host, tenant, app, auth_type, secret, host)
         NULL
     },
 
