@@ -15,7 +15,7 @@ named_list <- function(lst, name_field="name")
     if(any(dups))
     {
         duped_names <- names(lst)[dups]
-        warning("Some names are duplicated: ", paste(duped_names, collapse=" "), call.=FALSE)
+        warning("Some names are duplicated: ", paste(unique(duped_names), collapse=" "), call.=FALSE)
     }
     lst
 }

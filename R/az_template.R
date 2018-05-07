@@ -48,7 +48,10 @@ public=list(
     {
         message("Deleting template '", self$name, "'")
         if(free_resources)
+        {
+            message("Also freeing associated resources:")
             private$free_resources()
+        }
         else message("Associated resources will not be freed")
 
         private$tpl_op(http_verb="DELETE")
@@ -78,7 +81,7 @@ private=list(
 
     init_from_parms=function(parms)
     {
-        private$validate_parms(parms)
+        private$validate_response_parms(parms)
         self$name <- parms$name
         parms
     },
@@ -93,7 +96,7 @@ private=list(
             mode="Incremental"
         )
         properties <- modifyList(default_properties, list(...))
-        private$validate_deploy_properties(properties)
+        private$validate_deploy_parms(properties)
 
         # fold template data into list of properties
         properties <- if(is.list(template))
@@ -110,7 +113,7 @@ private=list(
         else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters, simplifyVector=FALSE)))
 
         self$name <- name
-        private$tpl_op(body=list(properties=properties), encode="json", http_verb="PUT")
+        parms <- private$tpl_op(body=list(properties=properties), encode="json", http_verb="PUT")
 
         # do we wait until template has finished provisioning?
         if(wait)
@@ -118,53 +121,75 @@ private=list(
             message("Waiting for provisioning to complete")
             for(i in 1:1000) # some templates can take a long time to provision (HDInsight)
             {
-                Sys.sleep(5)
                 message(".", appendLF=FALSE)
-                status <- self$check()
+                parms <- private$tpl_op()
+                status <- parms$properties$provisioningState
                 if(status %in% c("Succeeded", "Error", "Failed"))
                     break
+                Sys.sleep(5)
             }
             if(status == "Succeeded")
                 message("\nDeployment successful")
             else stop("\nUnable to deploy template", call.=FALSE)
         }
-
-        private$tpl_op()
+        parms
     },
 
-    validate_parms=function(properties)
+    validate_response_parms=function(parms)
     {
         required_names <- c("name")
         optional_names <- c("id", "properties")
-        validate_object_names(names(properties), required_names, optional_names)
+        validate_object_names(names(parms), required_names, optional_names)
     },
 
-    validate_deploy_properties=function(properties)
+    validate_deploy_parms=function(parms)
     {
         required_names <- c("debugSetting", "mode")
         optional_names <- c("onErrorDeployment")
-        validate_object_names(names(properties), required_names, optional_names)
+        validate_object_names(names(parms), required_names, optional_names)
     },
 
     free_resources=function()
     {
         free_dependency <- function(id)
         {
+            if(is_empty(id))
+                return(TRUE)
+
             res <- try(az_resource$new(self$token, self$subscription, id=id), silent=TRUE)
             if(!inherits(res, "try-error"))
-                res$delete(wait=TRUE)
+            {
+                res <- try(res$delete(wait=TRUE), silent=TRUE)
+                !inherits(res, "try-error")
+            }
+            else TRUE # if attempt to get resource failed, that means it was deleted
         }
 
         # assumptions:
         # - this is a flattened 2-level list of dependencies, not an actual tree
-        # - earlier dependencies depend on later ones
-        # - later entries in list will have been deleted in earlier entries
+        # - list is not ordered in any way
+        # brute-force way of doing it: loop until everything is freed
         deps <- self$properties$dependencies
-        for(d in deps)
+        repeat
         {
-            free_dependency(d$id)
-            for(d2 in d$dependsOn)
-                free_dependency(d2$id)
+            done <- TRUE
+            for(i in seq_along(deps))
+            {
+                res <- free_dependency(deps[[i]]$id)
+                if(res)
+                    deps[[i]]$id <- NULL
+                done <- done && res
+
+                for(j in seq_along(deps[[i]]$dependsOn))
+                {
+                    res <- free_dependency(deps[[i]]$dependsOn[[j]]$id)
+                    if(res)
+                        deps[[i]]$dependsOn[[j]]$id <- NULL
+                    done <- done && res
+                }
+            }
+            if(done)
+                break
         }
     },
 
