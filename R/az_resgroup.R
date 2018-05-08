@@ -82,9 +82,9 @@ public=list(
         az_template$new(self$token, self$subscription, self$name, template_name)
     },
 
-    delete_template=function(template_name, free_resources=FALSE)
+    delete_template=function(template_name, confirm=TRUE, free_resources=FALSE)
     {
-        self$get_template(template_name)$delete(free_resources=free_resources)
+        self$get_template(template_name)$delete(confirm=confirm, free_resources=free_resources)
     },
 
     list_resources=function()
@@ -108,9 +108,9 @@ public=list(
                         api_version=api_version)
     },
 
-    delete_resource=function(...)
+    delete_resource=function(..., confirm=TRUE, wait=FALSE)
     {
-        self$get_resource(...)$delete()
+        self$get_resource(...)$delete(confirm=confirm, wait=wait)
     },
 
     create_resource=function(provider, path, type, name, id, ...)

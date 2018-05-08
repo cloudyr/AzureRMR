@@ -173,7 +173,7 @@ private=list(
             res <- try(az_resource$new(self$token, self$subscription, id=id), silent=TRUE)
             if(!inherits(res, "try-error"))
             {
-                res <- try(res$delete(wait=TRUE), silent=TRUE)
+                res <- try(res$delete(confirm=FALSE, wait=TRUE), silent=TRUE)
                 !inherits(res, "try-error")
             }
             else TRUE # if attempt to get resource failed, that means it was deleted
