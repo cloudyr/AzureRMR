@@ -3,3 +3,4 @@
 \.sln$
 \.Rproj$
 \.Rxproj$
+^\.Rproj\.user$

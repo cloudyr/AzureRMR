@@ -76,34 +76,50 @@ public=list(
 
     sync_fields=function(force=FALSE)
     {
-        if(self$is_synced && !force)
-            return(invisible(NULL))
-        self$initialize(self$token, self$subscription, id=self$id)
+        if(force || !self$is_synced)
+            self$initialize(self$token, self$subscription, id=self$id)
         invisible(NULL)
     },
 
-    delete=function(wait=FALSE)
+    delete=function(confirm=TRUE, wait=FALSE)
     {
+        if(confirm && interactive())
+        {
+            yn <- readline(paste0("Do you really want to delete resource '", self$type, "/", self$name, "'? (y/N) "))
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+        }
+
         private$res_op(http_verb="DELETE")
         message("Deleting resource '", file.path(self$type, self$name), "'")
 
-        status <- 200
-        while(wait && status < 300)
+        if(wait)
         {
-            Sys.sleep(5)
-            res <- private$res_op(http_status_handler="pass")
-            status <- httr::status_code(res)
+            for(i in 1:1000)
+            {
+                status <- httr::status_code(private$res_op(http_status_handler="pass"))
+                if(status >= 300)
+                    break
+                Sys.sleep(5)
+            }
+            if(status < 300)
+                warning("Attempt to delete resource did not succeed", call.=FALSE)
         }
 
         private$is_valid <- FALSE
         invisible(NULL)
     },
 
+    do_operation=function(http_verb="GET", ..., options=list())
+    {
+        private$res_op(..., http_verb=http_verb, options=options)
+    },
+
     check=function()
     {
-        res <- private$res_op(http_verb="HEAD", http_status_handler="pass")
-        private$is_valid <- httr::status_code(res) < 300
-        private$is_valid
+        # HEAD seems to be broken; do a GET and test whether it fails
+        res <- try(private$res_op())
+        !inherits(res, "try-error")
     }
 ),
 

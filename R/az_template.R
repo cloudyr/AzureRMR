@@ -47,8 +47,19 @@ public=list(
         invisible(NULL)
     },
 
-    delete=function(free_resources=FALSE)
+    delete=function(confirm=TRUE, free_resources=FALSE)
     {
+        if(confirm && interactive())
+        {
+            msg <- paste0("Do you really want to delete template '", self$name, "'")
+            if(free_resources)
+                msg <- paste0(msg, " and associated resources")
+            msg <- paste0(msg, "? (y/N) ")
+            yn <- readline(msg)
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+        }
+
         message("Deleting template '", self$name, "'")
         if(free_resources)
         {

@@ -34,8 +34,15 @@ public=list(
         NULL
     },
 
-    delete=function()
+    delete=function(confirm=TRUE)
     {
+        if(confirm && interactive())
+        {
+            yn <- readline(paste0("Do you really want to delete resource group '", self$name, "'? (y/N) "))
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+        }
+
         private$rg_op(http_verb="DELETE")
         message("Deleting resource group '", self$name, "'. This operation may take some time to complete.")
         private$is_valid <- FALSE
