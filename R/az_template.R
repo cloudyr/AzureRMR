@@ -166,27 +166,15 @@ private=list(
     # delete resources that were created (which may not be the same as resources that are required)
     free_resources=function()
     {
-        free_resource <- function(id)
-        {
-            if(is_empty(id))
-                return(TRUE)
-            print(id)
-            res <- try(az_resource$new(self$token, self$subscription, id=id))
-            if(!inherits(res, "try-error"))
-            {
-                res <- try(res$delete(confirm=FALSE, wait=TRUE))
-                !inherits(res, "try-error")
-            }
-            else TRUE # if attempt to get resource failed, that means it was deleted
-        }
-
         # assumption: outputResources is sorted to allow for dependencies
         resources <- self$properties$outputResources
         for(i in seq_along(resources))
         {
-            res <- free_resource(resources[[i]]$id)
-            if(res)
-                resources[[i]]$id <- NULL
+            id <- resources[[i]]$id
+            res <- try(az_resource$new(self$token, self$subscription, id=id), silent=FALSE)
+            # if attempt to get resource failed, that means it was deleted
+            if(!inherits(res, "try-error"))
+                try(res$delete(confirm=FALSE, wait=TRUE))
         }
     },
 
