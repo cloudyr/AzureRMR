@@ -70,7 +70,11 @@ public=list(
         op <- file.path("providers", provider)
         apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
 
-        private$api_version <- apis[[path]]$apiVersions[[1]]
+        names(apis) <- tolower(names(apis))
+        private$api_version <- apis[[tolower(path)]]$apiVersions[[1]]
+        if(is_empty(private$api_version))
+            stop("Unable to retrieve API version for resource '", self$type, ".", call.=FALSE)
+
         invisible(private$api_version)
     },
 
