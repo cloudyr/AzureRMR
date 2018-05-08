@@ -73,7 +73,7 @@ public=list(
         names(apis) <- tolower(names(apis))
         private$api_version <- apis[[tolower(path)]]$apiVersions[[1]]
         if(is_empty(private$api_version))
-            stop("Unable to retrieve API version for resource '", self$type, ".", call.=FALSE)
+            stop("Unable to retrieve API version for resource '", self$type, "'.", call.=FALSE)
 
         invisible(private$api_version)
     },

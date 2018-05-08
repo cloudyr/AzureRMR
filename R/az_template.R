@@ -163,47 +163,30 @@ private=list(
         validate_object_names(names(parms), required_names, optional_names)
     },
 
+    # delete resources that were created (which may not be the same as resources that are required)
     free_resources=function()
     {
-        free_dependency <- function(id)
+        free_resource <- function(id)
         {
             if(is_empty(id))
                 return(TRUE)
-
-            res <- try(az_resource$new(self$token, self$subscription, id=id), silent=TRUE)
+            print(id)
+            res <- try(az_resource$new(self$token, self$subscription, id=id))
             if(!inherits(res, "try-error"))
             {
-                res <- try(res$delete(confirm=FALSE, wait=TRUE), silent=TRUE)
+                res <- try(res$delete(confirm=FALSE, wait=TRUE))
                 !inherits(res, "try-error")
             }
             else TRUE # if attempt to get resource failed, that means it was deleted
         }
 
-        # assumptions:
-        # - this is a flattened 2-level list of dependencies, not an actual tree
-        # - list is not ordered in any way
-        # brute-force way of doing it: loop until everything is freed
-        deps <- self$properties$dependencies
-        repeat
+        # assumption: outputResources is sorted to allow for dependencies
+        resources <- self$properties$outputResources
+        for(i in seq_along(resources))
         {
-            done <- TRUE
-            for(i in seq_along(deps))
-            {
-                res <- free_dependency(deps[[i]]$id)
-                if(res)
-                    deps[[i]]$id <- NULL
-                done <- done && res
-
-                for(j in seq_along(deps[[i]]$dependsOn))
-                {
-                    res <- free_dependency(deps[[i]]$dependsOn[[j]]$id)
-                    if(res)
-                        deps[[i]]$dependsOn[[j]]$id <- NULL
-                    done <- done && res
-                }
-            }
-            if(done)
-                break
+            res <- free_resource(resources[[i]]$id)
+            if(res)
+                resources[[i]]$id <- NULL
         }
     },
 
