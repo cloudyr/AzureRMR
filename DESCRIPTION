@@ -1,5 +1,5 @@
-Package: AzureSMRbase
-Title: Base functionality for Azure SMR: authenticate, get subscriptions, get resource groups
+Package: AzureRMR
+Title: Base functionality for Azure RMR: authenticate, get subscriptions, get resource groups
 Version: 0.0.1
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),

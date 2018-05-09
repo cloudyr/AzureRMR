@@ -1,2 +1,2 @@
-# AzureSMRbase
-Base functionality for Azure SMR: authenticate, get subscriptions, get resource groups
+# AzureRMR
+Base functionality for Azure Resource Manager: authenticate, get subscriptions, get resource groups
