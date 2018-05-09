@@ -7,10 +7,13 @@ validate_object_names <- function(x, required, optional=character(0))
 }
 
 
-# set names on a list of objects, where each object contains its name field
-named_list <- function(lst, name_field="name")
+# set names on a list of objects, where each object contains its name field(s)
+named_list <- function(lst, name_fields="name")
 {
-    names(lst) <- sapply(lst, `[[`, name_field)
+    name_fields <- sapply(name_fields, function(n) sapply(lst, `[[`, n))
+    name_fields <- apply(name_fields, 1, function(nn) paste(nn, collapse="/"))
+
+    names(lst) <- name_fields
     dups <- duplicated(tolower(names(lst)))
     if(any(dups))
     {
