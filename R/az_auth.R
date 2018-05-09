@@ -9,10 +9,18 @@ public=list(
     token=NULL,
 
     # authenticate and get subscriptions
-    initialize=function(tenant, app, auth_type="client credentials", secret,
+    initialize=function(tenant, app, auth_type="client_credentials", secret,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                        config_file=NULL)
+                        config_file=NULL, token=NULL)
     {
+        if(is_token(token))
+        {
+            self$host <- token$credentials$resource
+            self$tenant <- sub("/.+$", "", httr::parse_url(token$endpoint$authorize)$path)
+            self$token <- token
+            return(NULL)
+        }
+
         if(!is.null(config_file))
         {
             conf <- jsonlite::fromJSON(file(config_file))
@@ -23,7 +31,6 @@ public=list(
             if(!is.null(conf$host)) host <- conf$host
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
         }
-
         self$host <- host
         self$tenant <- tenant
         self$token <- get_azure_token(aad_host, tenant, app, auth_type, secret, host)

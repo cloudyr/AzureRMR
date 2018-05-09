@@ -92,11 +92,11 @@ private=list(
 
 
 #' @export
-get_azure_token=function(aad_host, tenant, app, auth_type=c("client credentials", "device code"), secret, arm_host)
+get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), secret, arm_host)
 {
     auth_type <- match.arg(auth_type)
     base_url <- file.path(aad_host, tenant, fsep="/")
-    if(auth_type == "client credentials")
+    if(auth_type == "client_credentials")
         auth_with_creds(base_url, app, secret, arm_host)
     else auth_with_device(base_url, app, arm_host)
 }
@@ -117,4 +117,10 @@ auth_with_device <- function(base_url, app, resource)
     app <- httr::oauth_app("azure", key=app, secret=NULL)
 
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
+}
+
+
+is_token <- function(object)
+{
+    R6::is.R6(object) && inherits(object, "AzureToken")
 }
