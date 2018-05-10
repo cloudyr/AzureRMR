@@ -13,7 +13,7 @@ call_azure_rm <- function(token, subscription, operation, ...,
 
 #' @export
 call_azure_url <- function(token, url, ...,
-                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD"),
+                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
                            http_status_handler=c("stop", "warn", "message", "pass"),
                            auto_refresh=TRUE)
 {

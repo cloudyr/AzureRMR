@@ -124,6 +124,13 @@ public=list(
         # HEAD seems to be broken; do a GET and test whether it fails
         res <- try(private$res_op())
         !inherits(res, "try-error")
+    },
+
+    update=function(...)
+    {
+        parms <- list(...)
+        validate_update_parms(names(parms))
+        private$res_op(body=parms, encode="json", http_verb="PATCH")
     }
 ),
 
@@ -202,6 +209,12 @@ private=list(
         required_names <- c("id", "name", "type", "location")
         optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags")
         validate_object_names(names(parms), required_names, optional_names)
+    },
+
+    validate_update_parms=function(parms)
+    {
+        required_names <- character(0)
+        optional_names <- c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags")
     },
 
     res_op=function(op="", ...)
