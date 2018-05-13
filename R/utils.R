@@ -2,6 +2,9 @@
 #' @export
 named_list <- function(lst, name_fields="name")
 {
+    if(is_empty(lst))
+        return(list())
+
     lst_names <- sapply(name_fields, function(n) sapply(lst, `[[`, n))
     if(length(name_fields) > 1)
         lst_names <- apply(lst_names, 1, function(nn) paste(nn, collapse="/"))
