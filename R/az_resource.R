@@ -73,13 +73,13 @@ public=list(
     # 3. get from passed-in data: deployed_properties
     # 4. get from host: resgroup, {provider, path}|type, name
     # 5. get from host by id: id
-    initialize=function(token, subscription, resource_group, provider, type, path, name, id, ...,
+    initialize=function(token, subscription, resource_group, provider, path, type, name, id, ...,
                         deployed_properties=list(), api_version=NULL)
     {
         self$token <- token
         self$subscription <- subscription
 
-        private$init_id_fields(resource_group, provider, type, path, name, id, deployed_properties)
+        private$init_id_fields(resource_group, provider, path, type, name, id, deployed_properties)
 
         # by default this is unset at initialisation, for efficiency
         private$api_version <- api_version
