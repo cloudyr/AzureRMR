@@ -71,8 +71,8 @@ To create/deploy a new resource, specify any extra parameters that the provider 
 
 \seealso{
 \link{az_subscription}, \link{az_template}, \link{az_resource},
-\link{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups},
-\link{https://docs.microsoft.com/en-us/rest/api/resources/resources},
-\link{https://docs.microsoft.com/en-us/rest/api/resources/deployments}
+\url{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups},
+\url{https://docs.microsoft.com/en-us/rest/api/resources/resources},
+\url{https://docs.microsoft.com/en-us/rest/api/resources/deployments}
 }
 \keyword{datasets}

@@ -40,7 +40,7 @@
 #'
 #' @seealso
 #' [az_resource_group], [call_azure_rm], [call_azure_url],
-#' [https://docs.microsoft.com/en-us/rest/api/resources/resources]
+#' \url{https://docs.microsoft.com/en-us/rest/api/resources/resources}
 #'
 #' @format An R6 object of class `az_resource`.
 #' @export

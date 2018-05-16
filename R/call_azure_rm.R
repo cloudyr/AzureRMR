@@ -12,7 +12,7 @@
 #' @param ... Other arguments passed to lower-level code, ultimately to the appropriate functions in httr.
 #'
 #' @details
-#' These functions form the low-level interface between R and Resource Manager. `call_azure_rm` builds a URL from its arguments and passes it to `call_azure_url`. Authentication is handled automatically.
+#' These functions form the low-level interface between AzureRMR and Resource Manager. `call_azure_rm` builds a URL from its arguments and passes it to `call_azure_url`. Authentication is handled automatically.
 #'
 #' @return
 #' If `http_status_handler` is one of `"stop"`, `"warn"` or `"message"`, the status code of the response is checked. If an error is not thrown, the parsed content of the response is returned with the status code attached as the "status" attribute.
@@ -20,7 +20,7 @@
 #' If `http_status_handler` is `"pass"`, the entire response is returned without modification.
 #'
 #' @seealso
-#' [httr:GET], [httr:stop_for_status], [httr:content]
+#' [httr::GET], [httr::PUT], [httr::POST], [httr::DELETE], [httr::stop_for_status], [httr::content]
 #' @rdname call_azure
 #' @export
 call_azure_rm <- function(token, subscription, operation, ...,

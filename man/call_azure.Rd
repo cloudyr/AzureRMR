@@ -34,14 +34,16 @@ call_azure_url(token, url, ..., http_verb = c("GET", "DELETE", "PUT", "POST",
 \item{auto_refresh:}{Whether to refresh/renew the OAuth token if it is no longer valid.}
 }
 \value{
-If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked and if an error is not thrown, the content of the response is returned with the status code attached as the "status" attribute. If \code{http_status_handler} is \code{"pass"}, the entire response is returned without modification.
+If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked. If an error is not thrown, the parsed content of the response is returned with the status code attached as the "status" attribute.
+
+If \code{http_status_handler} is \code{"pass"}, the entire response is returned without modification.
 }
 \description{
 Call the Azure Resource Manager REST API
 }
 \details{
-These functions form the low-level interface between R and Resource Manager. \code{call_azure_rm} builds a URL from its arguments and passes it to \code{call_azure_url}. Authentication is handled automatically.
+These functions form the low-level interface between AzureRMR and Resource Manager. \code{call_azure_rm} builds a URL from its arguments and passes it to \code{call_azure_url}. Authentication is handled automatically.
 }
 \seealso{
-\link{httr:GET}, \link{httr:stop_for_status}, \link{httr:content}
+\link[httr:GET]{httr::GET}, \link[httr:PUT]{httr::PUT}, \link[httr:POST]{httr::POST}, \link[httr:DELETE]{httr::DELETE}, \link[httr:stop_for_status]{httr::stop_for_status}, \link[httr:content]{httr::content}
 }

@@ -47,9 +47,9 @@
 #'
 #' @seealso
 #' [az_subscription], [az_template], [az_resource],
-#' [https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups],
-#' [https://docs.microsoft.com/en-us/rest/api/resources/resources],
-#' [https://docs.microsoft.com/en-us/rest/api/resources/deployments]
+#' \url{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups},
+#' \url{https://docs.microsoft.com/en-us/rest/api/resources/resources},
+#' \url{https://docs.microsoft.com/en-us/rest/api/resources/deployments}
 #'
 #' @format An R6 object of class `az_resource_group`.
 #' @export

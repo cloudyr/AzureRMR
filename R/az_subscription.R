@@ -19,7 +19,7 @@
 #' Generally, the easiest way to create a subscription object is via the `get_subscription` or `list_subscriptions` methods of the [az_rm] class. To create a subscription object in isolation, call the `new()` method and supply an Oauth 2.0 token of class [AzureToken], along with the ID of the subscription.
 #'
 #' @seealso
-#' [https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview]
+#' \url{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}
 #'
 #' @format An R6 object of class `az_subscription`.
 #' @export

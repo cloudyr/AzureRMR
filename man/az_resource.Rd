@@ -62,6 +62,6 @@ Consult the Azure documentation for your resource to find out what operations ar
 
 \seealso{
 \link{az_resource_group}, \link{call_azure_rm}, \link{call_azure_url},
-\link{https://docs.microsoft.com/en-us/rest/api/resources/resources}
+\url{https://docs.microsoft.com/en-us/rest/api/resources/resources}
 }
 \keyword{datasets}

@@ -24,10 +24,10 @@ get_azure_token(aad_host, tenant, app, auth_type = c("client_credentials",
 This extends the OAuth functionality in httr to allow for device code authentication.
 }
 \details{
-This function does much the same thing as \code{\link[httr:oauth_2.0_token]{httr::oauth_2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a secret key on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a secret key on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
 }
 \seealso{
 \link{AzureToken}, \link[httr:oauth2.0_token]{httr::oauth2.0_token}, \link[httr:Token]{httr::Token},
-\link{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code},
-\link{https://www.oauth.com/oauth2-servers/device-flow/token-request/}
+\url{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code},
+\url{https://www.oauth.com/oauth2-servers/device-flow/token-request/}
 }

@@ -1,6 +1,6 @@
 #' Azure OAuth authentication
 #'
-#' Azure OAuth 2.0 token class, inheriting from the [Token2.0 class][httr:Token2.0] in httr. Rather than calling the initialization method directly, tokens should be created via [get_azure_token()].
+#' Azure OAuth 2.0 token class, inheriting from the [Token2.0 class][httr::Token2.0] in httr. Rather than calling the initialization method directly, tokens should be created via [get_azure_token()].
 #'
 #' @docType class
 #' @section Methods:
@@ -123,8 +123,8 @@ private=list(
 #' 
 #' @seealso
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],
-#' [https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code],
-#' [https://www.oauth.com/oauth2-servers/device-flow/token-request/]
+#' \url{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code},
+#' \url{https://www.oauth.com/oauth2-servers/device-flow/token-request/}
 #' @export
 get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), secret, arm_host)
 {

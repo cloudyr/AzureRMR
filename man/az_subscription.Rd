@@ -31,6 +31,6 @@ Generally, the easiest way to create a subscription object is via the \code{get_
 }
 
 \seealso{
-\link{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}
+\url{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}
 }
 \keyword{datasets}

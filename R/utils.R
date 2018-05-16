@@ -1,4 +1,16 @@
-# set names on a list of objects, where each object contains its name field(s)
+#' Miscellaneous utility functions
+#'
+#' @param lst A named list of objects.
+#' @param name_fields The components of the objects in `lst`, to be used as names.
+#' @param x For `is_url` and `is_empty`, An R object.
+#'
+#' @details
+#' `named_list` extracts from each object in `lst`, the components named by `name_fields`. It then constructs names for `lst` from these components, separated by a `"/"`.
+#'
+#' @return
+#' For `named_list`, the list that was passed in but with names. For `is_url`, whether the object appears to be a URL (is character of length 1, and starts with the string `"https"`). Only HTTPS URLs are allowed. For `is_empty`, whether the length of the object is zero (this includes the special case of `NULL`).
+#'
+#' @rdname utils
 #' @export
 named_list <- function(lst, name_fields="name")
 {
@@ -21,14 +33,16 @@ named_list <- function(lst, name_fields="name")
 
 
 # check if a string appears to be a URL (only https allowed)
+#' @rdname utils
 #' @export
-is_url=function(x)
+is_url <- function(x)
 {
     is.character(x) && length(x) == 1 && grepl("^https://", x)
 }
 
 
 # TRUE for NULL and length-0 objects
+#' @rdname utils
 #' @export
 is_empty <- function(x)
 {

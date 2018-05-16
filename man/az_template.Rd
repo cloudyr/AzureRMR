@@ -48,6 +48,6 @@ If you also supply the following arguments to new(), a new template will be depl
 
 \seealso{
 \link{az_resource_group}, \link{az_resource},
-\link{https://docs.microsoft.com/en-us/rest/api/resources/deployments}
+\url{https://docs.microsoft.com/en-us/rest/api/resources/deployments}
 }
 \keyword{datasets}

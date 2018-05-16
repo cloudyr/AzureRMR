@@ -28,7 +28,7 @@
 #'
 #' @seealso
 #' [az_resource_group], [az_resource],
-#' [https://docs.microsoft.com/en-us/rest/api/resources/deployments]
+#' \url{https://docs.microsoft.com/en-us/rest/api/resources/deployments}
 #'
 #' @format An R6 object of class `az_template`.
 #' @export
