@@ -20,7 +20,7 @@ Class representing a generic Azure resource.
 \item \code{update(...)}: Update this resource on the host.
 \item \code{sync_fields()}: Update the fields in this object with information from the host.
 \item \code{set_api_version(api_version)}: Set the API version to use when interacting with the host. By default, use the latest API version available.
-\item \code{do_operation(...)} Carry out an operation. See \code{Operations} for more details.
+\item \code{do_operation(...)} Carry out an operation. See 'Operations' for more details.
 }
 }
 
@@ -44,7 +44,9 @@ There are also a number of \emph{identifying arguments} to \code{new()} that are
 \item \code{name}: The name of the resource instance, eg \code{myWindowsVM}.
 }
 
-Providing the \code{id} argument will fill in the values for all the other arguments. Similarly, providing the \code{type} argument will fill in the values for \code{provider} and \code{path}. Unless you provide \code{id}, you must also provide \code{name}. If you provide only these identifying arguments to \code{new()}, it is assumed that you want to retrieve an existing resource. Passing any further (named) arguments will create a new resource, with the supplied arguments as parameters.
+Providing the \code{id} argument will fill in the values for all the other arguments. Similarly, providing the \code{type} argument will fill in the values for \code{provider} and \code{path}. Unless you provide \code{id}, you must also provide \code{name}.
+
+If you provide only these identifying arguments to \code{new()}, it is assumed that you want to retrieve an existing resource. Passing any further (named) arguments will create a new resource, with the supplied arguments as parameters.
 }
 
 \section{Operations}{

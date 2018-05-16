@@ -10,7 +10,7 @@
 #' - `update(...)`: Update this resource on the host.
 #' - `sync_fields()`: Update the fields in this object with information from the host.
 #' - `set_api_version(api_version)`: Set the API version to use when interacting with the host. By default, use the latest API version available.
-#' - `do_operation(...)` Carry out an operation. See `Operations` for more details.
+#' - `do_operation(...)` Carry out an operation. See 'Operations' for more details.
 #'
 #' @section Initialization:
 #' There are multiple ways to initialize a new resource object. You can either retrieve an existing resource, or deploy a new resource on the host. Generally, the easiest way to create a new object is via the `get_resource`, `create_resource` or `list_resources` methods of the [az_resource_group] class, which will handle the details automatically.
@@ -27,7 +27,9 @@
 #' - `type`: The combination of provider and path, eg `Microsoft.Compute/virtualMachines`.
 #' - `name`: The name of the resource instance, eg `myWindowsVM`.
 #'
-#' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `type` argument will fill in the values for `provider` and `path`. Unless you provide `id`, you must also provide `name`. If you provide only these identifying arguments to `new()`, it is assumed that you want to retrieve an existing resource. Passing any further (named) arguments will create a new resource, with the supplied arguments as parameters.
+#' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `type` argument will fill in the values for `provider` and `path`. Unless you provide `id`, you must also provide `name`.
+#'
+#' If you provide only these identifying arguments to `new()`, it is assumed that you want to retrieve an existing resource. Passing any further (named) arguments will create a new resource, with the supplied arguments as parameters.
 #'
 #' @section Operations:
 #' The `do_operation()` method allows you to carry out arbitrary operations on the resource. It takes the following arguments:
