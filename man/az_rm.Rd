@@ -37,6 +37,7 @@ To authenticate with ARM, provide the following arguments to the \code{new} meth
 
 \seealso{
 \link{get_azure_token}, \link{AzureToken},
-\url{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}
+\href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
+\href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
 }
 \keyword{datasets}

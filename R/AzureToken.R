@@ -123,8 +123,8 @@ private=list(
 #' 
 #' @seealso
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],
-#' \url{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code},
-#' \url{https://www.oauth.com/oauth2-servers/device-flow/token-request/}
+#' [OAuth authentication for Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code),
+#' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/)
 #' @export
 get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), secret, arm_host)
 {

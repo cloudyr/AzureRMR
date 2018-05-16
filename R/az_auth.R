@@ -23,7 +23,8 @@
 #'
 #' @seealso
 #' [get_azure_token], [AzureToken],
-#' \url{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}
+#' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
+#' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
 #'
 #' @format An R6 object of class `az_rm`.
 #' @export

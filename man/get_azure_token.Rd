@@ -28,6 +28,6 @@ This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr:
 }
 \seealso{
 \link{AzureToken}, \link[httr:oauth2.0_token]{httr::oauth2.0_token}, \link[httr:Token]{httr::Token},
-\url{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code},
-\url{https://www.oauth.com/oauth2-servers/device-flow/token-request/}
+\href{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code}{OAuth authentication for Azure Active Directory},
+\href{https://www.oauth.com/oauth2-servers/device-flow/token-request/}{Device code flow on OAuth.com}
 }
