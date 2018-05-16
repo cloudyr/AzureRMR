@@ -1,3 +1,57 @@
+#' Azure resource group class
+#'
+#' Class representing an Azure resource group.
+#'
+#' @docType class
+#' @section Methods:
+#' - `new(token, subscription, id, ...)`: Initialize a resource group object. See 'Initialization' for more details.
+#' - `check()`: Check if this resource group still exists.
+#' - `delete(confirm=TRUE)`: Delete this resource group, after a confirmation check. This is asynchronous: while the method returns immediately, the delete operation continues on the host in the background. For resource groups containing a large number of deployed resources, this may take some time to complete.
+#' - `list_templates()`: List deployed templates in this resource group.
+#' - `get_template(name)`: Return an object representing an existing template.
+#' - `deploy_template(...)`: Deploy a new template. See 'Templates' for more details.
+#' - `delete_template(name, confirm=TRUE, free_resources=FALSE)`: Delete a deployed template, and optionally free any resources that were created.
+#' - `get_resource(...)`: Return an object representing an existing resource. See 'Resources' for more details.
+#' - `create_resource(...)`: Create a new resource.
+#' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
+#' - `list_resources()`: Return a list of resource group objects for this subscription.
+#'
+#' @section Initialization:
+#' Initializing a new object of this class can either retrieve an existing resource group, or create a new resource group on the host. Generally, the easiest way to create a resource group object is via the `get_resource_group`, `create_resource_group` or `list_resource_groups` methods of the [az_subscription] class, which handle this automatically.
+#'
+#' To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class [AzureToken], the subscription ID, and the resource group name. If this object refers to a _new_ resource group, supply the location as well (use the `list_locations` method of the `az_subscription class` for possible locations). You can also pass any optional parameters for the resource group as named arguments to `new()`.
+#'
+#' @section Templates:
+#' To deploy a new template, pass the following arguments to `deploy_template()`:
+#' - `name`: The name of the deployment.
+#' - `template`: The template to deploy. This can be provided in a number of ways:
+#'   1. A nested list of name-value pairs representing the parsed JSON
+#'   2. The name of a template file
+#'   3. A vector of strings containing unparsed JSON
+#'   4. A URL from which the template can be downloaded
+#' - `parameters`: The parameters for the template. This can be provided using any of the same methods as the `template` argument.
+#'
+#' Retrieving or deleting a deployed template requires only the name of the deployment.
+#'
+#' @section Resources:
+#' There are a number of arguments to `get_resource()`, `create_resource()` and `delete_resource()` that serve to identify the specific resource in question:
+#' - `id`: The full ID of the resource, including subscription ID and resource group.
+#' - `provider`: The provider of the resource, eg `Microsoft.Compute`.
+#' - `path`: The full path to the resource, eg `virtualMachines`.
+#' - `type`: The combination of provider and path, eg `Microsoft.Compute/virtualMachines`.
+#' - `name`: The name of the resource instance, eg `myWindowsVM`.
+#'
+#' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `type` argument will fill in the values for `provider` and `path`. Unless you provide `id`, you must also provide `name`.
+#'
+#' To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to `create_resource()`.
+#'
+#' @seealso
+#' [az_subscription], [az_template], [az_resource],
+#' [https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups],
+#' [https://docs.microsoft.com/en-us/rest/api/resources/resources],
+#' [https://docs.microsoft.com/en-us/rest/api/resources/deployments]
+#'
+#' @format An R6 object of class `az_resource_group`.
 #' @export
 az_resource_group <- R6::R6Class("az_resource_group",
 
@@ -71,20 +125,20 @@ public=list(
         named_list(lst)
     },
 
-    deploy_template=function(template_name, template, parameters, ...)
+    deploy_template=function(name, template, parameters, ...)
     {
-        az_template$new(self$token, self$subscription, self$name, template_name,
+        az_template$new(self$token, self$subscription, self$name, name,
                         template, parameters, ...)
     },
 
-    get_template=function(template_name)
+    get_template=function(name)
     {
-        az_template$new(self$token, self$subscription, self$name, template_name)
+        az_template$new(self$token, self$subscription, self$name, name)
     },
 
-    delete_template=function(template_name, confirm=TRUE, free_resources=FALSE)
+    delete_template=function(name, confirm=TRUE, free_resources=FALSE)
     {
-        self$get_template(template_name)$delete(confirm=confirm, free_resources=free_resources)
+        self$get_template(name)$delete(confirm=confirm, free_resources=free_resources)
     },
 
     list_resources=function()

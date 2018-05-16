@@ -1,5 +1,27 @@
 ### Azure subscription class: all info about a subscription
 
+#' Azure subscription class
+#'
+#' Class representing an Azure subscription.
+#'
+#' @docType class
+#' @section Methods:
+#' - `new(token, id, ...)`: Initialize a subscription object.
+#' - `list_resource_groups()`: Return a list of resource group objects for this subscription.
+#' - `get_resource_group(name)`: Return an object representing an existing resource group.
+#' - `create_resource_group(name, location)`: Create a new resource group in the specified region/location, and return an object representing it.
+#' - `delete_resource_group(name)`: Delete a resource group.
+#' - `list_resources()`: List all resources deployed under this subscription.
+#' - `list_locations()`: List locations available.
+#' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
+#'
+#' @section Details:
+#' Generally, the easiest way to create a subscription object is via the `get_subscription` or `list_subscriptions` methods of the [az_rm] class. To create a subscription object in isolation, call the `new()` method and supply an Oauth 2.0 token of class [AzureToken], along with the ID of the subscription.
+#'
+#' @seealso
+#' [https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview]
+#'
+#' @format An R6 object of class `az_subscription`.
 #' @export
 az_subscription <- R6::R6Class("az_subscription",
 

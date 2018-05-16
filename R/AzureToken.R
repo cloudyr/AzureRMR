@@ -1,3 +1,19 @@
+#' Azure OAuth authentication
+#'
+#' Azure OAuth 2.0 token class, inheriting from the [Token2.0 class][httr:Token2.0] in httr. Rather than calling the initialization method directly, tokens should be created via [get_azure_token()].
+#'
+#' @docType class
+#' @section Methods:
+#' - `refresh`: Refreshes the token. For expired Azure tokens using client credentials, refreshing really means requesting a new token.
+#' - `validate`: Checks if the token is still valid. For Azure tokens using client credentials, this just checks if the current time is less than the token's expiry time.
+#'
+#' @section Caching:
+#' This class never caches its tokens, unlike httr::Token2.0.
+#'
+#' @seealso
+#' [get_azure_token], [httr::Token]
+#'
+#' @format An R6 object of class `AzureToken`.
 #' @export
 AzureToken <- R6::R6Class("AzureToken", inherit=httr::Token2.0,
 
@@ -91,6 +107,24 @@ private=list(
 ))
 
 
+#' Generate an Azure OAuth token
+#'
+#' This extends the OAuth functionality in httr to allow for device code authentication.
+#'
+#' @param aad_host URL for your Azure Active Directory host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
+#' @param tenant Your tenant ID.
+#' @param app Your client/app ID which you registered in AAD.
+#' @param auth_type The authentication type, either `"client_credentials"` or `"device_code"`.
+#' @param secret Your secret key. Required for `auth_type == "client_credentials"`, ignored for `auth_type == "device_code"`.
+#' @param arm_host URL for your Azure Resource Manager host. For the public Azure cloud, this is `https://management.azure.com/`.
+#'
+#' @details
+#' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a secret key on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+#' 
+#' @seealso
+#' [AzureToken], [httr::oauth2.0_token], [httr::Token],
+#' [https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code],
+#' [https://www.oauth.com/oauth2-servers/device-flow/token-request/]
 #' @export
 get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), secret, arm_host)
 {
@@ -120,7 +154,7 @@ auth_with_device <- function(base_url, app, resource)
 }
 
 
-is_token <- function(object)
+is_azure_token <- function(object)
 {
     R6::is.R6(object) && inherits(object, "AzureToken")
 }

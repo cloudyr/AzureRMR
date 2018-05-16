@@ -1,7 +1,33 @@
-### Azure Context class: authentication functionality for AAD
+### base Resource Manager class
 
+#' Azure Resource Manager
+#'
+#' Base class for interacting with Azure Resource Manager.
+#'
+#' @docType class
+#' @section Methods:
+#' - `new(tenant, app, ...)`: Initialize a new ARM connection with the given credentials. See 'Authentication` for more details.
+#' - `list_subscriptions()`: Returns a list of objects, one for each subscription associated with this app ID.
+#' - `get_subscription(id)`: Returns an object representing a subscription.
+#'
+#' @section Authentication:
+#' To authenticate with ARM, provide the following arguments to the `new` method:
+#' - `tenant`: Your tenant ID.
+#' - `app`: Your client/app ID which you registered in Azure Active Directory.
+#' - `auth_type`: Either `"client_credentials"` (the default) or `"device_code"`.
+#' - `secret`: if `auth_type == "client_credentials"`, your secret key.
+#' - `host`: your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
+#' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
+#' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line.
+#' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
+#'
+#' @seealso
+#' [get_azure_token], [AzureToken],
+#' [https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview]
+#'
+#' @format An R6 object of class `az_rm`.
 #' @export
-az_context <- R6::R6Class("az_context",
+az_rm <- R6::R6Class("az_rm",
 
 public=list(
     host=NULL,
@@ -13,7 +39,7 @@ public=list(
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                         config_file=NULL, token=NULL)
     {
-        if(is_token(token))
+        if(is_azure_token(token))
         {
             self$host <- token$credentials$resource
             self$tenant <- sub("/.+$", "", httr::parse_url(token$endpoint$authorize)$path)

@@ -1,25 +1,24 @@
 ---
-title: "Authenticating AzureSMR to call the Azure API"
-author: "Hong Ooi, after Alan Weaver and Andrie de Vries"
-date: "`r Sys.Date()`"
+title: "Registering a client app with Azure Active Directory"
+Author: Hong Ooi, after Alan Weaver and Andrie de Vries
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{AzureSMR authentication}
+  %\VignetteIndexEntry{Azure Active Directory app registration}
   %\VignetteEngine{knitr::rmarkdown}
-  %\usepackage[utf8]{inputenc}
+  %\VignetteEncoding{utf8}
 ---
 
 ## Configuration instructions
 
-To use the `AzureSMR` package, you must create an Azure Active Directory application with permisssions. This vignette contains instructions to do this.
+To use the `AzureRMR` package, you must create an Azure Active Directory application with permisssions. This vignette contains instructions to do this.
 
-You must collect three pieces of information to authenticate with the `createAzureContext()` function:
+You must collect at least two pieces of information to authenticate with `az_rm()`, possibly three:
 
-* tenant ID (`tenantID`)
-* application ID (`appID`)
-* secret key (`secret`) 
+* tenant ID (`tenant`)
+* application ID (`app`)
+* secret key (`secret`) optionally, if using client credentials: see later
 
-## Create an Active Directory application.
+## Create an Active Directory application
 
 1. Login to the [Azure Portal](https://portal.azure.com).
 
@@ -31,7 +30,7 @@ You must collect three pieces of information to authenticate with the `createAzu
 
 1. In the Create blade, enter the details for your new application. The name should be unique. It doesn't matter what sign-on URL you provide (it won't be used), but it must be a valid URL.
 
-1. In the "Application type" box, choose "Web App/API" if you want to authenticate using a secret key, or "Native" if you want to authenticate with a code that the server sends to you at runtime. If you're not sure, choose "Native" as this provides more security.
+1. In the "Application type" box, choose "Web App/API" if you want to authenticate using a secret key, or "Native" if you want to authenticate with a code that the server sends to you at runtime. If you're not sure, choose "Native" as this provides more security. If you intend to use AzureRMR in a scripted setting (without user intervention), choose "Web App".
 
 1. Click on "Create". After a few seconds, a new blade will appear containing a list of all registered AAD applications.
 
@@ -93,18 +92,19 @@ Azure lets you apply access controls at multiple levels: by subscription, by res
 
 ## Conclusion
 
-That is all.  You can test this by trying:
+You can test this by trying:
 
 ```{r, eval = FALSE}
-sc <- az_context$new(tenant_id="{TID}", app_id="{CID}", secret="{KEY}")
+library(AzureRMR)
+sc <- az_rm$new(tenant="{TID}", app="{CID}", secret="{KEY}")
 sc
 ```
 
-or using two-factor authentication if supported by that resource by trying:
+or using device authentication by trying:
 
 ```{r, eval = FALSE}
-sc <- az_context$new(tenant_id="{TID}", app_id="{CID}", auth_type="device")
-# Manually authenicate using DeviceCode flow
+sc <- az_rm$new(tenant="{TID}", app="{CID}", auth_type="device")
+# Manually authenticate using device code flow
 sc
 ```
 
