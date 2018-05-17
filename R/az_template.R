@@ -221,7 +221,7 @@ private=list(
 
     tpl_op=function(op="", ...)
     {
-        op <- file.path("resourcegroups", self$resource_group, "providers/Microsoft.Resources/deployments", self$name, op)
+        op <- construct_path("resourcegroups", self$resource_group, "providers/Microsoft.Resources/deployments", self$name, op)
         call_azure_rm(self$token, self$subscription, op, ...)
     }
 ))

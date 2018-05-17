@@ -77,7 +77,7 @@ public=list(
         }
         else
         {
-            op <- file.path("providers", provider)
+            op <- construct_path("providers", provider)
             apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
             if(!is_empty(type))
             {

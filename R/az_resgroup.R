@@ -209,7 +209,7 @@ private=list(
 
     rg_op=function(op="", ...)
     {
-        op <- file.path("resourcegroups", self$name, op)
+        op <- construct_path("resourcegroups", self$name, op)
         call_azure_rm(self$token, self$subscription, op, ...)
     }
 ))

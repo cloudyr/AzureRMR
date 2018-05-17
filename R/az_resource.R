@@ -116,7 +116,7 @@ public=list(
         provider <- substr(self$type, 1, slash - 1)
         path <- substr(self$type, slash + 1, nchar(self$type))
 
-        op <- file.path("providers", provider)
+        op <- construct_path("providers", provider)
         apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
 
         names(apis) <- tolower(names(apis))
@@ -144,7 +144,7 @@ public=list(
         }
 
         private$res_op(http_verb="DELETE")
-        message("Deleting resource '", file.path(self$type, self$name), "'")
+        message("Deleting resource '", construct_path(self$type, self$name), "'")
 
         if(wait)
         {
@@ -207,8 +207,8 @@ private=list(
         else
         {
             if(missing(type))
-                type <- file.path(provider, path)
-            id <- file.path("/subscriptions", self$subscription, "resourceGroups", resource_group, "providers", type, name)
+                type <- construct_path(provider, path)
+            id <- construct_path("/subscriptions", self$subscription, "resourceGroups", resource_group, "providers", type, name)
         }
         self$resource_group <- resource_group
         self$type <- type
@@ -271,7 +271,7 @@ private=list(
         if(is.null(private$api_version))
             self$set_api_version()
 
-        op <- file.path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
+        op <- construct_path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
         call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
     }
 ))

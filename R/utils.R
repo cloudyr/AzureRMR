@@ -57,3 +57,10 @@ validate_object_names <- function(x, required, optional=character(0))
     if(!valid)
         stop("Invalid object names")
 }
+
+
+# handle different behaviour of file_path on Windows/Linux wrt trailing /
+construct_path <- function(...)
+{
+    sub("/$", "", file.path(..., fsep="/"))
+}

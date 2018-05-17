@@ -129,7 +129,7 @@ private=list(
 get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), secret, arm_host)
 {
     auth_type <- match.arg(auth_type)
-    base_url <- file.path(aad_host, tenant, fsep="/")
+    base_url <- construct_path(aad_host, tenant)
     if(auth_type == "client_credentials")
         auth_with_creds(base_url, app, secret, arm_host)
     else auth_with_device(base_url, app, arm_host)
