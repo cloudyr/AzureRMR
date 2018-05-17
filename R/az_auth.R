@@ -57,7 +57,7 @@ public=list(
             if(!is.null(conf$secret)) secret <- conf$secret
             if(!is.null(conf$host)) host <- conf$host
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
-        }
+            }
         self$host <- host
         self$tenant <- tenant
         self$token <- get_azure_token(aad_host, tenant, app, auth_type, secret, host)
@@ -82,6 +82,14 @@ public=list(
             lst <- c(lst, lapply(cont$value, function(parms) az_subscription$new(self$token, parms=parms)))
         }
         named_list(lst, "id")
+    },
+
+    print=function(...)
+    {
+        cat("<Azure Resource Manager client>\n")
+        cat(format_azure_header(self$token), sep="")
+        cat(format_public_methods(self), sep="")
+        invisible(NULL)
     }
 ))
 

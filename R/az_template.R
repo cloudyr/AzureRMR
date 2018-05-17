@@ -116,6 +116,14 @@ public=list(
         if(status %in% c("Error", "Failed"))
             private$is_valid <- FALSE
         status
+    },
+
+    print=function(...)
+    {
+        cat("<Azure template ", self$name, ">\n", sep="")
+        cat(format_public_fields(self, exclude=c("subscription", "resource_group", "name")))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ),
 

@@ -171,6 +171,14 @@ public=list(
     {
         az_resource$new(self$token, self$subscription,
                         resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id, ...)
+    },
+
+    print=function(...)
+    {
+        cat("<Azure resource group ", self$name, ">\n", sep="")
+        cat(format_public_fields(self, exclude=c("subscription", "name")))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ),
 

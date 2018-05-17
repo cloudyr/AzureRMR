@@ -180,6 +180,14 @@ public=list(
         parms <- list(...)
         validate_update_parms(names(parms))
         private$res_op(body=parms, encode="json", http_verb="PATCH")
+    },
+
+    print=function(...)
+    {
+        cat("<Azure resource ", self$type, "/", self$name, ">\n", sep="")
+        cat(format_public_fields(self, exclude=c("subscription", "resource_group", "type", "name")))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ),
 

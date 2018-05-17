@@ -130,5 +130,13 @@ public=list(
                 function(parms) az_resource$new(self$token, self$id, deployed_properties=parms)))
         }
         named_list(lst, c("type", "name"))
+    },
+
+    print=function(...)
+    {
+        cat("<Azure subscription ", self$id, ">\n", sep="")
+        cat(format_public_fields(self, exclude="id"))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ))
