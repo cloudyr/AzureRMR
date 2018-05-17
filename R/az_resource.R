@@ -27,7 +27,7 @@
 #' - `type`: The combination of provider and path, eg `Microsoft.Compute/virtualMachines`.
 #' - `name`: The name of the resource instance, eg `myWindowsVM`.
 #'
-#' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `path` argument will fill in the values for `provider` and `type`. Unless you provide `id`, you must also provide `name`.
+#' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `type` argument will fill in the values for `provider` and `path`. Unless you provide `id`, you must also provide `name`.
 #'
 #' If you provide only these identifying arguments to `new()`, it is assumed that you want to retrieve an existing resource. Passing any further (named) arguments will create a new resource, with the supplied arguments as parameters.
 #'

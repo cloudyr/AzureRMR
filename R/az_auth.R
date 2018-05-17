@@ -50,14 +50,14 @@ public=list(
 
         if(!is.null(config_file))
         {
-            conf <- jsonlite::fromJSON(file(config_file))
+            conf <- jsonlite::fromJSON(config_file)
             if(!is.null(conf$tenant)) tenant <- conf$tenant
             if(!is.null(conf$app)) app <- conf$app
             if(!is.null(conf$auth_type)) auth_type <- conf$auth_type
             if(!is.null(conf$secret)) secret <- conf$secret
             if(!is.null(conf$host)) host <- conf$host
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
-            }
+        }
         self$host <- host
         self$tenant <- tenant
         self$token <- get_azure_token(aad_host, tenant, app, auth_type, secret, host)
