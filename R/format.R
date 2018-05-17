@@ -1,4 +1,4 @@
-format_azure_header <- function(token)
+format_auth_header <- function(token)
 {
     expiry <- as.POSIXct(as.numeric(token$credentials$expires_on), origin="1970-01-01")
     obtained <- expiry - as.numeric(token$credentials$expires_in)
@@ -8,8 +8,8 @@ format_azure_header <- function(token)
     paste0("  Authentication details:\n",
            "    host: ", host, "\n",
            "    tenant: ", tenant, "\n",
-           "    token obtained: ", obtained, "\n",
-           "    token valid to: ", expiry, "\n",
+           "    token obtained: ", format(obtained, usetz=TRUE), "\n",
+           "    token valid to: ", format(expiry, usetz=TRUE), "\n",
            "---\n")
 }
 
@@ -30,8 +30,8 @@ format_public_fields <- function(env, exclude=character(0))
             paste0("list(", paste(names(x), collapse=", "), ")")
         else if(is.vector(x))
         {
-            x <- paste0(x, collapse=" ")
-            if(nchar(x) > maxwidth)
+            x <- paste0(x, collapse=", ")
+            if(nchar(x) > maxwidth - nchar(n) - 10)
                 x <- paste0(substr(x, 1, maxwidth - nchar(n) - 10), " ...")
             x
         }            

@@ -87,8 +87,8 @@ public=list(
     print=function(...)
     {
         cat("<Azure Resource Manager client>\n")
-        cat(format_azure_header(self$token), sep="")
-        cat(format_public_methods(self), sep="")
+        cat(format_auth_header(self$token))
+        cat(format_public_methods(self))
         invisible(NULL)
     }
 ))
