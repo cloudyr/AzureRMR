@@ -97,7 +97,7 @@ rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1")
 # method chaining also works
 az $
     get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11") $
-    get_resource_group("my_rgroup") $
+    get_resource_group("rdev1") $
     get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1")
 #<Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
 # ...
