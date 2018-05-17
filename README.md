@@ -1,8 +1,10 @@
 # AzureRMR
 
-A package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources.
+A package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager REST API directly, so you don't need to have PowerShell or Python installed.
 
 To use this package, you must register a client app with Azure Active Directory. See the `aad_register.Rmd` vignette for more details, or go to the [docs.microsoft.com page](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal).
+
+AzureRMR is meant to provide only the base functionality for working with Resource Manager. You can extend it to support specific Azure services like [virtual machines](https://github.com/hong-revo/AzureVM) or [storage accounts](https://github.com/hong-revo/AzureStor).
 
 Here is a sample workflow. First, authenticate using the `az_rm` class. AzureRMR supports OAuth 2.0 authentication using both client credentials and device code flow.
 
@@ -52,7 +54,7 @@ az$list_subscriptions()
 
 # get a subscription and resource group
 sub1 <- az$get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11")
-rg <- sub1$get_resource_group("my_rgroup")
+rg <- sub1$get_resource_group("rdev1")
 rg
 #<Azure resource group rdev1>
 #  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1
