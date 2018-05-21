@@ -1,3 +1,16 @@
+#' Format an Azure object
+#'
+#' Miscellaneous functions for printing Azure R6 objects
+#'
+#' @param token An Azure OAuth token.
+#' @param env An R6 object's environment for printing.
+#' @param exclude Objects in `env` to exclude from the printout.
+#'
+#' @details
+#' These functions are utilities to aid in printing Azure R6 objects. They are not meant to be called by the user.
+#'
+#' @rdname format
+#' @export
 format_auth_header <- function(token)
 {
     expiry <- as.POSIXct(as.numeric(token$credentials$expires_on), origin="1970-01-01")
@@ -13,6 +26,9 @@ format_auth_header <- function(token)
            "---\n")
 }
 
+
+#' @rdname format
+#' @export
 format_public_fields <- function(env, exclude=character(0))
 {
     objnames <- ls(env)
@@ -43,6 +59,9 @@ format_public_fields <- function(env, exclude=character(0))
     paste0(paste0(objconts, collapse="\n"), "\n---\n")
 }
 
+
+#' @rdname format
+#' @export
 format_public_methods <- function(env)
 {
     objnames <- ls(env)
