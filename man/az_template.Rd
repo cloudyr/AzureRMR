@@ -17,7 +17,8 @@ Class representing an Azure deployment template.
 \item \code{new(token, subscription, resource_group, name, ...)}: Initialize a new template object. See 'Initialization' for more details.
 \item \code{check()}: Check the deployment status of the template; throw an error if the template has been deleted.
 \item \code{cancel(free_resources=FALSE)}: Cancel an in-progress deployment. Optionally free any resources that have already been created.
-\item \code{delete(confirm=TRUE, free_resources=FALSE)}: Delete a deployed template, after a confirmation check. Optionally free any resources that were created.
+\item \code{delete(confirm=TRUE, free_resources=FALSE)}: Delete a deployed template, after a confirmation check. Optionally free any resources that were created. The latter process uses the order in which the template enumerates its output resources; because of this, some may be left behind if the ordering is incompatible with dependencies.
+\item \code{list_resources()}: Returns a list of Azure resource objects that were created by the template. This returns top-level resources only, not those that represent functionality provided by another resource.
 }
 }
 
@@ -33,7 +34,7 @@ To initialize an object that refers to an existing deployment, supply the follow
 \item \code{name}: The deployment name`.
 }
 
-If you also supply the following arguments to new(), a new template will be deployed:
+If you also supply the following arguments to \code{new()}, a new template will be deployed:
 \itemize{
 \item \code{template}: The template to deploy. This can be provided in a number of ways:
 \enumerate{

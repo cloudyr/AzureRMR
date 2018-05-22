@@ -7,7 +7,8 @@
 #' - `new(token, subscription, resource_group, name, ...)`: Initialize a new template object. See 'Initialization' for more details.
 #' - `check()`: Check the deployment status of the template; throw an error if the template has been deleted.
 #' - `cancel(free_resources=FALSE)`: Cancel an in-progress deployment. Optionally free any resources that have already been created.
-#' - `delete(confirm=TRUE, free_resources=FALSE)`: Delete a deployed template, after a confirmation check. Optionally free any resources that were created.
+#' - `delete(confirm=TRUE, free_resources=FALSE)`: Delete a deployed template, after a confirmation check. Optionally free any resources that were created. The latter process uses the order in which the template enumerates its output resources; because of this, some may be left behind if the ordering is incompatible with dependencies.
+#' - `list_resources()`: Returns a list of Azure resource objects that were created by the template. This returns top-level resources only, not those that represent functionality provided by another resource.
 #'
 #' @section Initialization:
 #' Initializing a new object of this class can either retrieve an existing template, or deploy a new template on the host. Generally, the easiest way to create a template object is via the `get_template`, `deploy_template` or `list_templates` methods of the [az_resource_group] class, which handle the details automatically.
@@ -18,7 +19,7 @@
 #' - `resource_group`: The resource group.
 #' - `name`: The deployment name`.
 #'
-#' If you also supply the following arguments to new(), a new template will be deployed:
+#' If you also supply the following arguments to `new()`, a new template will be deployed:
 #' - `template`: The template to deploy. This can be provided in a number of ways:
 #'   1. A nested list of name-value pairs representing the parsed JSON
 #'   2. The name of a template file
@@ -62,6 +63,9 @@ public=list(
 
         self$id <- parms$id
         self$properties <- parms$properties
+
+        # initialise top-level resource objects
+        #private$init_resources()
 
         private$is_valid <- TRUE
         NULL
@@ -116,6 +120,20 @@ public=list(
         if(status %in% c("Error", "Failed"))
             private$is_valid <- FALSE
         status
+    },
+
+    list_resources=function()
+    {
+        outlst <- lapply(self$properties$outputResources, function(res)
+        {
+            res <- res$id
+            # return only top-level resources; error out if resource has been deleted
+            if(grepl("providers/[^/]+/[^/]+/[^/]+$", res))
+                az_resource$new(self$token, self$subscription, self$resource_group, id=res)
+            else NULL
+        })
+        nulls <- sapply(outlst, is.null)
+        named_list(outlst[!nulls], c("type", "name"))
     },
 
     print=function(...)
@@ -214,6 +232,7 @@ private=list(
         for(i in seq_along(resources))
         {
             id <- resources[[i]]$id
+            Sys.sleep(1)
             res <- try(az_resource$new(self$token, self$subscription, id=id), silent=TRUE)
             # if attempt to get resource failed, that means it was deleted
             if(!inherits(res, "try-error"))
