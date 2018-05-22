@@ -6,7 +6,7 @@
 #' @section Methods:
 #' - `new(...)`: Initialize a new resource object. See 'Initialization' for more details.
 #' - `check()`: Check if this resource still exists.
-#' - `delete(confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
+#' - `delete(..., confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 #' - `update(...)`: Update this resource on the host.
 #' - `sync_fields()`: Update the fields in this object with information from the host.
 #' - `set_api_version(api_version)`: Set the API version to use when interacting with the host. By default, use the latest API version available.
@@ -134,7 +134,7 @@ public=list(
         invisible(NULL)
     },
 
-    delete=function(confirm=TRUE, wait=FALSE)
+    delete=function(..., options=list(), confirm=TRUE, wait=FALSE)
     {
         if(confirm && interactive())
         {
@@ -143,7 +143,7 @@ public=list(
                 return(invisible(NULL))
         }
 
-        private$res_op(http_verb="DELETE")
+        private$res_op(..., options=options, http_verb="DELETE")
         message("Deleting resource '", construct_path(self$type, self$name), "'")
 
         if(wait)
@@ -175,11 +175,11 @@ public=list(
         !inherits(res, "try-error")
     },
 
-    update=function(...)
+    update=function(..., options=list())
     {
         parms <- list(...)
         validate_update_parms(names(parms))
-        private$res_op(body=parms, encode="json", http_verb="PATCH")
+        private$res_op(body=parms, options=options, encode="json", http_verb="PATCH")
     },
 
     print=function(...)

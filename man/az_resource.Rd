@@ -16,7 +16,7 @@ Class representing a generic Azure resource.
 \itemize{
 \item \code{new(...)}: Initialize a new resource object. See 'Initialization' for more details.
 \item \code{check()}: Check if this resource still exists.
-\item \code{delete(confirm=TRUE, wait=FALSE)}: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
+\item \code{delete(..., confirm=TRUE, wait=FALSE)}: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 \item \code{update(...)}: Update this resource on the host.
 \item \code{sync_fields()}: Update the fields in this object with information from the host.
 \item \code{set_api_version(api_version)}: Set the API version to use when interacting with the host. By default, use the latest API version available.
