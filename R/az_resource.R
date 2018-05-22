@@ -209,8 +209,10 @@ private=list(
         else if(!missing(id))
         {
             resource_group <- sub("^.+resourceGroups/([^/]+)/.*$", "\\1", id, ignore.case=TRUE)
-            type <- dirname(sub("^.+providers/", "", id))
-            name <- basename(id)
+            id2 <- sub("^.+providers/", "", id)
+            type_delim <- attr(regexpr("^[^/]+/[^/]+/", id2), "match.length")
+            type <- substr(id2, 1, type_delim - 1)
+            name <- substr(id2, type_delim + 1, nchar(id2))
         }
         else
         {

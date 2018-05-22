@@ -19,8 +19,10 @@ named_list <- function(lst, name_fields="name")
 
     lst_names <- sapply(name_fields, function(n) sapply(lst, `[[`, n))
     if(length(name_fields) > 1)
+    {
+        dim(lst_names) <- c(length(lst_names) / length(name_fields), length(name_fields))
         lst_names <- apply(lst_names, 1, function(nn) paste(nn, collapse="/"))
-
+    }
     names(lst) <- lst_names
     dups <- duplicated(tolower(names(lst)))
     if(any(dups))
