@@ -143,8 +143,8 @@ public=list(
                 return(invisible(NULL))
         }
 
-        private$res_op(..., options=options, http_verb="DELETE")
         message("Deleting resource '", construct_path(self$type, self$name), "'")
+        private$res_op(..., options=options, http_verb="DELETE")
 
         if(wait)
         {
@@ -198,8 +198,8 @@ private=list(
     # initialise identifier fields from multiple ways of constructing object
     init_id_fields=function(resource_group, provider, path, type, name, id, parms=list())
     {
-        # if this is supplied, fill in everything else from it
-        if(!is_empty(parms))
+        # if these are supplied, use to fill in everything else
+        if(!is_empty(parms$id) && !is_empty(parms$type) && !is_empty(parms$name))
         {
             resource_group <- sub("^.+resourceGroups/([^/]+)/.*$", "\\1", parms$id, ignore.case=TRUE)
             type <- parms$type
@@ -218,7 +218,8 @@ private=list(
         {
             if(missing(type))
                 type <- construct_path(provider, path)
-            id <- construct_path("/subscriptions", self$subscription, "resourceGroups", resource_group, "providers", type, name)
+            id <- construct_path("/subscriptions", self$subscription, "resourceGroups", resource_group,
+                                 "providers", type, name)
         }
         self$resource_group <- resource_group
         self$type <- type
@@ -228,7 +229,8 @@ private=list(
 
     init_from_parms=function(parms)
     {
-        private$validate_response_parms(parms)
+        if(!identical(parms, list(NULL)))
+            private$validate_response_parms(parms)
         parms
     },
 

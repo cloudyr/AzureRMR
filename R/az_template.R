@@ -232,11 +232,15 @@ private=list(
         for(i in seq_along(resources))
         {
             id <- resources[[i]]$id
-            Sys.sleep(1)
-            res <- try(az_resource$new(self$token, self$subscription, id=id), silent=TRUE)
-            # if attempt to get resource failed, that means it was deleted
-            if(!inherits(res, "try-error"))
-                try(res$delete(confirm=FALSE, wait=TRUE))
+
+            # only attempt to delete top-level resources
+            if(grepl("/providers/[^/]+/[^/]+/[^/]+$", id))
+            {
+                # supply deployed_properties arg to prevent querying host for resource info
+                try(az_resource $
+                    new(self$token, self$subscription, id=id, deployed_properties=list(NULL)) $
+                    delete(confirm=FALSE, wait=TRUE))
+            }
         }
     },
 
