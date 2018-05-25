@@ -99,7 +99,6 @@ public=list(
         self$sku <- parms$sku
         self$tags <- parms$tags
 
-        private$is_valid <- TRUE
         NULL
     },
 
@@ -159,7 +158,6 @@ public=list(
                 warning("Attempt to delete resource did not succeed", call.=FALSE)
         }
 
-        private$is_valid <- FALSE
         invisible(NULL)
     },
 
@@ -192,7 +190,6 @@ public=list(
 ),
 
 private=list(
-    is_valid=NULL,
     api_version=NULL,
 
     # initialise identifier fields from multiple ways of constructing object

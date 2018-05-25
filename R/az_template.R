@@ -7,7 +7,7 @@
 #' - `new(token, subscription, resource_group, name, ...)`: Initialize a new template object. See 'Initialization' for more details.
 #' - `check()`: Check the deployment status of the template; throw an error if the template has been deleted.
 #' - `cancel(free_resources=FALSE)`: Cancel an in-progress deployment. Optionally free any resources that have already been created.
-#' - `delete(confirm=TRUE, free_resources=FALSE)`: Delete a deployed template, after a confirmation check. Optionally free any resources that were created. The latter process uses the order in which the template enumerates its output resources; because of this, some may be left behind if the ordering is incompatible with dependencies.
+#' - `delete(confirm=TRUE, free_resources=FALSE)`: Delete a deployed template, after a confirmation check. Optionally free any resources that were created. If the template was deployed in Complete mode (its resource group is exclusive to its use), the latter process will delete the entire resource group. Otherwise resources are deleted in the order given by the template's output resources list; in this case, some may be left behind if the ordering is incompatible with dependencies.
 #' - `list_resources()`: Returns a list of Azure resource objects that were created by the template. This returns top-level resources only, not those that represent functionality provided by another resource.
 #'
 #' @section Initialization:
@@ -63,11 +63,6 @@ public=list(
 
         self$id <- parms$id
         self$properties <- parms$properties
-
-        # initialise top-level resource objects
-        #private$init_resources()
-
-        private$is_valid <- TRUE
         NULL
     },
 
@@ -82,22 +77,37 @@ public=list(
         else message("Associated resources will not be freed")
 
         private$tpl_op("cancel", http_verb="POST")
-        private$is_valid <- FALSE
         invisible(NULL)
     },
 
     delete=function(confirm=TRUE, free_resources=FALSE)
     {
+        # mode = Complete and free_resources = TRUE:  delete entire resource group
+        # mode = Incr and free_resources = TRUE:      delete resources individually
+        # mode = Complete and free_resources = FALSE: delete template
+        # mode = Incr and free_resources = FALSE:     delete template
+        del <- if(!free_resources)
+            "tpl"
+        else if(self$properties$mode == "Complete")
+            "rg"
+        else "res"
+
         if(confirm && interactive())
         {
-            msg <- paste0("Do you really want to delete template '", self$name, "'")
-            if(free_resources)
-                msg <- paste0(msg, " and associated resources")
-            msg <- paste0(msg, "? (y/N) ")
+            msg <- if(del == "tpl")
+                paste0("template '", self$name, "'")
+            else if(del == "rg")
+                paste0("resource group '", self$resource_group, "'")
+            else paste0("template '", self$name, "' and associated resources")
+            msg <- paste0("Do you really want to delete ", msg, "? (y/N) ")
+
             yn <- readline(msg)
             if(tolower(substr(yn, 1, 1)) != "y")
                 return(invisible(NULL))
         }
+
+        if(del == "rg")
+            return(az_resource_group$new(self$token, self$subscription, self$resource_group)$delete(confirm=FALSE))
 
         message("Deleting template '", self$name, "'")
         if(free_resources)
@@ -108,7 +118,6 @@ public=list(
         else message("Associated resources will not be freed")
 
         private$tpl_op(http_verb="DELETE")
-        private$is_valid <- FALSE
         invisible(NULL)
     },
 
@@ -116,10 +125,7 @@ public=list(
     check=function()
     {
         self$initialize(self$token, self$subscription, self$resource_group, self$name)
-        status <- self$properties$provisioningState
-        if(status %in% c("Error", "Failed"))
-            private$is_valid <- FALSE
-        status
+        self$properties$provisioningState
     },
 
     list_resources=function()
@@ -146,7 +152,6 @@ public=list(
 ),
 
 private=list(
-    is_valid=NULL,
 
     init_from_host=function(name)
     {

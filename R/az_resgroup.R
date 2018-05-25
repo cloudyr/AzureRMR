@@ -84,7 +84,6 @@ public=list(
         self$properties <- parms$properties
         self$tags <- parms$tags
 
-        private$is_valid <- TRUE
         NULL
     },
 
@@ -99,15 +98,13 @@ public=list(
 
         private$rg_op(http_verb="DELETE")
         message("Deleting resource group '", self$name, "'. This operation may take some time to complete.")
-        private$is_valid <- FALSE
         invisible(NULL)
     },
 
     check=function()
     {
         res <- private$rg_op(http_verb="HEAD", http_status_handler="pass")
-        private$is_valid <- httr::status_code(res) < 300
-        private$is_valid
+        httr::status_code(res) < 300
     },
 
     list_templates=function()
@@ -188,7 +185,6 @@ public=list(
 ),
 
 private=list(
-    is_valid=FALSE,
 
     init=function(name, parms)
     {

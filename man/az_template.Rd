@@ -17,7 +17,7 @@ Class representing an Azure deployment template.
 \item \code{new(token, subscription, resource_group, name, ...)}: Initialize a new template object. See 'Initialization' for more details.
 \item \code{check()}: Check the deployment status of the template; throw an error if the template has been deleted.
 \item \code{cancel(free_resources=FALSE)}: Cancel an in-progress deployment. Optionally free any resources that have already been created.
-\item \code{delete(confirm=TRUE, free_resources=FALSE)}: Delete a deployed template, after a confirmation check. Optionally free any resources that were created. The latter process uses the order in which the template enumerates its output resources; because of this, some may be left behind if the ordering is incompatible with dependencies.
+\item \code{delete(confirm=TRUE, free_resources=FALSE)}: Delete a deployed template, after a confirmation check. Optionally free any resources that were created. If the template was deployed in Complete mode (its resource group is exclusive to its use), the latter process will delete the entire resource group. Otherwise resources are deleted in the order given by the template's output resources list; in this case, some may be left behind if the ordering is incompatible with dependencies.
 \item \code{list_resources()}: Returns a list of Azure resource objects that were created by the template. This returns top-level resources only, not those that represent functionality provided by another resource.
 }
 }
