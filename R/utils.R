@@ -3,12 +3,13 @@
 #' @param lst A named list of objects.
 #' @param name_fields The components of the objects in `lst`, to be used as names.
 #' @param x For `is_url` and `is_empty`, An R object.
+#' @param https_only For `is_url`, whether to allow only HTTPS URLs.
 #'
 #' @details
 #' `named_list` extracts from each object in `lst`, the components named by `name_fields`. It then constructs names for `lst` from these components, separated by a `"/"`.
 #'
 #' @return
-#' For `named_list`, the list that was passed in but with names. For `is_url`, whether the object appears to be a URL (is character of length 1, and starts with the string `"https"`). Only HTTPS URLs are allowed. For `is_empty`, whether the length of the object is zero (this includes the special case of `NULL`).
+#' For `named_list`, the list that was passed in but with names. For `is_url`, whether the object appears to be a URL (is character of length 1, and starts with the string `"http"`). Optionally, restricts the check to HTTPS URLs only. For `is_empty`, whether the length of the object is zero (this includes the special case of `NULL`).
 #'
 #' @rdname utils
 #' @export
@@ -34,12 +35,13 @@ named_list <- function(lst, name_fields="name")
 }
 
 
-# check if a string appears to be a URL (only https allowed)
+# check if a string appears to be a http/https URL, optionally only https allowed
 #' @rdname utils
 #' @export
-is_url <- function(x)
+is_url <- function(x, https_only=FALSE)
 {
-    is.character(x) && length(x) == 1 && grepl("^https://", x)
+    pat <- if(https_only) "^https://" else "^https?://"
+    is.character(x) && length(x) == 1 && grepl(pat, x)
 }
 
 

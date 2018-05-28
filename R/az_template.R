@@ -121,7 +121,7 @@ public=list(
         invisible(NULL)
     },
 
-    # update state of template: deployment accepted/deployment failed/updating/running/failed
+    # update state of template: deployment accepted/deployment failed/updating/running
     check=function()
     {
         self$initialize(self$token, self$subscription, self$resource_group, self$name)
@@ -243,7 +243,7 @@ private=list(
             {
                 # supply deployed_properties arg to prevent querying host for resource info
                 try(az_resource $
-                    new(self$token, self$subscription, id=id, deployed_properties=list(NULL)) $
+                    new(self$token, self$subscription, id=id, deployed_properties=NULL) $
                     delete(confirm=FALSE, wait=TRUE))
             }
         }
@@ -257,7 +257,8 @@ private=list(
 
     tpl_op=function(op="", ...)
     {
-        op <- construct_path("resourcegroups", self$resource_group, "providers/Microsoft.Resources/deployments", self$name, op)
+        op <- construct_path("resourcegroups", self$resource_group,
+                             "providers/Microsoft.Resources/deployments", self$name, op)
         call_azure_rm(self$token, self$subscription, op, ...)
     }
 ))

@@ -8,7 +8,7 @@
 \usage{
 named_list(lst, name_fields = "name")
 
-is_url(x)
+is_url(x, https_only = FALSE)
 
 is_empty(x)
 }
@@ -18,9 +18,11 @@ is_empty(x)
 \item{name_fields}{The components of the objects in \code{lst}, to be used as names.}
 
 \item{x}{For \code{is_url} and \code{is_empty}, An R object.}
+
+\item{https_only}{For \code{is_url}, whether to allow only HTTPS URLs.}
 }
 \value{
-For \code{named_list}, the list that was passed in but with names. For \code{is_url}, whether the object appears to be a URL (is character of length 1, and starts with the string \code{"https"}). Only HTTPS URLs are allowed. For \code{is_empty}, whether the length of the object is zero (this includes the special case of \code{NULL}).
+For \code{named_list}, the list that was passed in but with names. For \code{is_url}, whether the object appears to be a URL (is character of length 1, and starts with the string \code{"http"}). Optionally, restricts the check to HTTPS URLs only. For \code{is_empty}, whether the length of the object is zero (this includes the special case of \code{NULL}).
 }
 \description{
 Miscellaneous utility functions

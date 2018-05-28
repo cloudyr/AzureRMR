@@ -165,7 +165,7 @@ public=list(
         az_resource $
             new(self$token, self$subscription, self$name,
                 provider=provider, path=path, type=type, name=name, id=id,
-                deployed_properties=list(NULL), api_version=api_version) $
+                deployed_properties=NULL, api_version=api_version) $
             delete(..., confirm=confirm, wait=wait)
     },
 
