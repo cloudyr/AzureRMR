@@ -64,7 +64,6 @@ public=list(
     sku=NULL,
     tags=NULL,
     token=NULL,
-    is_synced=FALSE,
 
     # constructor overloads:
     # 1. deploy resource: resgroup, {provider, path}|type, name, ...
@@ -125,10 +124,9 @@ public=list(
         invisible(private$api_version)
     },
 
-    sync_fields=function(force=FALSE)
+    sync_fields=function()
     {
-        if(force || !self$is_synced)
-            self$initialize(self$token, self$subscription, id=self$id)
+        self$initialize(self$token, self$subscription, id=self$id)
         invisible(NULL)
     },
 
@@ -175,8 +173,34 @@ public=list(
     update=function(..., options=list())
     {
         parms <- list(...)
-        validate_update_parms(names(parms))
+        private$validate_update_parms(names(parms))
         private$res_op(body=parms, options=options, encode="json", http_verb="PATCH")
+        self$sync_fields()
+    },
+
+    set_tags=function(..., keep_existing=TRUE)
+    {
+        tags <- match.call(expand.dots=FALSE)$...
+        unvalued <- names(tags) == ""
+
+        values <- lapply(seq_along(unvalued), function(i)
+        {
+            if(unvalued[i]) "" else as.character(eval.parent(tags[[i]]))
+        })
+        names(values) <- ifelse(unvalued, as.character(tags), names(tags))
+
+        if(keep_existing)
+            values <- modifyList(self$tags, values)
+
+        if(is.null(values))
+            values <- list()
+ 
+        self$update(tags=values)
+    },
+
+    get_tags=function()
+    {
+        self$tags
     },
 
     print=function(...)
@@ -232,9 +256,7 @@ private=list(
 
     init_from_host=function()
     {
-        res <- private$res_op()
-        self$is_synced <- attr(res, "status") < 202
-        res
+        private$res_op()
     },
 
     init_and_deploy=function(...)
@@ -250,7 +272,7 @@ private=list(
 
         # allow time for provisioning setup, then get properties
         Sys.sleep(1)
-        private$init_from_host()
+        private$res_op()
     },
 
     validate_deploy_parms=function(parms)
@@ -271,6 +293,7 @@ private=list(
     {
         required_names <- character(0)
         optional_names <- c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags")
+        validate_object_names(names(parms), required_names, optional_names)
     },
 
     res_op=function(op="", ...)
