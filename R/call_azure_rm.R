@@ -95,6 +95,8 @@ process_response <- function(response, handler)
 arm_error_message <- function(response)
 {
     cont <- httr::content(response)
-    paste0(strwrap(cont$error$message), collapse="\n")
+    if(!is_empty(cont$error$message))
+        paste0(strwrap(cont$error$message), collapse="\n")
+    else ""
 }
 
