@@ -296,13 +296,13 @@ private=list(
         validate_object_names(names(parms), required_names, optional_names)
     },
 
-    res_op=function(op="", ...)
+    res_op=function(op="", ..., api_version=private$api_version)
     {
         # make sure we have an API to call
         if(is.null(private$api_version))
             self$set_api_version()
 
         op <- construct_path("resourcegroups", self$resource_group, "providers", self$type, self$name, op)
-        call_azure_rm(self$token, self$subscription, op, ..., api_version=private$api_version)
+        call_azure_rm(self$token, self$subscription, op, ..., api_version=api_version)
     }
 ))
