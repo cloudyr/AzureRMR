@@ -4,7 +4,7 @@ A package for interacting with Azure Resource Manager: authenticate, list subscr
 
 To use AzureRMR, you must register a client app with Azure Active Directory. See the [`aad_register.Rmd` vignette](vignettes/aad_register.Rmd) for more details, or go to the [docs.microsoft.com page](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal).
 
-AzureRMR is meant to provide only the base functionality for working with Resource Manager. You can extend it to support specific Azure services like [virtual machines](https://github.com/hong-revo/AzureVM) or [storage accounts](https://github.com/hong-revo/AzureStor).
+AzureRMR is meant to provide only the base functionality for working with Resource Manager. You can extend it to support specific Azure services like [virtual machines](https://github.com/hong-revo/AzureVM) or [storage accounts](https://github.com/hong-revo/AzureStor). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).
 
 Here is a sample workflow. The package uses R6 classes to represent all Azure objects, including authentication tokens (extending the functionality provided by the httr package), subscriptions, resource groups, and individual resources. OAuth 2.0 authentication is supported using both client credentials and device code flow. Tokens will be automatically refreshed/renewed if they expire during a session.
 
@@ -23,7 +23,7 @@ az2 <- az_rm$new(tenant="xxx-xxx-xxx",
 az3 <- az_rm$new(config_file="creds.json")
 ```
 
-Working with subscriptions and resource groups.
+Working with subscriptions and resource groups:
 
 ```r
 # all subscriptions associated with this app
