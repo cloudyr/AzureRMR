@@ -115,6 +115,8 @@ public=list(
 
     delete_resource_group=function(name, confirm=TRUE)
     {
+        if(name == "")
+            stop("Must supply a resource group name", call.=FALSE)
         self$get_resource_group(name)$delete(confirm=confirm)
     },
 
