@@ -96,11 +96,13 @@ arm_error_message <- function(response)
 {
     cont <- httr::content(response)
 
-    # not all ARM errors are json-formatted (AKS)
-    msg <- if(is.list(cont) && is.list(cont$error) && is.character(cont$error$message))
-        cont$error$message
-    else if(is.character(cont))
+    # kiboze through possible message locations
+    msg <- if(is.character(cont))
         cont
+    else if(is.list(cont) && is.character(cont$message))
+        cont$message
+    else if(is.list(cont) && is.list(cont$error) && is.character(cont$error$message))
+        cont$error$message
     else ""
 
     paste0(strwrap(msg), collapse="\n")
