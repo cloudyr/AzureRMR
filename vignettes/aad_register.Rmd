@@ -24,7 +24,9 @@ You must collect at least two pieces of information to authenticate with `az_rm(
 
 1. On the left side of the screen, there should be a list of the different things you can create in Azure. Click on "Azure Active Directory".
 
-1. The AAD blade should appear. Under "Manage", click on "App registrations".
+1. The AAD blade should appear. Under "Manage", click on "Properties". Note the 'directory ID' entry on the right, which is, confusingly, your **tenant ID**.
+
+1. Under "Manage", click on the "App registrations" entry.
 
 1. Along the top menu, click "New application registration".
 
@@ -32,15 +34,7 @@ You must collect at least two pieces of information to authenticate with `az_rm(
 
 1. In the "Application type" box, choose "Web App/API" if you want to authenticate using a secret key, or "Native" if you want to authenticate with a code that the server sends to you at runtime. If you're not sure, choose "Native" as this provides more security. If you intend to use AzureRMR in a scripted setting (without user intervention), choose "Web App".
 
-1. Click on "Create". After a few seconds, a new blade will appear containing a list of all registered AAD applications.
-
-1. First, get your tenant ID from this screen. Click on "Endpoints" at the top of the blade. This will popup a new blade giving several URLs for accessing the client.
-
-1. Choose one of these (it doesn't matter which one) and click the button on the side to copy the URL to the clipboard.
-
-1. Paste the URL into Notepad or another text editor. It will contain a sequence of hex digits in the middle, which is your **tenant ID**.
-
-1. Return to the list of apps by closing the Endpoints blade. Find your app by entering the name you chose into the search box.
+1. Click on "Create". After a few seconds, a new blade will appear containing a list of all registered AAD applications. Find your app by entering the name you chose into the search box.
 
 1. When your app appears in the list, click on it. In the details, note the **application ID**.
 
