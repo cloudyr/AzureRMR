@@ -131,7 +131,8 @@ public=list(
             lst <- c(lst, lapply(cont$value,
                 function(parms) az_resource$new(self$token, self$id, deployed_properties=parms)))
         }
-        named_list(lst, c("type", "name"))
+        names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
+        lst
     },
 
     print=function(...)
