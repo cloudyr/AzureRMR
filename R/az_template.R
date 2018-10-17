@@ -243,7 +243,7 @@ private=list(
             {
                 # supply deployed_properties arg to prevent querying host for resource info
                 try(az_resource $
-                    new(self$token, self$subscription, id=id, deployed_properties=NULL) $
+                    new(self$token, self$subscription, id=id, deployed_properties=list(NULL)) $
                     delete(confirm=FALSE, wait=TRUE))
             }
         }

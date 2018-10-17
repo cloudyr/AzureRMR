@@ -84,7 +84,7 @@ public=list(
 
         parms <- if(!is_empty(list(...)))
             private$init_and_deploy(...)
-        else if(is.null(deployed_properties))
+        else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
         else private$init_from_host()
 
@@ -205,7 +205,8 @@ public=list(
 
     print=function(...)
     {
-        cat("<Azure resource ", self$type, "/", self$name, ">\n", sep="")
+        # generate label from id, since type and name are not guaranteed to be fixed for sub-resources
+        cat("<Azure resource ", sub("^.+providers/(.+$)", "\\1", self$id), ">\n", sep="")
         cat(format_public_fields(self, exclude=c("subscription", "resource_group", "type", "name")))
         cat(format_public_methods(self))
         invisible(NULL)
@@ -249,7 +250,8 @@ private=list(
 
     init_from_parms=function(parms)
     {
-        if(!is.null(parms))
+        # allow list(NULL) as special case for creating an empty object
+        if(!identical(parms, list(NULL)))
             private$validate_response_parms(parms)
         parms
     },
