@@ -1,6 +1,6 @@
 Package: AzureRMR
 Title: Base functionality for Azure RMR: authenticate, get subscriptions, get resource groups
-Version: 0.1
+Version: 0.9
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
