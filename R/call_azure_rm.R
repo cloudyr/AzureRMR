@@ -2,13 +2,13 @@
 #'
 #' @param token An Azure OAuth token, of class [AzureToken].
 #' @param subscription A subscription ID.
-#' @param operation: The operation to perform, which will form part of the URL path.
-#' @param options: A named list giving the URL query parameters.
-#' @param api_version: The API version to use, which will form part of the URL sent to the host.
-#' @param url: A complete URL to send to the host.
-#' @param http_verb: The HTTP verb as a string, one of `GET`, `PUT`, `POST`, `DELETE`, `HEAD` or `PATCH`.
-#' @param http_status_handler: How to handle in R the HTTP status code of a response. `"stop"`, `"warn"` or `"message"` will call the appropriate handlers in httr, while `"pass"` ignores the status code.
-#' @param auto_refresh: Whether to refresh/renew the OAuth token if it is no longer valid.
+#' @param operation The operation to perform, which will form part of the URL path.
+#' @param options A named list giving the URL query parameters.
+#' @param api_version The API version to use, which will form part of the URL sent to the host.
+#' @param url A complete URL to send to the host.
+#' @param http_verb The HTTP verb as a string, one of `GET`, `PUT`, `POST`, `DELETE`, `HEAD` or `PATCH`.
+#' @param http_status_handler How to handle in R the HTTP status code of a response. `"stop"`, `"warn"` or `"message"` will call the appropriate handlers in httr, while `"pass"` ignores the status code.
+#' @param auto_refresh Whether to refresh/renew the OAuth token if it is no longer valid.
 #' @param ... Other arguments passed to lower-level code, ultimately to the appropriate functions in httr.
 #'
 #' @details

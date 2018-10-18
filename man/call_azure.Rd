@@ -8,30 +8,30 @@
 call_azure_rm(token, subscription, operation, ..., options = list(),
   api_version = getOption("azure_api_version"))
 
-call_azure_url(token, url, ..., http_verb = c("GET", "DELETE", "PUT", "POST",
-  "HEAD", "PATCH"), http_status_handler = c("stop", "warn", "message",
-  "pass"), auto_refresh = TRUE)
+call_azure_url(token, url, ..., http_verb = c("GET", "DELETE", "PUT",
+  "POST", "HEAD", "PATCH"), http_status_handler = c("stop", "warn",
+  "message", "pass"), auto_refresh = TRUE)
 }
 \arguments{
 \item{token}{An Azure OAuth token, of class \link{AzureToken}.}
 
 \item{subscription}{A subscription ID.}
 
+\item{operation}{The operation to perform, which will form part of the URL path.}
+
 \item{...}{Other arguments passed to lower-level code, ultimately to the appropriate functions in httr.}
 
-\item{operation:}{The operation to perform, which will form part of the URL path.}
+\item{options}{A named list giving the URL query parameters.}
 
-\item{options:}{A named list giving the URL query parameters.}
+\item{api_version}{The API version to use, which will form part of the URL sent to the host.}
 
-\item{api_version:}{The API version to use, which will form part of the URL sent to the host.}
+\item{url}{A complete URL to send to the host.}
 
-\item{url:}{A complete URL to send to the host.}
+\item{http_verb}{The HTTP verb as a string, one of \code{GET}, \code{PUT}, \code{POST}, \code{DELETE}, \code{HEAD} or \code{PATCH}.}
 
-\item{http_verb:}{The HTTP verb as a string, one of \code{GET}, \code{PUT}, \code{POST}, \code{DELETE}, \code{HEAD} or \code{PATCH}.}
+\item{http_status_handler}{How to handle in R the HTTP status code of a response. \code{"stop"}, \code{"warn"} or \code{"message"} will call the appropriate handlers in httr, while \code{"pass"} ignores the status code.}
 
-\item{http_status_handler:}{How to handle in R the HTTP status code of a response. \code{"stop"}, \code{"warn"} or \code{"message"} will call the appropriate handlers in httr, while \code{"pass"} ignores the status code.}
-
-\item{auto_refresh:}{Whether to refresh/renew the OAuth token if it is no longer valid.}
+\item{auto_refresh}{Whether to refresh/renew the OAuth token if it is no longer valid.}
 }
 \value{
 If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked. If an error is not thrown, the parsed content of the response is returned with the status code attached as the "status" attribute.

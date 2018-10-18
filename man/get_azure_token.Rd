@@ -4,8 +4,8 @@
 \alias{get_azure_token}
 \title{Generate an Azure OAuth token}
 \usage{
-get_azure_token(aad_host, tenant, app, auth_type = c("client_credentials",
-  "device_code"), secret, arm_host)
+get_azure_token(aad_host, tenant, app,
+  auth_type = c("client_credentials", "device_code"), secret, arm_host)
 }
 \arguments{
 \item{aad_host}{URL for your Azure Active Directory host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
