@@ -27,22 +27,6 @@ public=list(
         sapply(keys, `[[`, "value")
     },
 
-    get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="r",
-                             resource_types="sco", ip=NULL, protocol=NULL, key=NULL)
-    {
-        parms <- list(keyToSign=key,
-                      signedExpiry=expiry,
-                      signedIp=ip,
-                      signedPermission=permissions,
-                      signedProtocol=protocol,
-                      signedResourceTypes=resource_types,
-                      signedServices=services,
-                      signedStart=start)
-        self$
-            do_operation("listAccountSas", body=parms, encode="json", http_verb="POST")$
-            accountSasToken
-    },
-
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
         blob_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
@@ -109,13 +93,30 @@ public=list(
     }
 
     # ... other VM-specific methods ...
+),
+
+private=list(
+    # will store a list of VM objects after initialisation
+    vm=NULL
+
+    # ... other private members ...
+)
 ))
 ```
 
 
-## Add methods
+## Add accessor functions
 
-Once you've created your new class(es), you should add convenience functions to `az_resource_group` (and optionally `az_subscription` as well, if your service has subscription-level API calls) to create, get and delete resources. Note that if you are writing a package that extends AzureRMR, these methods _must_ be defined in the package's `.onLoad` function. This is because the methods must be added at runtime, when the user loads your package, rather than at compile time, when it is built or installed.
+Once you've created your new class(es), you should add accessor functions to `az_resource_group` (and optionally `az_subscription` as well, if your service has subscription-level API calls) to create, get and delete resources. This allows the convenience of _method chaining_:
+
+```{r, eval=FALSE}
+res <- az_rm$new("tenant_id", "app_id", "secret") $
+    get_subscription("subscription_id") $
+    get_resource_group("resgroup") $
+    get_my_resource("myresource")
+```
+
+Note that if you are writing a package that extends AzureRMR, these methods _must_ be defined in the package's `.onLoad` function. This is because the methods must be added at runtime, when the user loads your package, rather than at compile time, when it is built or installed.
 
 The `create_storage_account`, `get_storage_account` and `delete_storage_account` methods from the AzureStor package are defined like this:
 
@@ -125,10 +126,10 @@ The `create_storage_account`, `get_storage_account` and `delete_storage_account`
 .onLoad <- function(libname, pkgname)
 {
     AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
-                                    function(name, location,
-                                             kind="Storage",
-                                             sku=list(name="Standard_LRS", tier="Standard"),
-                                             ...)
+    function(name, location,
+             kind="Storage",
+             sku=list(name="Standard_LRS", tier="Standard"),
+             ...)
     {
         az_storage$new(self$token, self$subscription, self$name,
                        type="Microsoft.Storage/storageAccounts", name=name, location=location,
@@ -136,14 +137,14 @@ The `create_storage_account`, `get_storage_account` and `delete_storage_account`
     })
 
     AzureRMR::az_resource_group$set("public", "get_storage_account", overwrite=TRUE,
-                                    function(name)
+    function(name)
     {
         az_storage$new(self$token, self$subscription, self$name,
                        type="Microsoft.Storage/storageAccounts", name=name)
     })
 
     AzureRMR::az_resource_group$set("public", "delete_storage_account", overwrite=TRUE,
-                                    function(name, confirm=TRUE, wait=FALSE)
+    function(name, confirm=TRUE, wait=FALSE)
     {
         self$get_storage_account(name)$delete(confirm=confirm, wait=wait)
     })
@@ -158,12 +159,12 @@ The corresponding accessor functions for AzureVM's `az_vm_template` class are mo
 .onLoad <- function(libname, pkgname)
 {
     AzureRMR::az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-                                    function(name, location,
-                                             os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-                                             username, passkey, userauth_type=c("password", "key"),
-                                             ext_file_uris=NULL, inst_command=NULL,
-                                             clust_size, template, parameters,
-                                             ..., wait=TRUE)
+    function(name, location,
+             os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+             username, passkey, userauth_type=c("password", "key"),
+             ext_file_uris=NULL, inst_command=NULL,
+             clust_size, template, parameters,
+             ..., wait=TRUE)
     {
         os <- match.arg(os)
         userauth_type <- match.arg(userauth_type)
@@ -196,7 +197,7 @@ The corresponding accessor functions for AzureVM's `az_vm_template` class are mo
 
 The AzureRMR class framework allows you to work with resources at the _Azure_ level, via Azure Resource Manager. If a service exposes a _client_ endpoint that is independent of ARM, you may also want to create a separate R interface for the endpoint.
 
-This is done in the AzureStor package by defining a number of (S3) classes, representing blob and file storage endpoints, and individual containers and shares within an endpoint. It further defines (S3) methods for these classes to perform common operations like listing files, uploading and downloading files, and so on.
+As the client interface is independent of the ARM interface, you have flexibility to tailor its design. For example, rather than using R6, the AzureStor package uses S3 classes to represent storage endpoints and individual containers and shares within an endpoint. It further defines (S3) methods for these classes to perform common operations like listing directories, uploading and downloading files, and so on. This is consistent with most other data access and manipulation packages in R, which usually stick to S3.
 
 ```{r, eval=FALSE}
 # blob endpoint for a storage account
