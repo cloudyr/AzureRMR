@@ -8,7 +8,6 @@ Authors@R: c(
 Description: A package for managing a selection of Azure resources, using the Azure Service Manager API. The package exposes functions to manage subscriptions and resource groups. Managing other types of resources is handled via add-on packages that call AzureSMRbase.
 License: file LICENSE
 VignetteBuilder: knitr
-Encoding: UTF-8
 Depends: 
     R (>= 3.3)
 Imports: 
