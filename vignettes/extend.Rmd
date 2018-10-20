@@ -192,6 +192,50 @@ The corresponding accessor functions for AzureVM's `az_vm_template` class are mo
 }
 ```
 
+### Adding documentation
+
+Documenting methods added to a class in this way can be problematic. R's .Rd help format is designed around traditional functions, and R6 classes and methods are usually not a good fit. The popular Roxygen format also (as of October 2018) doesn't deal very well with R6 classes. The fact that we are adding methods to a class defined in an external package is an additional complication.
+
+Here is an example documentation skeleton in Roxygen format, copied from AzureStor. You can add this as a separate block in the source file where you define the accessor method(s). The block uses Markdown formatting, so you will need to have installed roxygen2 version 6.0.1 or later.
+
+```{r, eval=FALSE}
+#' Get existing Azure resource type 'foo'
+#'
+#' Methods for the [AzureRMR::az_resource_group] and [AzureRMR::az_subscription] classes.
+#'
+#' @rdname get_foo
+#' @name get_foo
+#' @aliases get_foo list_foos
+#'
+#' @section Usage:
+#' ```
+#' get_foo(name)
+#' list_foos()
+#' ```
+#' @section Arguments:
+#' - `name`: For `get_foo()`, the name of the resource.
+#'
+#' @section Details:
+#' The `AzureRMR::az_resource_group` class has both `get_foo()` and `list_foos()` methods, while the `AzureRMR::az_subscription` class only has the latter.
+#'
+#' @section Value:
+#' For `get_foo()`, an object of class `az_foo` representing the foo resource.
+#'
+#' For `list_foos()`, a list of such objects.
+#'
+#' @seealso
+#' [create_foo], [delete_foo], [az_foo]
+NULL
+```
+
+We note the following:
+- The `@aliases` tag includes all the names that will bring up this page when using the `?` command, _including_ the default name.
+- Rather than using the standard `@usage`, `@param`, `@details` and `@return` tags, the block uses `@section` to create sections with the appropriate titles (including one named 'Arguments').
+- The usage block is explicitly formatted as fixed-width using Markdown backticks.
+- The arguments are formatted as a (bulleted) list rather than the usual table format for function arguments.
+
+These changes are necessary because what we're technically documenting is not a function as such, but an arbitrary R object (the `NULL` at the bottom of the block). The `@usage`, `@param` tags et al only apply to functions, and if you use them here, `R CMD check` will generate a warning. This can be important if you want to publish your package on CRAN.
+
 
 ## Add client-facing interface
 
