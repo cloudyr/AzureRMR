@@ -234,7 +234,7 @@ We note the following:
 - The usage block is explicitly formatted as fixed-width using Markdown backticks.
 - The arguments are formatted as a (bulleted) list rather than the usual table format for function arguments.
 
-These changes are necessary because what we're technically documenting is not a function as such, but an arbitrary R object (the `NULL` at the bottom of the block). The `@usage`, `@param` tags et al only apply to functions, and if you use them here, `R CMD check` will generate a warning. This can be important if you want to publish your package on CRAN.
+These changes are necessary because what we're technically documenting is not a standalone function, but a method inside a class. The `@usage`, `@param` tags et al only apply to functions, and if you use them here, `R CMD check` will generate a warning when it can't find a function with the given name. This can be important if you want to publish your package on CRAN.
 
 
 ## Add client-facing interface
