@@ -54,15 +54,3 @@ test_that("Template methods work",
 })
 
 rg$delete(confirm=FALSE)
-
-#rg <- sub1$create_resource_group(paste(sample(letters, 20, replace=TRUE), collapse=""), location="australiaeast")
-
-#parm_parsed <- list(
-    #location="australiaeast",
-    #name=paste(sample(letters, 10, replace=TRUE), collapse="")
-#)
-
-#tmp <- rg$deploy_template("tmpsa2",
-    #template="tests/resources/template.json",
-    #parameters=parm_parsed)
-
