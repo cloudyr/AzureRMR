@@ -72,7 +72,8 @@ public=list(
             lapply(apis, function(api)
             {
                 api <- named_list(api$resourceTypes, "resourceType")
-                sapply(api, function(x) x$apiVersions[[which]])
+                sapply(api, function(x)
+                    if(!is_empty(x$apiVersions)) x$apiVersions[[which]] else "")
             })
         }
         else
@@ -84,7 +85,9 @@ public=list(
                 # case-insensitive matching
                 names(apis) <- tolower(names(apis))
                 this_api <- apis[[tolower(type)]]
-                this_api$apiVersions[[which]]
+                if(!is_empty(this_api$apiVersions))
+                    this_api$apiVersions[[which]]
+                else ""
             }
             else sapply(apis, function(x) x$apiVersions[[which]])
         }
