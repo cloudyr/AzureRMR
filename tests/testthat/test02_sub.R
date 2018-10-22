@@ -31,5 +31,9 @@ test_that("Subscription methods work",
     # assume there are actually resource groups here
     rgs <- sub$list_resource_groups()
     expect_true(is.list(rgs) && all(sapply(rgs, is_resource_group)))
+
+    # assume there are actually resources
+    res <- sub$list_resources()
+    expect_true(is.list(res) && all(sapply(res, is_resource)))
 })
 

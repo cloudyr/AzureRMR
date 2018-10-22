@@ -15,7 +15,7 @@ test_that("Resource group methods work",
 {
     rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 
-    rgnew <- sub$create_resource_group(rgname, location="southeastasia")
+    rgnew <- sub$create_resource_group(rgname, location="westus")
     expect_is(rgnew, "az_resource_group")
     expect_equal(rgnew$name, rgname)
 
