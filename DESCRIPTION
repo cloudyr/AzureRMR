@@ -16,6 +16,7 @@ Imports:
     jsonlite,
     R6
 Suggests:
-    knitr
+    knitr,
+    testthat
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0.9000
