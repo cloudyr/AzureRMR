@@ -1,3 +1,3 @@
-# AzureRMR 0.9
+# AzureRMR 0.9.0
 
 * Moved to cloudyr organisation
