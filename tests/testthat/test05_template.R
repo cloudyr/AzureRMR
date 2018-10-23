@@ -20,9 +20,8 @@ test_that("Template methods work",
     # precondition
     expect_true(is_empty(rg$list_resources()))
 
-    tplname <- paste(sample(letters, 10, replace=TRUE), collapse="")
-
     # simple storage account template
+    tplname <- paste(sample(letters, 10, replace=TRUE), collapse="")
     template <- "../resources/template.json"
     parameters <- jsonlite::toJSON(list(
         location=list(value="australiaeast"),
