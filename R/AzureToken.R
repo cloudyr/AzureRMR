@@ -139,7 +139,7 @@ get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials"
 auth_with_creds <- function(base_url, app, password, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
-    app <- httr::oauth_app("azure", key=app, password=password)
+    app <- httr::oauth_app("azure", key=app, secret=password)
 
     AzureToken$new(endp, app, user_params=list(resource=resource))
 }
@@ -148,7 +148,7 @@ auth_with_creds <- function(base_url, app, password, resource)
 auth_with_device <- function(base_url, app, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
-    app <- httr::oauth_app("azure", key=app, password=NULL)
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
 
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
 }

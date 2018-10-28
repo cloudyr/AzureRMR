@@ -15,10 +15,10 @@
 #' - `tenant`: Your tenant ID.
 #' - `app`: Your client/app ID which you registered in Azure Active Directory.
 #' - `auth_type`: Either `"client_credentials"` (the default) or `"device_code"`.
-#' - `password`: if `auth_type == "client_credentials"`, your secret key.
+#' - `password`: if `auth_type == "client_credentials"`, your password.
 #' - `host`: your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
-#' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line.
+#' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @seealso
