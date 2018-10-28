@@ -5,7 +5,7 @@
 \title{Generate an Azure OAuth token}
 \usage{
 get_azure_token(aad_host, tenant, app,
-  auth_type = c("client_credentials", "device_code"), secret, arm_host)
+  auth_type = c("client_credentials", "device_code"), password, arm_host)
 }
 \arguments{
 \item{aad_host}{URL for your Azure Active Directory host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
@@ -16,7 +16,7 @@ get_azure_token(aad_host, tenant, app,
 
 \item{auth_type}{The authentication type, either \code{"client_credentials"} or \code{"device_code"}.}
 
-\item{secret}{Your secret key. Required for \code{auth_type == "client_credentials"}, ignored for \code{auth_type == "device_code"}.}
+\item{password}{Your password. Required for \code{auth_type == "client_credentials"}, ignored for \code{auth_type == "device_code"}.}
 
 \item{arm_host}{URL for your Azure Resource Manager host. For the public Azure cloud, this is \code{https://management.azure.com/}.}
 }
@@ -24,7 +24,7 @@ get_azure_token(aad_host, tenant, app,
 This extends the OAuth functionality in httr to allow for device code authentication.
 }
 \details{
-This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a secret key on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
 }
 \seealso{
 \link{AzureToken}, \link[httr:oauth2.0_token]{httr::oauth2.0_token}, \link[httr:Token]{httr::Token},
