@@ -43,7 +43,7 @@ test_that("Template methods work",
         name=tplname2
     )
 
-    tpl2 <- rg$deploy_template(tplname2, template=tpl_parsed, parameters=parm_parsed)
+    tpl2 <- rg$deploy_template(tplname2, template=tpl_parsed, parameters=parm_parsed, wait=TRUE)
     tpl2$check()
     expect_is(tpl2, "az_template")
     expect_false(is_empty(rg$list_resources()))
