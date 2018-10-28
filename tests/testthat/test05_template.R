@@ -1,16 +1,16 @@
 context("Templates")
 
-tenant <- Sys.getenv("AZ_TENANT_ID")
-app <- Sys.getenv("AZ_APP_ID")
-secret <- Sys.getenv("AZ_SECRET")
-subscription <- Sys.getenv("AZ_SUBSCRIPTION")
+tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
+app <- Sys.getenv("AZ_TEST_APP_ID")
+password <- Sys.getenv("AZ_TEST_PASSWORD")
+subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 
-if(tenant == "" || app == "" || secret == "" || subscription == "")
+if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Resource group method tests skipped: ARM credentials not set")
 
 rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 rg <- az_rm$
-    new(tenant=tenant, app=app, secret=secret)$
+    new(tenant=tenant, app=app, password=password)$
     get_subscription(subscription)$
     create_resource_group(rgname, location="australiaeast")
 

@@ -1,10 +1,10 @@
 ---
 title: "Registering a client app with Azure Active Directory"
 Author: Hong Ooi, after Alan Weaver and Andrie de Vries
-output: rmarkdown::html_vignette
+output: html_document
 vignette: >
   %\VignetteIndexEntry{Azure Active Directory app registration}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{R.rsp::md}
   %\VignetteEncoding{utf8}
 ---
 

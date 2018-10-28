@@ -1,10 +1,10 @@
 ---
 title: "Extending AzureRMR"
 Author: Hong Ooi
-output: rmarkdown::html_vignette
+output: html_document
 vignette: >
   %\VignetteIndexEntry{Extending AzureRMR}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{R.rsp::md}
   %\VignetteEncoding{utf8}
 ---
 

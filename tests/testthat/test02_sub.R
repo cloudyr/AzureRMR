@@ -1,14 +1,14 @@
 context("Subscriptions")
 
-tenant <- Sys.getenv("AZ_TENANT_ID")
-app <- Sys.getenv("AZ_APP_ID")
-secret <- Sys.getenv("AZ_SECRET")
-subscription <- Sys.getenv("AZ_SUBSCRIPTION")
+tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
+app <- Sys.getenv("AZ_TEST_APP_ID")
+password <- Sys.getenv("AZ_TEST_PASSWORD")
+subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 
-if(tenant == "" || app == "" || secret == "" || subscription == "")
+if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Subscription method tests skipped: ARM credentials not set")
 
-az <- az_rm$new(tenant=tenant, app=app, secret=secret)
+az <- az_rm$new(tenant=tenant, app=app, password=password)
 
 
 test_that("Subscription methods work",
