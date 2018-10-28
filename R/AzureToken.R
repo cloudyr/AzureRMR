@@ -115,31 +115,31 @@ private=list(
 #' @param tenant Your tenant ID.
 #' @param app Your client/app ID which you registered in AAD.
 #' @param auth_type The authentication type, either `"client_credentials"` or `"device_code"`.
-#' @param secret Your secret key. Required for `auth_type == "client_credentials"`, ignored for `auth_type == "device_code"`.
+#' @param password Your password. Required for `auth_type == "client_credentials"`, ignored for `auth_type == "device_code"`.
 #' @param arm_host URL for your Azure Resource Manager host. For the public Azure cloud, this is `https://management.azure.com/`.
 #'
 #' @details
-#' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a secret key on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+#' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
 #' 
 #' @seealso
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],
 #' [OAuth authentication for Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code),
 #' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/)
 #' @export
-get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), secret, arm_host)
+get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"), password, arm_host)
 {
     auth_type <- match.arg(auth_type)
     base_url <- construct_path(aad_host, tenant)
     if(auth_type == "client_credentials")
-        auth_with_creds(base_url, app, secret, arm_host)
+        auth_with_creds(base_url, app, password, arm_host)
     else auth_with_device(base_url, app, arm_host)
 }
 
 
-auth_with_creds <- function(base_url, app, secret, resource)
+auth_with_creds <- function(base_url, app, password, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
-    app <- httr::oauth_app("azure", key=app, secret=secret)
+    app <- httr::oauth_app("azure", key=app, password=password)
 
     AzureToken$new(endp, app, user_params=list(resource=resource))
 }
@@ -148,7 +148,7 @@ auth_with_creds <- function(base_url, app, secret, resource)
 auth_with_device <- function(base_url, app, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
-    app <- httr::oauth_app("azure", key=app, secret=NULL)
+    app <- httr::oauth_app("azure", key=app, password=NULL)
 
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
 }
