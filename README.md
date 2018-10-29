@@ -10,13 +10,13 @@ To use AzureRMR, you must create and register a service principal with Azure Act
 
 - In the Azure Portal (https://portal.azure.com), click on the Cloud Shell icon:
 
-![](blob/master/static/cloudportal2.png)
+![](static/cloudportal2.png)
 
 - If you haven't used the shell before, there will be a dialog box to choose whether to use bash or PowerShell. Choose bash.
 - In the shell, type `az ad sp create-for-rbac --name {app-name} --subscription "{your-subscription-name}" --years {N}`, substituting the desired name of your service principal (try to make it memorable to you, and unlikely to clash with other names), your subscription name, and the number of years you want the password to be valid.
 - Wait until the app creation is complete. You should see a screen like this.
 
-![](blob/master/static/cloudshell.png)
+![](static/cloudshell.png)
 
 - Record your tenant ID, app ID, and password.
 
