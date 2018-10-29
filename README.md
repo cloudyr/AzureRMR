@@ -6,7 +6,7 @@ AzureRMR is not yet available on CRAN. You can install it from GitHub, via `devt
 
 ## Activating
 
-To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell:
+To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
 
 - In the Azure Portal (https://portal.azure.com), click on the Cloud Shell icon:
 
@@ -30,7 +30,7 @@ Here is a sample workflow. The package uses R6 classes to represent all Azure ob
 # create the client app
 az <- az_rm$new(tenant="xxx-xxx-xxx",
                 app="yyy-yyy-yyy",
-                secret="{secret goes here}")
+                password="{your-password}")
 
 # authenticating with device code: R will display a code to enter in your browser
 az2 <- az_rm$new(tenant="xxx-xxx-xxx",
