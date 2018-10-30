@@ -20,6 +20,38 @@ To use AzureRMR, you must create and register a service principal with Azure Act
 
 - Record your tenant ID, app ID, and password.
 
+## Sample workflow
+
+```r
+library(AzureRMR)
+
+az <- az_rm$new(tenant="{tenant_id}", app="{app_id}", password="{password}")
+
+# get a subscription and resource group
+sub <- az$get_subscription("{subscription_id}")
+rg <- sub$get_resource_group("rgname")
+
+# get a resource (storage account)
+stor <- rg$get_resource(type="Microsoft.Storage/storageAccounts", name="mystorage")
+
+# method chaining works too
+stor <- az$
+    get_subscription("{subscription_id}")$
+    get_resource_group("rgname")$
+    get_resource(type="Microsoft.Storage/storageAccounts", name="myStorage")
+
+
+# create a new resource group and resource
+rg2 <- sub$create_resource_group("newrgname", location="westus")
+
+stor2 <- rg2$create_resource(type="Microsoft.Storage/storageAccounts", name="myStorage",
+    kind="Storage", sku=list(name="Standard_LRS", tier="Standard"))
+
+# delete them
+stor2$delete(confirm=FALSE)
+rg2$delete(confirm=FALSE)
+```
+
 ## Extending
 
 AzureRMR is meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/cloudyr/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/cloudyr/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/services/storage/). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).

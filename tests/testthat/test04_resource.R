@@ -20,7 +20,6 @@ test_that("Resource methods work",
     # storage account resource
     resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
     res <- rg$create_resource(type="Microsoft.Storage/storageAccounts", name=resname,
-        location=rg$location,
         kind="Storage",
         sku=list(name="Standard_LRS", tier="Standard"))
 

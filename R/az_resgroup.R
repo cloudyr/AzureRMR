@@ -173,7 +173,8 @@ public=list(
     create_resource=function(provider, path, type, name, id, ...)
     {
         az_resource$new(self$token, self$subscription,
-                        resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id, ...)
+                        resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id,
+                        location=self$location, ...)
     },
 
     print=function(...)
