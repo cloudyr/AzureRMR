@@ -4,7 +4,7 @@ AzureRMR is a package for interacting with Azure Resource Manager: authenticate,
 
 AzureRMR is not yet available on CRAN. You can install it from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
 
-## Activating
+## Before you begin
 
 To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
 
@@ -19,6 +19,8 @@ To use AzureRMR, you must create and register a service principal with Azure Act
 ![](vignettes/images/cloudshell.png)
 
 - Record your tenant ID, app ID, and password.
+
+If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
 
 ## Sample workflow
 
