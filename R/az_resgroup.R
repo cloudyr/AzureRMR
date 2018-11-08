@@ -5,7 +5,6 @@
 #' @docType class
 #' @section Methods:
 #' - `new(token, subscription, id, ...)`: Initialize a resource group object. See 'Initialization' for more details.
-#' - `check()`: Check if this resource group still exists.
 #' - `delete(confirm=TRUE)`: Delete this resource group, after a confirmation check. This is asynchronous: while the method returns immediately, the delete operation continues on the host in the background. For resource groups containing a large number of deployed resources, this may take some time to complete.
 #' - `list_templates()`: List deployed templates in this resource group.
 #' - `get_template(name)`: Return an object representing an existing template.

@@ -15,7 +15,6 @@ Class representing an Azure resource group.
 
 \itemize{
 \item \code{new(token, subscription, id, ...)}: Initialize a resource group object. See 'Initialization' for more details.
-\item \code{check()}: Check if this resource group still exists.
 \item \code{delete(confirm=TRUE)}: Delete this resource group, after a confirmation check. This is asynchronous: while the method returns immediately, the delete operation continues on the host in the background. For resource groups containing a large number of deployed resources, this may take some time to complete.
 \item \code{list_templates()}: List deployed templates in this resource group.
 \item \code{get_template(name)}: Return an object representing an existing template.
