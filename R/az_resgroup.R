@@ -101,12 +101,6 @@ public=list(
         invisible(NULL)
     },
 
-    check=function()
-    {
-        res <- private$rg_op(http_verb="HEAD", http_status_handler="pass")
-        httr::status_code(res) < 300
-    },
-
     list_templates=function()
     {
         cont <- private$rg_op("providers/Microsoft.Resources/deployments")

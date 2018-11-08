@@ -123,6 +123,13 @@ public=list(
         self$get_resource_group(name)$delete(confirm=confirm)
     },
 
+    resource_group_exists=function(name)
+    {
+        res <- call_azure_rm(self$token, self$id, construct_path("resourceGroups", name),
+            http_verb="HEAD", http_status_handler="pass")
+        httr::status_code(res) < 300
+    },
+
     list_resources=function()
     {
         cont <- call_azure_rm(self$token, self$id, "resources")
