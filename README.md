@@ -2,7 +2,7 @@
 
 AzureRMR is a package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed.
 
-AzureRMR is not yet available on CRAN. You can install it from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
+You can install the development version from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
 
 ## Before you begin
 
