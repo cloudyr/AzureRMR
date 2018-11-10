@@ -1,11 +1,11 @@
 Package: AzureRMR
-Title: Base functionality for Azure RMR: authenticate, get subscriptions, get resource groups
+Title: A package for working with Azure Resource Manager from R. Authenticate; get subscriptions; manage resource groups; deploy templates; create, delete and operate resources. Can be extended by other packages to support specific Azure services.
 Version: 1.0.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
     )
-Description: A package for managing a selection of Azure resources, using the Azure Service Manager API. The package exposes functions to manage subscriptions and resource groups. Managing other types of resources is handled via add-on packages that call AzureSMRbase.
+Description: AzureRMR is a lightweight but powerful R interface to the Azure Resource Manager REST API. The package exposes classes and methods for OAuth authentication and working with subscriptions and resource groups. It also provides functionality for creating and deleting Azure resources and deploying templates. While AzureRMR can be used to manage any Azure service, it can also be extended by other packages to provide extra functionality for specific services.
 License: file LICENSE
 VignetteBuilder: knitr
 Depends: 
