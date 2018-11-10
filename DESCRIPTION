@@ -1,5 +1,5 @@
 Package: AzureRMR
-Title: A package for working with Azure Resource Manager from R. Authenticate; get subscriptions; manage resource groups; deploy templates; create, delete and operate resources. Can be extended by other packages to support specific Azure services.
+Title: R interface to 'Azure Resource Manager'
 Version: 1.0.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
