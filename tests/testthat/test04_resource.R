@@ -19,10 +19,15 @@ test_that("Resource methods work",
 {
     # storage account resource
     resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
+
+    expect_false(rg$resource_exists(type="foo/bar", name="randomname"))
+    expect_false(rg$resource_exists(type="Microsoft.Storage/storageAccounts", name=resname))
+
     res <- rg$create_resource(type="Microsoft.Storage/storageAccounts", name=resname,
         kind="Storage",
         sku=list(name="Standard_LRS", tier="Standard"))
 
+    expect_true(rg$resource_exists(type="Microsoft.Storage/storageAccounts", name=resname))
     expect_is(res, "az_resource")
     expect_true(res$type == "Microsoft.Storage/storageAccounts" && res$name == resname)
     

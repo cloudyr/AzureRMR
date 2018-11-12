@@ -5,7 +5,6 @@
 #' @docType class
 #' @section Methods:
 #' - `new(...)`: Initialize a new resource object. See 'Initialization' for more details.
-#' - `check()`: Check if this resource still exists.
 #' - `delete(..., confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 #' - `update(...)`: Update this resource on the host.
 #' - `sync_fields()`: Update the fields in this object with information from the host. Returns the `properties$provisioningState` field, so you can query this programmatically to check if a resource has finished provisioning. Not all resource types require explicit provisioning, in which case this method will return NULL.
@@ -162,13 +161,6 @@ public=list(
     do_operation=function(..., options=list(), http_verb="GET")
     {
         private$res_op(..., options=options, http_verb=http_verb)
-    },
-
-    check=function()
-    {
-        # HEAD seems to be broken; do a GET and test whether it fails
-        res <- try(private$res_op())
-        !inherits(res, "try-error")
     },
 
     update=function(..., options=list())

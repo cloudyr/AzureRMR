@@ -23,6 +23,7 @@ Class representing an Azure resource group.
 \item \code{get_resource(...)}: Return an object representing an existing resource. See 'Resources' for more details.
 \item \code{create_resource(...)}: Create a new resource.
 \item \code{delete_resource(..., confirm=TRUE, wait=FALSE)}: Delete an existing resource. Optionally wait for the delete to finish.
+\item \code{resource_exists(...)}: Check if a resource exists.
 \item \code{list_resources()}: Return a list of resource group objects for this subscription.
 }
 }

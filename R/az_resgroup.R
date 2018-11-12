@@ -13,6 +13,7 @@
 #' - `get_resource(...)`: Return an object representing an existing resource. See 'Resources' for more details.
 #' - `create_resource(...)`: Create a new resource.
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
+#' - `resource_exists(...)`: Check if a resource exists.
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
 #'
 #' @section Initialization:
@@ -153,14 +154,21 @@ public=list(
                         api_version=api_version)
     },
 
+    resource_exists=function(provider, path, type, name, id)
+    {
+        # HEAD seems to be broken; use GET and check if it succeeds
+        res <- try(self$get_resource(provider, path, type, name, id), silent=TRUE)
+        !inherits(res, "try-error")
+    },
+
     delete_resource=function(provider, path, type, name, id, api_version=NULL, ..., confirm=TRUE, wait=FALSE)
     {
         # supply deployed_properties arg to prevent querying host for resource info
-        az_resource $
+        az_resource$
             new(self$token, self$subscription, self$name,
                 provider=provider, path=path, type=type, name=name, id=id,
-                deployed_properties=NULL, api_version=api_version) $
-            delete(..., confirm=confirm, wait=wait)
+                deployed_properties=list(NULL), api_version=api_version)$
+            delete(..., api_version=api_version, confirm=confirm, wait=wait)
     },
 
     create_resource=function(provider, path, type, name, id, ...)
