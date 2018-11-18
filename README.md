@@ -40,14 +40,14 @@ stor <- rg$get_resource(type="Microsoft.Storage/storageAccounts", name="mystorag
 stor <- az$
     get_subscription("{subscription_id}")$
     get_resource_group("rgname")$
-    get_resource(type="Microsoft.Storage/storageAccounts", name="myStorage")
+    get_resource(type="Microsoft.Storage/storageAccounts", name="mystorage")
 
 
 # create a new resource group and resource
 rg2 <- sub$create_resource_group("newrgname", location="westus")
 
-stor2 <- rg2$create_resource(type="Microsoft.Storage/storageAccounts", name="myStorage",
-    kind="Storage", sku=list(name="Standard_LRS", tier="Standard"))
+stor2 <- rg2$create_resource(type="Microsoft.Storage/storageAccounts", name="mystorage2",
+    kind="Storage", sku=list(name="Standard_LRS"))
 
 # delete them
 stor2$delete(confirm=FALSE)
