@@ -33,6 +33,25 @@
 #' [Template overview](https://docs.microsoft.com/en-us/azure/templates/),
 #' [Template API reference](https://docs.microsoft.com/en-us/rest/api/resources/deployments)
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way to deploy a template: via a resource group object
+#'
+#' tpl <- resgroup$deploy_template("mydeployment",
+#'     template="template.json",
+#'     parameters="parameters.json")
+#' 
+#' # retrieve list of created resource objects
+#' tpl$list_resources()
+#'
+#' # delete template (will not touch resources)
+#' tpl$delete()
+#'
+#' # delete template and free resources
+#' tpl$delete(free_resources=TRUE)
+#'
+#' }
 #' @format An R6 object of class `az_template`.
 #' @export
 az_template <- R6::R6Class("az_template",

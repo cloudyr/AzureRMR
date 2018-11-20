@@ -27,6 +27,18 @@ This extends the OAuth functionality in httr to allow for device code authentica
 \details{
 This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
 }
+\examples{
+\dontrun{
+
+token <- get_azure_token(
+   aad_host="https://login.microsoftonline.com/",
+   tenant="myaadtenant.onmicrosoft.com",
+   app="app_id",
+   password="password",
+   resource_host="https://management.azure.com/")
+
+}
+}
 \seealso{
 \link{AzureToken}, \link[httr:oauth2.0_token]{httr::oauth2.0_token}, \link[httr:Token]{httr::Token},
 \href{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code}{OAuth authentication for Azure Active Directory},

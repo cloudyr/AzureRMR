@@ -35,6 +35,26 @@ To authenticate with ARM, provide the following arguments to the \code{new} meth
 }
 }
 
+\examples{
+\dontrun{
+
+# start a new Resource Manager session
+az <- az_rm$new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")
+
+# authenticate with credentials in a file
+az <- az_rm$new(config_file="creds.json")
+
+# authenticate with device code
+az <- az_rm$new(tenant="myaadtenant.onmicrosoft.com", app="app_id", auth_type="device_code")
+
+# retrieve a list of subscription objects
+az$list_subscriptions()
+
+# a specific subscription
+az$get_subscription("subscription_id")
+
+}
+}
 \seealso{
 \link{get_azure_token}, \link{AzureToken},
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},

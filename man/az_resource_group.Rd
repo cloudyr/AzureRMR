@@ -69,6 +69,48 @@ Providing the \code{id} argument will fill in the values for all the other argum
 To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to \code{create_resource()}.
 }
 
+\examples{
+\dontrun{
+
+# recommended way to retrieve a resource group object
+rg <- az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# list resources & templates in this resource group
+rg$list_resources()
+rg$list_templates()
+
+# get a resource (virtual machine)
+rg$get_resource(type="Microsoft.Compute/virtualMachines", name="myvm")
+
+# create a resource (storage account)
+rg$create_resource(type="Microsoft.Storage/storageAccounts", name="mystorage",
+    kind="StorageV2",
+    sku=list(name="Standard_LRS"))
+
+# delete a resource
+rg$delete_resource(type="Microsoft.Storage/storageAccounts", name="mystorage")
+
+# deploy a template
+rg$deploy_template("tplname",
+    template="template.json",
+    parameters="parameters.json")
+
+# deploy a template with parameters inline
+rg$deploy_template("mydeployment",
+    template="template.json",
+    parameters=list(parm1="foo", parm2="bar"))
+
+# delete a template and free resources
+rg$delete_template("tplname", free_resources=TRUE)
+
+# delete the resource group itself
+rg$delete()
+
+}
+}
 \seealso{
 \link{az_subscription}, \link{az_template}, \link{az_resource},
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups}{Azure resource group overview},

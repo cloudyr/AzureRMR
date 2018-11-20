@@ -31,6 +31,34 @@ Class representing an Azure subscription.
 Generally, the easiest way to create a subscription object is via the \code{get_subscription} or \code{list_subscriptions} methods of the \link{az_rm} class. To create a subscription object in isolation, call the \code{new()} method and supply an Oauth 2.0 token of class \link{AzureToken}, along with the ID of the subscription.
 }
 
+\examples{
+\dontrun{
+
+# recommended way to retrieve a subscription object
+sub <- az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")
+
+# retrieve list of resource group objects under this subscription
+sub$list_resource_groups()
+
+# get a resource group
+sub$get_resource_group("rgname")
+
+# check if a resource group exists, and if not, create it
+rg_exists <- sub$resource_group_exists("rgname")
+if(!rg_exists)
+    sub$create_resource_group("rgname", location="australiaeast")
+
+# delete a resource group
+sub$delete_resource_group("rgname")
+
+# get provider API versions for some resource types
+sub$get_provider_api_version("Microsoft.Compute", "virtualMachines")
+sub$get_provider_api_version("Microsoft.Storage", "storageAccounts")
+
+}
+}
 \seealso{
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview}
 }

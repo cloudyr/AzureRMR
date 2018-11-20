@@ -125,6 +125,18 @@ private=list(
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],
 #' [OAuth authentication for Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code),
 #' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' token <- get_azure_token(
+#'    aad_host="https://login.microsoftonline.com/",
+#'    tenant="myaadtenant.onmicrosoft.com",
+#'    app="app_id",
+#'    password="password",
+#'    resource_host="https://management.azure.com/")
+#'
+#' }
 #' @export
 get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"),
                          password, resource_host)

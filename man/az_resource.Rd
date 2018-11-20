@@ -63,6 +63,52 @@ The \code{do_operation()} method allows you to carry out arbitrary operations on
 Consult the Azure documentation for your resource to find out what operations are supported.
 }
 
+\examples{
+\dontrun{
+
+# recommended way to retrieve a resource: via a resource group object
+# storage account:
+stor <- resgroup$get_resource(type="Microsoft.Storage/storageAccounts", name="mystorage")
+# virtual machine:
+vm <- resgroup$get_resource(type="Microsoft.Compute/virtualMachines", name="myvm")
+
+## carry out operations on a resource
+
+# storage account: get access keys
+stor$do_operation("listKeys", http_verb="POST")
+
+# virtual machine: run a script
+vm$do_operation("runCommand",
+    body=list(
+        commandId="RunShellScript", # RunPowerShellScript for Windows
+        script=as.list("ifconfig > /tmp/ifconfig.out")
+    ),
+    encode="json",
+    http_verb="POST")
+
+## retrieve properties
+
+# storage account: endpoint URIs
+stor$properties$primaryEndpoints$file
+stor$properties$primaryEndpoints$blob
+
+# virtual machine: hardware profile
+vm$properties$hardwareProfile
+
+## update a resource: resizing a VM
+properties <- list(hardwareProfile=list(vmSize="Standard_DS3_v2"))
+vm$do_operation(http_verb="PATCH",
+    body=list(properties=properties),
+    encode="json")
+
+# sync with Azure: useful to track resource creation/update status
+vm$sync_fields()
+
+# delete a resource
+stor$delete()
+
+}
+}
 \seealso{
 \link{az_resource_group}, \link{call_azure_rm}, \link{call_azure_url},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}

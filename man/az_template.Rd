@@ -48,6 +48,26 @@ If you also supply the following arguments to \code{new()}, a new template will 
 }
 }
 
+\examples{
+\dontrun{
+
+# recommended way to deploy a template: via a resource group object
+
+tpl <- resgroup$deploy_template("mydeployment",
+    template="template.json",
+    parameters="parameters.json")
+
+# retrieve list of created resource objects
+tpl$list_resources()
+
+# delete template (will not touch resources)
+tpl$delete()
+
+# delete template and free resources
+tpl$delete(free_resources=TRUE)
+
+}
+}
 \seealso{
 \link{az_resource_group}, \link{az_resource},
 \href{https://docs.microsoft.com/en-us/azure/templates/}{Template overview},

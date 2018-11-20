@@ -22,6 +22,33 @@
 #' @seealso
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview)
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way to retrieve a subscription object
+#' sub <- az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")
+#'
+#' # retrieve list of resource group objects under this subscription
+#' sub$list_resource_groups()
+#'
+#' # get a resource group
+#' sub$get_resource_group("rgname")
+#'
+#' # check if a resource group exists, and if not, create it
+#' rg_exists <- sub$resource_group_exists("rgname")
+#' if(!rg_exists)
+#'     sub$create_resource_group("rgname", location="australiaeast")
+#'
+#' # delete a resource group
+#' sub$delete_resource_group("rgname")
+#'
+#' # get provider API versions for some resource types
+#' sub$get_provider_api_version("Microsoft.Compute", "virtualMachines")
+#' sub$get_provider_api_version("Microsoft.Storage", "storageAccounts")
+#'
+#' }
 #' @format An R6 object of class `az_subscription`.
 #' @export
 az_subscription <- R6::R6Class("az_subscription",
