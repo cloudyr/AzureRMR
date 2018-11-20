@@ -10,6 +10,16 @@ vignette: >
 
 AzureRMR is a package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed.
 
+As a general-purpose interface to Azure Resource Manager (ARM), you can use AzureRMR to work with nearly any Azure object that ARM can handle: subscriptions, resource groups, resources, templates and so on. The things you can do include:
+
+- Create a new resource
+- Carry out arbitrary operations on a resource
+- Delete a resource
+- Deploy a template
+- Delete a template, and, optionally, any resources that it created
+- Create and delete resource groups (if you gave your service principal subscription-level access)
+
+
 ## Before you begin
 
 To use AzureRMR, you must create and register a _service principal_ with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
@@ -27,6 +37,9 @@ To use AzureRMR, you must create and register a _service principal_ with Azure A
 - Record your tenant ID, app ID, and password.
 
 This will authorise your service principal to work with objects within a single subscription. If you want to add more subscriptions, you can do so via the Portal. Go to the Subscriptions pane, click on the subscription you want to add, then under "Access Control (IAM)", fill in the details for your service principal and the type of access it to have (typically "Contributor" is good enough).
+
+If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
+
 
 ## Logging in
 
@@ -124,14 +137,7 @@ test$delete(confirm=FALSE)
 Methods for working with resources and templates are exposed as part of the `az_resource_group` class. You can retrieve an existing resource/template, create a new one, or delete an existing one.
 
 ```{r, eval=FALSE}
-# a list of resources
-names(rg$list_resources())
-#[1] "Microsoft.Compute/virtualMachines/rdevtest2"            "Microsoft.Network/networkInterfaces/rdevtest2"         
-#[3] "Microsoft.Network/publicIPAddresses/rdevtest2"          "Microsoft.Network/virtualNetworks/rdevtest2"           
-#[5] "Microsoft.Storage/storageAccounts/5ywqbejwetquylindsvm" "Microsoft.Storage/storageAccounts/rdevstor1"
-
-# a specific resource
-rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1")
+(stor <- rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1"))
 #<Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
 #  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft.Sto ...
 #  identity: NULL
@@ -149,39 +155,87 @@ rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1")
 #    check, delete, do_operation, set_api_version, sync_fields, update
 ```
 
-We can also deploy a template:
-
-```{r, eval=FALSE}
-tg <- sub1$create_resource_group("testrg", location="australiasoutheast")
-
-template_uri <- "https://raw.githubusercontent.com/Microsoft/Product-Recommendations/master/saw/recommendationswebapp/core/arm/resources.json"
-package_uri <- "https://github.com/Microsoft/Product-Recommendations/raw/master/saw/recommendationswebapp/assets/Recommendations.WebApp.zip"
-
-tg$deploy_template("prodrec", template=template_uri, parameters=list(deployPackageUri=package_uri))
-#<Azure template prodrec>
-#  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/testrg/providers/Microsoft.Resour ...
-#  properties: list(templateLink, templateHash, parameters, mode, debugSetting, provisioningState,
-#    timestamp, duration, correlationId, providers, dependencies)
-#---
-#  Methods:
-#    cancel, check, delete
-```
-
-
 One benefit of the syntax that AzureRMR uses is that _method chaining_ works. This is the OOP version of pipelines, which most R users will recognise from the tidyverse.
 
 ```{r, eval=FALSE}
 # use method chaining to get a resource without creating a bunch of intermediaries
-az $
-    get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11") $
-    get_resource_group("rdev1") $
+# same result as above
+stor <- az$
+    get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11")$
+    get_resource_group("rdev1")$
     get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1")
-#<Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
-# ...
 ```
+
+Once we have a resource, we can do _things_ with it, via the `do_operation()` method. In this case, we have a storage account. One of the things we can do with a storage account is retrieve its access keys:
+
+```{r, eval=FALSE}
+stor$do_operation("listKeys", http_verb="POST")
+# $`keys`
+# $`keys`[[1]]
+# $`keys`[[1]]$`keyName`
+# [1] "key1"
+# 
+# $`keys`[[1]]$value
+# [1] "k0gGFi8LirKcDNe73fzwDzhZ2+4oRKzvz+6+Pfn2ZCKO/JLnpyBSpVO7btLxBXQj+j8MZatDTGZ2NXUItye/vA=="
+# 
+# $`keys`[[1]]$permissions
+# [1] "FULL"
+#...
+```
+
+Here is another example. If we have a virtual machine, we can start it, execute shell commands, and then shut it down again:
+
+```{r, eval=FALSE}
+vm <- rg$get_resource(type="Microsoft.Compute/virtualMachines",
+    name="myVirtualMachine")
+
+vm$do_operation("start", http_verb="POST") # may take a while
+vm$do_operation("runCommand",
+    body=list(
+        commandId="RunShellScript", # RunPowerShellScript for Windows
+        script=as.list("ifconfig > /tmp/ifconfig.out")
+    ),
+    encode="json",
+    http_verb="POST")
+vm$do_operation("powerOff", http_verb="POST")
+```
+
+For the types of operations you can carry out on a resource, consult the [Azure REST API documentation](https://docs.microsoft.com/en-us/rest/api/?view=Azure).
+
+You can also interrogate the fields of a resource object; in particular the `properties` field can contain arbitrary information about an Azure resource. For example, a storage account's properties includes the endpoint URIs, and a virtual machine's properties includes its admin login details.
+
+```{r, eval=FALSE}
+# file and blob storage endpoint
+stor$properties$primaryEndpoints$file
+stor$properties$primaryEndpoints$blob
+
+# OS profile for a VM: includes login details
+vm$properties$osProfile
+```
+
+
+In a manner similar to resources, deploying a [template](https://www.red-gate.com/simple-talk/cloud/infrastructure-as-a-service/azure-resource-manager-arm-templates/) is just a matter of calling the resource group object's `deploy_template` method. This takes two arguments, `template` and `parameters`. Both arguments should be in JSON format: either the name of a JSON file, a character vector containing the JSON data, or a list containing the parsed JSON (via `jsonlite::toJSON`).
+
+```{r, eval=FALSE}
+vm_tpl <- rg$deploy_template("myNewVirtualMachine",
+    template="vm_template.json",
+    parameters=list(
+        os="Linux",
+        size="Standard_DS2_v2",
+        username="ruser",
+        publickey=readLines("~/id_rsa.pub")
+    ))
+```
+
+Normally, deleting a template doesn't touch the resources it creates: it only deletes the template itself. However, AzureRMR optionally allows you to free any resources created when you delete a template. This is useful when managing complex objects like VMs, which actually consist of multiple individual resources in Azure (storage account, disk, network interface, etc). When you are done with the VM, deleting the template lets you free all these resources with a single command.
+
+```{r, eval=FALSE}
+vm_tpl$delete(free_resources=TRUE)
+```
+
 
 ## Conclusion
 
-This has been a quick introduction to the features of AzureRMR. Remember that this package is only meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/cloudyr/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/cloudyr/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/services/storage/). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).
+This has been a quick introduction to the features of AzureRMR. Remember that this package is only meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/cloudyr/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/cloudyr/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/services/storage/). For more information, see the "Extending AzureRMR" vignette.
 
 
