@@ -31,7 +31,7 @@ As a matter of convenience, you can also call `get_az_login("tenant_name")` on f
 
 ## Logging in
 
-Let's look at a sample workflow involving AzureRMR. The first thing to do is authenticate with Azure, which we do with `get_az_login` as described above.
+Let's look at a sample workflow involving AzureRMR. The first thing to do is authenticate with Azure, which we do with `get_az_login` as described above. This in fact uses the same app ID as the Azure CLI, so it should work anywhere you can use the CLI.
 
 ```{r, eval=FALSE}
 # if this is the first time you're logging in to this tenant

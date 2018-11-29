@@ -8,7 +8,7 @@
 \alias{refresh_az_logins}
 \title{Functions to login to Azure Resource Manager}
 \usage{
-create_az_login(tenant)
+create_az_login(tenant, app = NULL, auth_type = "device_code", ...)
 
 get_az_login(tenant, refresh = TRUE)
 
@@ -20,6 +20,12 @@ refresh_az_logins()
 }
 \arguments{
 \item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("mytenant"), a fully qualified domain name ("mytenant.microsoft.com"), or a GUID.}
+
+\item{app}{The app ID to authenticate with. Defaults to the app used by the Azure CLI.}
+
+\item{auth_type}{The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you supply a password.}
+
+\item{...}{Other arguments to pass to \code{az_rm$new()}.}
 
 \item{refresh}{For \code{get_az_login}, whether to refresh the authentication token on loading the client.}
 
@@ -41,7 +47,7 @@ These functions allow you to login to Azure Resource Manager (ARM).
 \item \code{refresh_az_logins} refreshes all client objects existing on your machine.
 }
 
-\code{create_az_login} is roughly equivalent to the Azure CLI command \code{az login} with no arguments, and in fact uses the same app ID as the CLI.
+\code{create_az_login} is roughly equivalent to the Azure CLI command \code{az login} with no arguments, and in fact uses the same app ID as the CLI by default.
 }
 \examples{
 \dontrun{

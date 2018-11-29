@@ -6,7 +6,7 @@ You can install the development version from GitHub, via `devtools::install_gith
 
 ## Authentication
 
-AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_az_login("tenant_name")`. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Active Directory credentials, which completes the authentication process. The returned Resource Manager client object is also saved on your machine, and can be retrieved in subsequent R sessions with `get_az_login("tenant_name")`. AzureRMR will automatically handle details like refreshing your credentials.
+AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest) (and in fact, by default it will use the same app as the CLI uses). The first time you authenticate with a given Azure Active Directory tenant, you call `create_az_login("tenant_name")`. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Active Directory credentials, which completes the authentication process. The returned Resource Manager client object is also saved on your machine, and can be retrieved in subsequent R sessions with `get_az_login("tenant_name")`. AzureRMR will automatically handle details like refreshing your credentials.
 
 This achieves two things: first, you only have to manually authenticate once; and second, it saves you from having to create a service principal (although you can also do that if so desired).
 

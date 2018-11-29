@@ -12,7 +12,10 @@ logins <- new.env()
 
 #' Functions to login to Azure Resource Manager
 #'
-#' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("mytenant"), a fully qualified domain name ("mytenant.microsoft.com"), or a GUID.
+#' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com"), or a GUID.
+#' @param app The app ID to authenticate with. Defaults to the app used by the Azure CLI.
+#' @param auth_type The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you supply a password.
+#' @param ... Other arguments to pass to `az_rm$new()`.
 #' @param refresh For `get_az_login`, whether to refresh the authentication token on loading the client.
 #' @param confirm For `delete_az_login`, whether to ask for confirmation before deleting.
 #'
@@ -24,7 +27,7 @@ logins <- new.env()
 #' - `list_az_logins` lists client objects that have been previously saved.
 #' - `refresh_az_logins` refreshes all client objects existing on your machine.
 #'
-#' `create_az_login` is roughly equivalent to the Azure CLI command `az login` with no arguments, and in fact uses the same app ID as the CLI.
+#' `create_az_login` is roughly equivalent to the Azure CLI command `az login` with no arguments, and in fact uses the same app ID as the CLI by default.
 #'
 #' @return
 #' For `create_az_login` and `get_az_login`, an object of class `az_rm`, representing the ARM client. For `list_az_logins`, a list of such objects.
@@ -39,7 +42,7 @@ logins <- new.env()
 #' # only has to be run once per tenant
 #' az <- create_az_login("microsoft")
 #'
-#' # in subsequent sessions, you can retrieve the client without re-authenticating
+#' # in subsequent sessions, you can retrieve the client without re-authenticating:
 #' # authentication details will automatically be refreshed
 #' az <- get_az_login("microsoft")
 #'
@@ -49,12 +52,15 @@ logins <- new.env()
 #' }
 #' @rdname az_login
 #' @export
-create_az_login <- function(tenant)
+create_az_login <- function(tenant, app=NULL, auth_type="device_code", ...)
 {
     tenant <- normalize_tenant(tenant)
 
+    if(is.null(app))
+        app <- .az_cli_app_id
+
     message("Creating Resource Manager client for tenant ", tenant)
-    client <- az_rm$new(tenant, app=.az_cli_app_id, auth_type="device_code")
+    client <- az_rm$new(tenant, app=app, auth_type=auth_type, ...)
 
     logins[[tenant]] <- client
     save_client(client, tenant)

@@ -1,0 +1,31 @@
+---
+title: "Using a service principal to authenticate"
+author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using a service principal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+While the recommended way of authenticating is via the Azure CLI app, you can also authenticate by explicitly creating a service principal. The easiest way of doing this is via the Azure cloud shell.
+
+- In the Azure Portal (https://portal.azure.com/), click on the Cloud Shell icon:
+
+![](images/cloudportal2.png)
+
+- If you haven't used the shell before, there will be a dialog box to choose whether to use bash or PowerShell. Choose bash.
+- In the shell, type `az ad sp create-for-rbac --name {app-name} --subscription "{your-subscription-name}" --years {N}`, substituting the desired name of your service principal (try to make it memorable to you, and unlikely to clash with other names), your subscription name, and the number of years you want the password to be valid.
+- Wait until the app creation is complete. You should see a screen like this.
+
+![](images/cloudshell.png)
+
+- Record your tenant ID, app ID, and password.
+
+If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
+
+Once you've created your service principal, you can then authenticate by passing the tenant, app and password arguments to `create_az_login`. You'll also have to set the `auth_type` argument to `"client_credentials"`.
+
+```{r, eval=FALSE}
+az <- create_az_login(tenant="tenant", app="app_id", password="password", auth_type="client_credentials")
+```
