@@ -10,7 +10,7 @@
 \usage{
 create_az_login(tenant, app = NULL, auth_type = "device_code", ...)
 
-get_az_login(tenant, refresh = TRUE)
+get_az_login(tenant, ..., refresh = TRUE)
 
 delete_az_login(tenant, confirm = TRUE)
 
@@ -19,7 +19,7 @@ list_az_logins()
 refresh_az_logins()
 }
 \arguments{
-\item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("mytenant"), a fully qualified domain name ("mytenant.microsoft.com"), or a GUID.}
+\item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.}
 
 \item{app}{The app ID to authenticate with. Defaults to the app used by the Azure CLI.}
 
@@ -42,7 +42,7 @@ These functions allow you to login to Azure Resource Manager (ARM).
 \itemize{
 \item \code{create_az_login} will create a login client. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Azure Active Directory credentials, which completes the authentication process. You only have to create a login client once per tenant: the resulting ARM client object is saved on your machine and reused automatically in subsequent R sessions.
 \item \code{get_az_login} will load a previously saved ARM client object for the given tenant. If this is the first time you are logging in for this tenant, the client object is created.
-\item \code{delete_az_login} deletes the client object for the given tenant from your machine. Note that this doesn't invalidate any existing client you may have in your R session.
+\item \code{delete_az_login} deletes the client object for the given tenant from your machine. Note that this doesn't invalidate any client you may be using in your R session.
 \item \code{list_az_logins} lists client objects that have been previously saved.
 \item \code{refresh_az_logins} refreshes all client objects existing on your machine.
 }
@@ -56,7 +56,7 @@ These functions allow you to login to Azure Resource Manager (ARM).
 # only has to be run once per tenant
 az <- create_az_login("microsoft")
 
-# in subsequent sessions, you can retrieve the client without re-authenticating
+# in subsequent sessions, you can retrieve the client without re-authenticating:
 # authentication details will automatically be refreshed
 az <- get_az_login("microsoft")
 

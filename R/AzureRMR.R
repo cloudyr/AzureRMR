@@ -10,14 +10,6 @@ NULL
     if(!dir.exists(config_dir))
         dir.create(config_dir, recursive=TRUE)
 
-    rds <- dir(path=config_dir)
-
-    lapply(rds, function(tenant)
-    {
-        assign(tenant, readRDS(file.path(config_dir, tenant)), envir=logins)
-        NULL
-    })
-
     invisible(NULL)
 }
 
