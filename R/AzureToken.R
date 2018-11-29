@@ -32,6 +32,10 @@ public=list(
         # if auth is via device, token now contains initial server response; call devicecode handler to get actual token
         if(use_device)
             private$init_with_device(endpoint, app, user_params)
+
+        # ensure password is never NULL (important for renewing)
+        if(is_empty(self$app$secret))
+            self$app$secret <- ""
     },
 
     # overrides httr::Token2.0 method
