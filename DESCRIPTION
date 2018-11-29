@@ -18,7 +18,8 @@ Imports:
     utils,
     httr (>= 1.3),
     jsonlite,
-    R6
+    R6,
+    rappdirs
 Suggests:
     knitr,
     testthat,
