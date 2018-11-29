@@ -41,7 +41,7 @@ These functions allow you to login to Azure Resource Manager (ARM).
 \item \code{refresh_az_logins} refreshes all client objects existing on your machine.
 }
 
-\code{create_az_login} is roughly equivalent to the Azure CLI command \code{az login}, and in fact uses the same app ID as the CLI.
+\code{create_az_login} is roughly equivalent to the Azure CLI command \code{az login} with no arguments, and in fact uses the same app ID as the CLI.
 }
 \examples{
 \dontrun{
@@ -58,4 +58,7 @@ az <- get_az_login("microsoft")
 refresh_az_logins()
 
 }
+}
+\seealso{
+\link{az_rm}, \href{https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest}{Azure CLI documentation}
 }

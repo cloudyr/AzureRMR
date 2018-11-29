@@ -24,11 +24,14 @@ logins <- new.env()
 #' - `list_az_logins` lists client objects that have been previously saved.
 #' - `refresh_az_logins` refreshes all client objects existing on your machine.
 #'
-#' `create_az_login` is roughly equivalent to the Azure CLI command `az login`, and in fact uses the same app ID as the CLI.
+#' `create_az_login` is roughly equivalent to the Azure CLI command `az login` with no arguments, and in fact uses the same app ID as the CLI.
 #'
 #' @return
 #' For `create_az_login` and `get_az_login`, an object of class `az_rm`, representing the ARM client. For `list_az_logins`, a list of such objects.
 #'
+#' @seealso
+#' [az_rm], [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
+#' 
 #' @examples
 #' \dontrun{
 #'

@@ -22,7 +22,9 @@ Base class for interacting with Azure Resource Manager.
 
 \section{Authentication}{
 
-To authenticate with ARM, provide the following arguments to the \code{new} method:
+The best way to authenticate with ARM is probably via the \link{create_az_login} and \link{get_az_login} functions. With these, you only have to authenticate once, after which your credentials are saved and reused for subsequent sessions.
+
+To authenticate with the \code{az_rm} class directly, provide the following arguments to the \code{new} method:
 \itemize{
 \item \code{tenant}: Your tenant ID.
 \item \code{app}: Your client/app ID which you registered in Azure Active Directory.
@@ -56,7 +58,7 @@ az$get_subscription("subscription_id")
 }
 }
 \seealso{
-\link{get_azure_token}, \link{AzureToken},
+\link{create_az_login}, \link{get_azure_token}, \link{AzureToken},
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
 }

@@ -11,7 +11,9 @@
 #' - `get_subscription(id)`: Returns an object representing a subscription.
 #'
 #' @section Authentication:
-#' To authenticate with ARM, provide the following arguments to the `new` method:
+#' The best way to authenticate with ARM is probably via the [create_az_login] and [get_az_login] functions. With these, you only have to authenticate once, after which your credentials are saved and reused for subsequent sessions.
+#'
+#' To authenticate with the `az_rm` class directly, provide the following arguments to the `new` method:
 #' - `tenant`: Your tenant ID.
 #' - `app`: Your client/app ID which you registered in Azure Active Directory.
 #' - `auth_type`: Either `"client_credentials"` (the default) or `"device_code"`.
@@ -22,7 +24,7 @@
 #' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @seealso
-#' [get_azure_token], [AzureToken],
+#' [create_az_login], [get_azure_token], [AzureToken],
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
 #' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
 #'
