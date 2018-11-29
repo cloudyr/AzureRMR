@@ -104,7 +104,7 @@ delete_az_login <- function(tenant, confirm=TRUE)
     }
 
     # remove fron environment and from config dir
-    file.remove(file.path(config_dir(), tenant, ".RDS"))
+    file.remove(file.path(config_dir(), tenant))
     rm(list=tenant, envir=logins)
 }
 
