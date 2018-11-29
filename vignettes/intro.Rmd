@@ -20,47 +20,30 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 - Create and delete resource groups (if you gave your service principal subscription-level access)
 
 
-## Before you begin
+## Authentication
 
-To use AzureRMR, you must create and register a _service principal_ with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
+AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_az_login("tenant_name")`. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Active Directory credentials, which completes the authentication process. The returned Resource Manager client object is also saved on your machine, and can be retrieved in subsequent R sessions with `get_az_login("tenant_name")`. AzureRMR will automatically handle details like refreshing your credentials.
 
-- In the Azure Portal (https://portal.azure.com/), click on the Cloud Shell icon:
+This achieves two things: first, you only have to manually authenticate once; and second, it saves you from having to create a service principal (although you can also do that if so desired).
 
-![](images/cloudportal2.png)
-
-- If you haven't used the shell before, there will be a dialog box to choose whether to use bash or PowerShell. Choose bash.
-- In the shell, type `az ad sp create-for-rbac --name {app-name} --subscription "{your-subscription-name}" --years {N}`, substituting the desired name of your service principal (try to make it memorable to you, and unlikely to clash with other names), your subscription name, and the number of years you want the password to be valid.
-- Wait until the app creation is complete. You should see a screen like this.
-
-![](images/cloudshell.png)
-
-- Record your tenant ID, app ID, and password.
-
-This will authorise your service principal to work with objects within a single subscription. If you want to add more subscriptions, you can do so via the Portal. Go to the Subscriptions pane, click on the subscription you want to add, then under "Access Control (IAM)", fill in the details for your service principal and the type of access it to have (typically "Contributor" is good enough).
-
-If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
+As a matter of convenience, you can also call `get_az_login("tenant_name")` on first login rather than `create_az_login`. In this case, AzureRMR will detect that you don't have a saved client object and create it for you.
 
 
 ## Logging in
 
-Let's look at a sample workflow involving AzureRMR. The first thing to do is authenticate with Azure. AzureRMR supports various ways of authenticating. You can supply a password (which is the default), or if your service principal requires it, you can use the [device code flow](https://www.oauth.com/oauth2-servers/device-flow/token-request/). With the latter, AzureRMR will display a code, and prompt you to visit a login site in your browser. You then enter the code on the site, which completes the process.
-
-Finally, any authentication arguments can also be supplied in a JSON file, specified via the `config_file` argument. In particular, the output from the cloud shell command used to create the service principal can be used here.
+Let's look at a sample workflow involving AzureRMR. The first thing to do is authenticate with Azure, which we do with `get_az_login` as described above.
 
 ```{r, eval=FALSE}
-# authenticate with a password
-az <- az_rm$new(tenant="xxx-xxx-xxx",
-                app="yyy-yyy-yyy",
-                password="{your-password}")
+# if this is the first time you're logging in to this tenant
+az <- create_az_login("myaadtenant.onmicrosoft.com")
 
-# authenticate with device code: R will display a code to enter in your browser
-az2 <- az_rm$new(tenant="xxx-xxx-xxx",
-                 app="zzz-zzz-zzz",
-                 auth_type="device")
+# for subsequent sessions
+az <- get_az_login("myaadtenant.onmicrosoft.com")
 
-# authenticate with credentials stored in a JSON file
-az3 <- az_rm$new(config_file="creds.json")
+# you can also list the tenants that you've previously authenticated with
+list_az_logins()
 ```
+
 
 ## Subscriptions and resource groups
 

@@ -4,30 +4,23 @@ AzureRMR is a package for interacting with Azure Resource Manager: authenticate,
 
 You can install the development version from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
 
-## Before you begin
+## Authentication
 
-To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
+AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_az_login("tenant_name")`. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Active Directory credentials, which completes the authentication process. The returned Resource Manager client object is also saved on your machine, and can be retrieved in subsequent R sessions with `get_az_login("tenant_name")`. AzureRMR will automatically handle details like refreshing your credentials.
 
-- In the Azure Portal (https://portal.azure.com/), click on the Cloud Shell icon:
+This achieves two things: first, you only have to manually authenticate once; and second, it saves you from having to create a service principal (although you can also do that if so desired).
 
-![](vignettes/images/cloudportal2.png)
-
-- If you haven't used the shell before, there will be a dialog box to choose whether to use bash or PowerShell. Choose bash.
-- In the shell, type `az ad sp create-for-rbac --name {app-name} --subscription "{your-subscription-name}" --years {N}`, substituting the desired name of your service principal (try to make it memorable to you, and unlikely to clash with other names), your subscription name, and the number of years you want the password to be valid.
-- Wait until the app creation is complete. You should see a screen like this.
-
-![](vignettes/images/cloudshell.png)
-
-- Record your tenant ID, app ID, and password.
-
-If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
+As a matter of convenience, you can also call `get_az_login("tenant_name")` on first login rather than `create_az_login`. In this case, AzureRMR will detect that you don't have a saved client object and create it for you.
 
 ## Sample workflow
 
 ```r
 library(AzureRMR)
 
-az <- az_rm$new(tenant="{tenant_id}", app="{app_id}", password="{password}")
+# authenticate with Azure AD:
+# if this is the first time you're using the package, it will save a client object,
+# otherwise it will reload the saved object and refresh your credentials
+az <- get_az_login("myaadtenant.onmicrosoft.com")
 
 # get a subscription and resource group
 sub <- az$get_subscription("{subscription_id}")

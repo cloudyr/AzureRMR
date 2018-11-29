@@ -53,7 +53,7 @@ create_az_login <- function(tenant)
 {
     tenant <- normalize_tenant(tenant)
 
-    message("Creating Resource Manager client for tenant", tenant)
+    message("Creating Resource Manager client for tenant ", tenant)
     client <- az_rm$new(tenant, app=.az_cli_app_id, auth_type="device_code")
 
     logins[[tenant]] <- client
@@ -92,7 +92,7 @@ delete_az_login <- function(tenant, confirm=TRUE)
 
     if(confirm && interactive())
     {
-        yn <- readline(paste0("Do you really want to delete ARM login for tenant '", tenant, "'? (y/N) "))
+        yn <- readline(paste0("Do you really want to delete ARM login for tenant ", tenant, "? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
