@@ -75,7 +75,7 @@ renew_az_logins <- function()
         save_client(client, client_name)
     }
 
-    lapply(ls(logins), refresh_and_save)
+    lapply(ls(logins), renew_and_save)
     invisible(NULL)
 }
 
