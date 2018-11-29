@@ -108,8 +108,9 @@ delete_az_login <- function(tenant, confirm=TRUE)
 #' @export
 list_az_logins <- function()
 {
-    lst <- lapply(dir(config_dir(), full.names=TRUE), readRDS)
-    names(lst) <- basename(names(lst))
+    tenants <- dir(config_dir(), full.names=TRUE)
+    lst <- lapply(tenants, readRDS)
+    names(lst) <- basename(tenants)
     lst
 }
 
