@@ -26,23 +26,28 @@ AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.m
 
 This achieves two things: first, you only have to manually authenticate once; and second, it saves you from having to create a service principal (although you can also do that if so desired).
 
-As a matter of convenience, you can also call `get_az_login("tenant_name")` on first login rather than `create_az_login`. In this case, AzureRMR will detect that you don't have a saved client object and create it for you.
-
 
 ## Logging in
 
 Let's look at a sample workflow involving AzureRMR. The first thing to do is authenticate with Azure, which we do with `get_az_login` as described above. This in fact uses the same app ID as the Azure CLI, so it should work anywhere you can use the CLI.
 
 ```{r, eval=FALSE}
+library(AzureRMR)
+
 # if this is the first time you're logging in to this tenant
 az <- create_az_login("myaadtenant.onmicrosoft.com")
 
+# you can also supply just the tenant name or ID
+az <- create_az_login("myaadtenant")
+
 # for subsequent sessions
-az <- get_az_login("myaadtenant.onmicrosoft.com")
+az <- get_az_login("myaadtenant")
 
 # you can also list the tenants that you've previously authenticated with
 list_az_logins()
 ```
+
+As a convenience feature, you can also call `get_az_login("tenant_name")` on first login rather than `create_az_login`. In this case, AzureRMR will detect that you don't have a saved client object and create it for you.
 
 
 ## Subscriptions and resource groups
@@ -50,7 +55,7 @@ list_az_logins()
 AzureRMR allows you to work with your subscriptions and resource groups. Note that if you created your service principal via the cloud shell, as described in this vignette, you probably only have access to one subscription. Regardless, you can list all subscriptions that you can work with:
 
 ```{r, eval=FALSE}
-# all subscriptions associated with this app
+# all subscriptions
 az$list_subscriptions()
 #$`5710aa44-281f-49fe-bfa6-69e66bb55b11`
 #<Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
@@ -82,7 +87,7 @@ Notice that AzureRMR is based on R6 classes, where methods are part of the objec
 The `list_subscriptions()` call returns a list of subscription objects. You can retrieve the details for a single subscription with `get_subscription`:
 
 ```{r, eval=FALSE}
-# get a subscription and resource group
+# get a subscription
 (sub1 <- az$get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11"))
 #<Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
 #  authorization_source: Legacy
