@@ -26,7 +26,7 @@
 #' \dontrun{
 #'
 #' # recommended way to retrieve a subscription object
-#' sub <- get_az_login("myaadtenant")$
+#' sub <- get_azure_login("myaadtenant")$
 #'     get_subscription("subscription_id")
 #'
 #' # retrieve list of resource group objects under this subscription

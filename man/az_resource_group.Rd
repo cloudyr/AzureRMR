@@ -73,7 +73,7 @@ To create/deploy a new resource, specify any extra parameters that the provider 
 \dontrun{
 
 # recommended way to retrieve a resource group object
-rg <- get_az_login("myaadtenant")$
+rg <- get_azure_login("myaadtenant")$
     get_subscription("subscription_id")$
     get_resource_group("rgname")
 

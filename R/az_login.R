@@ -1,6 +1,3 @@
-# app id used by Azure CLI
-.az_cli_app_id <- "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
-
 config_dir <- function()
 {
     rappdirs::user_config_dir(appname="AzureRMR", appauthor="AzureR", roaming=FALSE)
@@ -10,24 +7,27 @@ config_dir <- function()
 #' Functions to login to Azure Resource Manager
 #'
 #' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
-#' @param app The app ID to authenticate with. Defaults to the app used by the Azure CLI.
+#' @param app The app ID to authenticate with.
 #' @param auth_type The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you supply a password.
-#' @param ... Other arguments to pass to `az_rm$new()`.
-#' @param refresh For `get_az_login`, whether to refresh the authentication token on loading the client.
-#' @param confirm For `delete_az_login`, whether to ask for confirmation before deleting.
+#' @param auth_type Either `"client_credentials"` (the default) or `"device_code"`.
+#' @param password If `auth_type == "client_credentials"`, your password.
+#' @param host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
+#' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
+#' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
+#' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
 #'
 #' @details
 #' These functions allow you to login to Azure Resource Manager (ARM).
-#' - `create_az_login` will create a login client. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Azure Active Directory credentials, which completes the authentication process. You only have to create a login client once per tenant: the resulting ARM client object is saved on your machine and reused automatically in subsequent R sessions.
-#' - `get_az_login` will load a previously saved ARM client object for the given tenant. If this is the first time you are logging in for this tenant, the client object is created.
-#' - `delete_az_login` deletes the client object for the given tenant from your machine. Note that this doesn't invalidate any client you may be using in your R session.
-#' - `list_az_logins` lists client objects that have been previously saved.
-#' - `refresh_az_logins` refreshes all client objects existing on your machine.
+#' - `create_azure_login` will create a login client. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Azure Active Directory credentials, which completes the authentication process. You only have to create a login client once per tenant: the resulting ARM client object is saved on your machine and reused automatically in subsequent R sessions.
+#' - `get_azure_login` will load a previously saved ARM client object for the given tenant. If this is the first time you are logging in for this tenant, the client object is created.
+#' - `delete_azure_login` deletes the client object for the given tenant from your machine. Note that this doesn't invalidate any client you may be using in your R session.
+#' - `list_azure_logins` lists client objects that have been previously saved.
+#' - `refresh_azure_logins` refreshes all client objects existing on your machine.
 #'
-#' `create_az_login` is roughly equivalent to the Azure CLI command `az login` with no arguments, and in fact uses the same app ID as the CLI by default.
+#' `create_azure_login` is roughly equivalent to the Azure CLI command `az login` with no arguments, and in fact uses the same app ID as the CLI by default.
 #'
 #' @return
-#' For `create_az_login` and `get_az_login`, an object of class `az_rm`, representing the ARM client. For `list_az_logins`, a list of such objects.
+#' For `create_azure_login` and `get_azure_login`, an object of class `az_rm`, representing the ARM client. For `list_azure_logins`, a list of such objects.
 #'
 #' @seealso
 #' [az_rm], [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
@@ -37,42 +37,39 @@ config_dir <- function()
 #'
 #' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com'
 #' # only has to be run once per tenant
-#' az <- create_az_login("microsoft")
+#' az <- create_azure_login("microsoft")
 #'
 #' # in subsequent sessions, you can retrieve the client without re-authenticating:
 #' # authentication details will automatically be refreshed
-#' az <- get_az_login("microsoft")
+#' az <- get_azure_login("microsoft")
 #'
 #' # refresh (renew) authentication details for clients for all tenants
-#' refresh_az_logins()
+#' refresh_azure_logins()
 #'
 #' }
-#' @rdname az_login
+#' @rdname azure_login
 #' @export
-create_az_login <- function(tenant, app=NULL, auth_type="device_code", ...)
+create_azure_login <- function(tenant, app, auth_type, password, host, aad_host, ...)
 {
     tenant <- normalize_tenant(tenant)
 
-    if(is.null(app))
-        app <- .az_cli_app_id
-
     message("Creating Resource Manager client for tenant ", tenant)
-    client <- az_rm$new(tenant, app=app, auth_type=auth_type, ...)
+    client <- az_rm$new(tenant, app=app, ...)
 
     save_client(client, tenant)
     client
 }
 
 
-#' @rdname az_login
+#' @rdname azure_login
 #' @export
-get_az_login <- function(tenant, ..., refresh=TRUE)
+get_azure_login <- function(tenant, ..., refresh=TRUE)
 {
     tenant <- normalize_tenant(tenant)
 
     login_exists <- file.exists(file.path(config_dir(), tenant))
     if(!login_exists)
-        return(create_az_login(tenant, ...))
+        return(create_azure_login(tenant, ...))
 
     client <- readRDS(file.path(config_dir(), tenant))
     if(refresh)
@@ -85,9 +82,9 @@ get_az_login <- function(tenant, ..., refresh=TRUE)
 }
 
 
-#' @rdname az_login
+#' @rdname azure_login
 #' @export
-delete_az_login <- function(tenant, confirm=TRUE)
+delete_azure_login <- function(tenant, confirm=TRUE)
 {
     tenant <- normalize_tenant(tenant)
 
@@ -104,9 +101,9 @@ delete_az_login <- function(tenant, confirm=TRUE)
 }
 
 
-#' @rdname az_login
+#' @rdname azure_login
 #' @export
-list_az_logins <- function()
+list_azure_logins <- function()
 {
     tenants <- dir(config_dir(), full.names=TRUE)
     lst <- lapply(tenants, readRDS)
@@ -115,9 +112,9 @@ list_az_logins <- function()
 }
 
 
-#' @rdname az_login
+#' @rdname azure_login
 #' @export
-refresh_az_logins <- function()
+refresh_azure_logins <- function()
 {
     refresh_and_save <- function(tenant)
     {
