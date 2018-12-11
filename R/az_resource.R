@@ -117,7 +117,7 @@ public=list(
     # 4. get from host: resgroup, {provider, path}|type, name
     # 5. get from host by id: id
     initialize=function(token, subscription, resource_group, provider, path, type, name, id, ...,
-                        deployed_properties=list(), api_version=NULL)
+                        deployed_properties=list(), api_version=NULL, wait=FALSE)
     {
         self$token <- token
         self$subscription <- subscription
@@ -128,7 +128,7 @@ public=list(
         private$api_version <- api_version
 
         parms <- if(!is_empty(list(...)))
-            private$init_and_deploy(...)
+            private$init_and_deploy(..., wait=wait)
         else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
         else private$init_from_host()
@@ -299,7 +299,7 @@ private=list(
         private$res_op()
     },
 
-    init_and_deploy=function(...)
+    init_and_deploy=function(..., wait)
     {
         properties <- list(...)
 
@@ -310,9 +310,30 @@ private=list(
         private$validate_deploy_parms(properties)
         private$res_op(body=properties, encode="json", http_verb="PUT")
 
-        # allow time for provisioning setup, then get properties
-        Sys.sleep(1)
-        private$res_op()
+        # do we wait until resource has finished provisioning?
+        if(wait)
+        {
+            message("Waiting for provisioning to complete")
+            for(i in 1:1000) # some resources can take a long time to provision (AKS)
+            {
+                message(".", appendLF=FALSE)
+                res <- private$res_op()
+                status <- res$properties$provisioningState
+                if(status %in% c("Succeeded", "Error", "Failed"))
+                    break
+                Sys.sleep(5)
+            }
+            if(status == "Succeeded")
+                message("\nDeployment successful")
+            else stop("\nUnable to create resource", call.=FALSE)
+        }
+        else
+        {
+            # allow time for provisioning setup, then get properties
+            Sys.sleep(2)
+            res <- private$res_op()
+        }
+        res
     },
 
     validate_deploy_parms=function(parms)

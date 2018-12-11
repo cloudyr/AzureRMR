@@ -212,11 +212,11 @@ public=list(
             delete(..., api_version=api_version, confirm=confirm, wait=wait)
     },
 
-    create_resource=function(provider, path, type, name, id, ...)
+    create_resource=function(provider, path, type, name, id, location=self$location, ...)
     {
         az_resource$new(self$token, self$subscription,
                         resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id,
-                        location=self$location, ...)
+                        location=location, ...)
     },
 
     print=function(...)
