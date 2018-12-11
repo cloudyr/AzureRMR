@@ -31,11 +31,11 @@ refresh_azure_logins()
 
 \item{aad_host}{Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.}
 
+\item{...}{Other arguments passed to \code{az_rm$new()}.}
+
 \item{refresh}{For \code{get_azure_login}, whether to refresh the authentication token on loading the client.}
 
 \item{confirm}{For \code{delete_azure_login}, whether to ask for confirmation before deleting.}
-
-\item{auth_type}{Either \code{"client_credentials"} (the default) or \code{"device_code"}.}
 }
 \value{
 For \code{create_azure_login} and \code{get_azure_login}, an object of class \code{az_rm}, representing the ARM client. For \code{list_azure_logins}, a list of such objects.

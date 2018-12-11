@@ -9,12 +9,12 @@ config_dir <- function()
 #' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
 #' @param app The app ID to authenticate with.
 #' @param auth_type The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you supply a password.
-#' @param auth_type Either `"client_credentials"` (the default) or `"device_code"`.
 #' @param password If `auth_type == "client_credentials"`, your password.
 #' @param host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
+#' @param ... Other arguments passed to `az_rm$new()`.
 #'
 #' @details
 #' These functions allow you to login to Azure Resource Manager (ARM).
