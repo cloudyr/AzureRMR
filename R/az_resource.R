@@ -314,14 +314,14 @@ private=list(
         if(wait)
         {
             message("Waiting for provisioning to complete")
-            for(i in 1:1000) # some resources can take a long time to provision (AKS)
+            for(i in 1:1000) # some resources can take a long time to provision (AKS, Kusto)
             {
-                message(".", appendLF=FALSE)
+                Sys.sleep(5)
                 res <- private$res_op()
                 status <- res$properties$provisioningState
                 if(status %in% c("Succeeded", "Error", "Failed"))
                     break
-                Sys.sleep(5)
+                message(".", appendLF=FALSE)
             }
             if(status == "Succeeded")
                 message("\nDeployment successful")
