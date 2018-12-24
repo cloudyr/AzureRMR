@@ -40,7 +40,7 @@ format_public_fields <- function(env, exclude=character(0))
     objconts <- sapply(objnames, function(n)
     {
         x <- get(n, env)
-        deparsed <- if(is_empty(x) || is.function(x) || x == "") # don't print empty fields
+        deparsed <- if(is_empty(x) || is.function(x)) # don't print empty fields
             return(NULL)
         else if(is.list(x))
             paste0("list(", paste(names(x), collapse=", "), ")")
