@@ -339,21 +339,23 @@ private=list(
     validate_deploy_parms=function(parms)
     {
         required_names <- character(0)
-        optional_names <- c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags")
+        optional_names <-
+            c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags", "etag")
         validate_object_names(names(parms), required_names, optional_names)
     },
 
     validate_response_parms=function(parms)
     {
         required_names <- c("id", "name", "type", "location")
-        optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags")
+        optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags", "etag")
         validate_object_names(names(parms), required_names, optional_names)
     },
 
     validate_update_parms=function(parms)
     {
         required_names <- character(0)
-        optional_names <- c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags")
+        optional_names <-
+            c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags", "etag")
         validate_object_names(names(parms), required_names, optional_names)
     },
 
