@@ -109,6 +109,7 @@ public=list(
     sku=NULL,
     tags=NULL,
     token=NULL,
+    etag=NULL,
 
     # constructor overloads:
     # 1. deploy resource: resgroup, {provider, path}|type, name, ...
@@ -141,6 +142,7 @@ public=list(
         self$properties <- parms$properties
         self$sku <- parms$sku
         self$tags <- parms$tags
+        self$etag <- parms$etag
 
         NULL
     },
