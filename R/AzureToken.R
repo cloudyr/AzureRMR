@@ -145,6 +145,8 @@ private=list(
 get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"),
                          password, resource_host)
 {
+    tenant <- normalize_tenant(tenant)
+
     auth_type <- match.arg(auth_type)
     base_url <- construct_path(aad_host, tenant)
     if(auth_type == "client_credentials")
