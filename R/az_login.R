@@ -38,7 +38,7 @@ config_dir <- function()
 #'
 #' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com'
 #' # only has to be run once per tenant
-#' az <- create_azure_login("microsoft", app="{app_id}", password="{password"})
+#' az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
 #'
 #' # you can also login using credentials in a json file
 # az <- create_azure_login(config_file="~/creds.json")

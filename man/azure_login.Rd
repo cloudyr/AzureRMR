@@ -60,6 +60,24 @@ These functions allow you to authenticate with Azure Resource Manager (ARM).
 
 \code{create_azure_login} is roughly equivalent to the Azure CLI command \code{az login} with no arguments.
 }
+\examples{
+\dontrun{
+
+# this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com'
+# only has to be run once per tenant
+az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
+
+# you can also login using credentials in a json file
+
+# in subsequent sessions, you can retrieve the client without re-authenticating:
+# authentication details will automatically be refreshed
+az <- get_azure_login("microsoft")
+
+# refresh (renew) authentication details for clients for all tenants
+refresh_azure_logins()
+
+}
+}
 \seealso{
 \link{az_rm}, \href{https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest}{Azure CLI documentation}
 }
