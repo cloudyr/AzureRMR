@@ -8,7 +8,10 @@
 \alias{refresh_azure_logins}
 \title{Functions to login to Azure Resource Manager}
 \usage{
-create_azure_login(tenant, app, auth_type, password, host, aad_host, ...)
+create_azure_login(tenant, app, auth_type = "client_credentials",
+  password, host = "https://management.azure.com/",
+  aad_host = "https://login.microsoftonline.com/", config_file = NULL,
+  ...)
 
 get_azure_login(tenant, ..., refresh = TRUE)
 
@@ -23,13 +26,15 @@ refresh_azure_logins()
 
 \item{app}{The app ID to authenticate with.}
 
-\item{auth_type}{The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you supply a password.}
+\item{auth_type}{The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you created a service principal using the Azure CLI.}
 
 \item{password}{If \code{auth_type == "client_credentials"}, your password.}
 
 \item{host}{Your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
 
 \item{aad_host}{Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.}
+
+\item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.}
 
 \item{...}{Other arguments passed to \code{az_rm$new()}.}
 
@@ -38,38 +43,22 @@ refresh_azure_logins()
 \item{confirm}{For \code{delete_azure_login}, whether to ask for confirmation before deleting.}
 }
 \value{
-For \code{create_azure_login} and \code{get_azure_login}, an object of class \code{az_rm}, representing the ARM client. For \code{list_azure_logins}, a list of such objects.
+For \code{create_azure_login} and \code{get_azure_login}, an object of class \code{az_rm}, representing the ARM login client. For \code{list_azure_logins}, a list of such objects.
 }
 \description{
 Functions to login to Azure Resource Manager
 }
 \details{
-These functions allow you to login to Azure Resource Manager (ARM).
+These functions allow you to authenticate with Azure Resource Manager (ARM).
 \itemize{
-\item \code{create_azure_login} will create a login client. R will display a code and prompt you to visit the Microsoft login page in your browser. You then enter the code along with your Azure Active Directory credentials, which completes the authentication process. You only have to create a login client once per tenant: the resulting ARM client object is saved on your machine and reused automatically in subsequent R sessions.
-\item \code{get_azure_login} will load a previously saved ARM client object for the given tenant. If this is the first time you are logging in for this tenant, the client object is created.
+\item \code{create_azure_login} creates a login client, using the supplied credentials. You only have to create a login client once per tenant; the resulting object is saved on your machine and reused automatically in subsequent R sessions.
+\item \code{get_azure_login} will load a previously saved ARM client object for the given tenant. If this is the first time you are logging in for this tenant, the client object is created via \code{create_login_client}.
 \item \code{delete_azure_login} deletes the client object for the given tenant from your machine. Note that this doesn't invalidate any client you may be using in your R session.
 \item \code{list_azure_logins} lists client objects that have been previously saved.
 \item \code{refresh_azure_logins} refreshes all client objects existing on your machine.
 }
 
-\code{create_azure_login} is roughly equivalent to the Azure CLI command \code{az login} with no arguments, and in fact uses the same app ID as the CLI by default.
-}
-\examples{
-\dontrun{
-
-# this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com'
-# only has to be run once per tenant
-az <- create_azure_login("microsoft")
-
-# in subsequent sessions, you can retrieve the client without re-authenticating:
-# authentication details will automatically be refreshed
-az <- get_azure_login("microsoft")
-
-# refresh (renew) authentication details for clients for all tenants
-refresh_azure_logins()
-
-}
+\code{create_azure_login} is roughly equivalent to the Azure CLI command \code{az login} with no arguments.
 }
 \seealso{
 \link{az_rm}, \href{https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest}{Azure CLI documentation}
