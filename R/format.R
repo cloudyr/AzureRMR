@@ -34,15 +34,15 @@ format_public_fields <- function(env, exclude=character(0))
     objnames <- ls(env)
     std_fields <- "token"
     objnames <- setdiff(objnames, c(exclude, std_fields))
-    is_method <- sapply(objnames, function(obj) is.function(.subset2(env, obj)))
 
     maxwidth <- as.integer(0.8 * getOption("width"))
-
-    objnames <- objnames[!is_method]
+ 
     objconts <- sapply(objnames, function(n)
     {
         x <- get(n, env)
-        deparsed <- if(is.list(x))
+        deparsed <- if(is_empty(x) || is.function(x)) # don't print empty fields
+            return(NULL)
+        else if(is.list(x))
             paste0("list(", paste(names(x), collapse=", "), ")")
         else if(is.vector(x))
         {
@@ -55,7 +55,15 @@ format_public_fields <- function(env, exclude=character(0))
 
         paste0(strwrap(paste0(n, ": ", deparsed), width=maxwidth, indent=2, exdent=4),
                collapse="\n")
-    })
+    }, simplify=FALSE)
+    
+    empty <- sapply(objconts, is.null)
+    objconts <- objconts[!empty]
+
+    # print etag at the bottom, not the top
+    if("etag" %in% names(objconts))
+        objconts <- c(objconts[-which(names(objconts) == "etag")], objconts["etag"])
+
     paste0(paste0(objconts, collapse="\n"), "\n---\n")
 }
 

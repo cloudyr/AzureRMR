@@ -1,8 +1,10 @@
-# AzureRMR 1.1.0
+# AzureRMR 1.0.0.9000
 
-* Revamped authentication process that mimics the flow in the Azure CLI. Now, you can use the `create_az_login()` function to create a persistent login object, which will be saved and reused in later sessions with `get_az_login()`. By default this authenticates using a custom AAD app created for AzureR, removing the need for the user to create a service principal.
-
-- You can still authenticate with a direct call to `az_rm$new()` if so desired.
+* Don't print empty fields for ARM objects.
+* Add optional `etag` field to resource object definition.
+* Fix `AzureToken` object to never have a `NULL` password field (important to allow devicecode refreshing).
+* Add `location` argument to `az_resource_group$create_resource` method, rather than hardcoding it to the resgroup location.
+* Add `wait` argument when creating a new resource, similar to deploying a template, since some resources will return before provisioning is complete. Defaults to `FALSE` for backward compatibility.
 
 # AzureRMR 1.0.0
 
