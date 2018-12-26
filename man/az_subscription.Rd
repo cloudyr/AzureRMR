@@ -35,8 +35,7 @@ Generally, the easiest way to create a subscription object is via the \code{get_
 \dontrun{
 
 # recommended way to retrieve a subscription object
-sub <- az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+sub <- get_azure_login("myaadtenant")$
     get_subscription("subscription_id")
 
 # retrieve list of resource group objects under this subscription

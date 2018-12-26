@@ -22,7 +22,7 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 
 ## Before you begin
 
-To use AzureRMR, you must create and register a _service principal_ with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
+To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
 
 - In the Azure Portal (https://portal.azure.com/), click on the Cloud Shell icon:
 
@@ -36,42 +36,39 @@ To use AzureRMR, you must create and register a _service principal_ with Azure A
 
 - Record your tenant ID, app ID, and password.
 
-This will authorise your service principal to work with objects within a single subscription. If you want to add more subscriptions, you can do so via the Portal. Go to the Subscriptions pane, click on the subscription you want to add, then under "Access Control (IAM)", fill in the details for your service principal and the type of access it to have (typically "Contributor" is good enough).
-
 If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
 
 
-## Logging in
+## Authentication
 
-Let's look at a sample workflow involving AzureRMR. The first thing to do is authenticate with Azure. AzureRMR supports various ways of authenticating. You can supply a password (which is the default), or if your service principal requires it, you can use the [device code flow](https://www.oauth.com/oauth2-servers/device-flow/token-request/). With the latter, AzureRMR will display a code, and prompt you to visit a login site in your browser. You then enter the code on the site, which completes the process.
+Let's look at a sample workflow involving AzureRMR.
 
-Finally, any authentication arguments can also be supplied in a JSON file, specified via the `config_file` argument. In particular, the output from the cloud shell command used to create the service principal can be used here.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()` and supply your tenant, app ID and password. The resulting Resource Manager client object is saved on your machine, and can be retrieved in subsequent R sessions with `get_azure_login("{tenant}")`. AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
 
 ```{r, eval=FALSE}
-# authenticate with a password
-az <- az_rm$new(tenant="xxx-xxx-xxx",
-                app="yyy-yyy-yyy",
-                password="{your-password}")
+library(AzureRMR)
 
-# authenticate with device code: R will display a code to enter in your browser
-az2 <- az_rm$new(tenant="xxx-xxx-xxx",
-                 app="zzz-zzz-zzz",
-                 auth_type="device")
+# if this is the first time you're logging in to this tenant
+az <- create_azure_login("myaadtenant.onmicrosoft.com", app="app_id", password="password")
 
-# authenticate with credentials stored in a JSON file
-az3 <- az_rm$new(config_file="creds.json")
+# for subsequent sessions
+az <- get_azure_login("myaadtenant")
+
+# you can also list the tenants that you've previously authenticated with
+list_azure_logins()
 ```
+
 
 ## Subscriptions and resource groups
 
 AzureRMR allows you to work with your subscriptions and resource groups. Note that if you created your service principal via the cloud shell, as described in this vignette, you probably only have access to one subscription. Regardless, you can list all subscriptions that you can work with:
 
 ```{r, eval=FALSE}
-# all subscriptions associated with this app
+# all subscriptions
 az$list_subscriptions()
 #$`5710aa44-281f-49fe-bfa6-69e66bb55b11`
 #<Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
-#  authorization_source: Legacy
+#  authorization_source: RoleBased
 #  name: Visual Studio Ultimate with MSDN
 #  policies: list(locationPlacementId, quotaId, spendingLimit)
 #  state: Enabled
@@ -99,7 +96,7 @@ Notice that AzureRMR is based on R6 classes, where methods are part of the objec
 The `list_subscriptions()` call returns a list of subscription objects. You can retrieve the details for a single subscription with `get_subscription`:
 
 ```{r, eval=FALSE}
-# get a subscription and resource group
+# get a subscription
 (sub1 <- az$get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11"))
 #<Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
 #  authorization_source: Legacy
@@ -119,9 +116,7 @@ A subscription object in turn has methods to get, create and delete resource gro
 #<Azure resource group rdev1>
 #  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1
 #  location: australiaeast
-#  managed_by: NULL
 #  properties: list(provisioningState)
-#  tags: NULL
 #---
 #  Methods:
 #    check, create_resource, delete, delete_resource, delete_template, deploy_template, get_resource,
@@ -140,12 +135,9 @@ Methods for working with resources and templates are exposed as part of the `az_
 (stor <- rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1"))
 #<Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
 #  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft.Sto ...
-#  identity: NULL
 #  is_synced: TRUE
 #  kind: Storage
 #  location: australiasoutheast
-#  managed_by: NULL
-#  plan: NULL
 #  properties: list(networkAcls, trustedDirectories, supportsHttpsTrafficOnly, encryption,
 #    provisioningState, creationTime, primaryEndpoints, primaryLocation, statusOfPrimary)
 #  sku: list(name, tier)

@@ -55,8 +55,7 @@
 #' \dontrun{
 #' 
 #' # recommended way to retrieve a resource group object
-#' rg <- az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' rg <- get_azure_login("myaadtenant")$
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'

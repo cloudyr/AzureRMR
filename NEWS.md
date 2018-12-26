@@ -1,5 +1,11 @@
 # AzureRMR 1.0.0.9000
 
+## Significant interface changes
+
+* New `create_azure_login`, `get_azure_login` and `delete_azure_login` functions to handle ARM authentication. These will persist the login object across sessions, removing the need to re-authenticate each time. While directly calling `az_rm$new()` will still work, it's recommended to use `create_azure_login` and `get_azure_login` going forward.
+
+## Other changes
+
 * Don't print empty fields for ARM objects.
 * Add optional `etag` field to resource object definition.
 * Fix `AzureToken` object to never have a `NULL` password field (important to allow devicecode refreshing).
