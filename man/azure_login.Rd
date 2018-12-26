@@ -8,8 +8,9 @@
 \alias{refresh_azure_logins}
 \title{Functions to login to Azure Resource Manager}
 \usage{
-create_azure_login(tenant, app, auth_type = "client_credentials",
-  password, host = "https://management.azure.com/",
+create_azure_login(tenant, app, password = NULL, auth_type = if
+  (is.null(password)) "device_code" else "client_credentials",
+  host = "https://management.azure.com/",
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
@@ -26,9 +27,9 @@ refresh_azure_logins()
 
 \item{app}{The app ID to authenticate with.}
 
-\item{auth_type}{The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you created a service principal using the Azure CLI.}
-
 \item{password}{If \code{auth_type == "client_credentials"}, your password.}
+
+\item{auth_type}{The type of authentication to use, either "device_code" or "client_credentials". Defaults to the latter if no password is provided, otherwise the former.}
 
 \item{host}{Your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
 

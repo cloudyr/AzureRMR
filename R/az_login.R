@@ -8,8 +8,8 @@ config_dir <- function()
 #'
 #' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
 #' @param app The app ID to authenticate with.
-#' @param auth_type The type of authentication to use. Can be either "device_code" or "client_credentials". Use the latter if you created a service principal using the Azure CLI.
 #' @param password If `auth_type == "client_credentials"`, your password.
+#' @param auth_type The type of authentication to use, either "device_code" or "client_credentials". Defaults to the latter if no password is provided, otherwise the former.
 #' @param host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
@@ -53,9 +53,9 @@ config_dir <- function()
 #' }
 #' @rdname azure_login
 #' @export
-create_azure_login <- function(tenant, app, auth_type="client_credentials", password,
-                               host="https://management.azure.com/",
-                               aad_host="https://login.microsoftonline.com/",
+create_azure_login <- function(tenant, app, password=NULL,
+                               auth_type=if(is.null(password)) "device_code" else "client_credentials",
+                               host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                                config_file=NULL, ...)
 {
     if(!is.null(config_file))
@@ -68,8 +68,10 @@ create_azure_login <- function(tenant, app, auth_type="client_credentials", pass
         if(!is.null(conf$host)) host <- conf$host
         if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
     }
-    message("Creating Azure Active Directory login for tenant '", normalize_tenant(tenant), "'")
-    client <- az_rm$new(tenant, app, auth_type, password, host, aad_host, config_file, ...)
+
+    tenant <- normalize_tenant(tenant)
+    message("Creating Azure Active Directory login for tenant '", tenant, "'")
+    client <- az_rm$new(tenant, app, password, auth_type, host, aad_host, config_file, ...)
     save_client(client, tenant)
     client
 }

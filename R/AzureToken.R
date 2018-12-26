@@ -115,12 +115,12 @@ private=list(
 #'
 #' This extends the OAuth functionality in httr to allow for device code authentication.
 #'
-#' @param aad_host URL for your Azure Active Directory host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
+#' @param resource_host URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
 #' @param tenant Your tenant ID.
 #' @param app Your client/app ID which you registered in AAD.
-#' @param auth_type The authentication type, either `"client_credentials"` or `"device_code"`.
 #' @param password Your password. Required for `auth_type == "client_credentials"`, ignored for `auth_type == "device_code"`.
-#' @param resource_host URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
+#' @param auth_type The authentication type, either `"client_credentials"` or `"device_code"`. Defaults to the latter if no password is provided, otherwise the former.
+#' @param aad_host URL for your Azure Active Directory host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
 #'
 #' @details
 #' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
@@ -142,12 +142,12 @@ private=list(
 #'
 #' }
 #' @export
-get_azure_token=function(aad_host, tenant, app, auth_type=c("client_credentials", "device_code"),
-                         password, resource_host)
+get_azure_token=function(resource_host, tenant, app, password=NULL,
+                         auth_type=if(is.null(password)) "device_code" else "client_credentials",
+                         aad_host="https://login.microsoftonline.com/")
 {
     tenant <- normalize_tenant(tenant)
 
-    auth_type <- match.arg(auth_type)
     base_url <- construct_path(aad_host, tenant)
     if(auth_type == "client_credentials")
         auth_with_creds(base_url, app, password, resource_host)

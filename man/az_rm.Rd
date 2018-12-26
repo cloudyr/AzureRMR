@@ -28,8 +28,8 @@ To authenticate with the \code{az_rm} class directly, provide the following argu
 \itemize{
 \item \code{tenant}: Your tenant ID.
 \item \code{app}: Your client/app ID which you registered in Azure Active Directory.
-\item \code{auth_type}: Either \code{"client_credentials"} (the default) or \code{"device_code"}.
 \item \code{password}: if \code{auth_type == "client_credentials"}, your password.
+\item \code{auth_type}: Either \code{"client_credentials"} or \code{"device_code"}. Defaults to the latter if no password is provided, otherwise the former.
 \item \code{host}: your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.
 \item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
 \item \code{config_file}: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.

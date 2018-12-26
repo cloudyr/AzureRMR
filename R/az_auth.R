@@ -16,8 +16,8 @@
 #' To authenticate with the `az_rm` class directly, provide the following arguments to the `new` method:
 #' - `tenant`: Your tenant ID.
 #' - `app`: Your client/app ID which you registered in Azure Active Directory.
-#' - `auth_type`: Either `"client_credentials"` (the default) or `"device_code"`.
 #' - `password`: if `auth_type == "client_credentials"`, your password.
+#' - `auth_type`: Either `"client_credentials"` or `"device_code"`. Defaults to the latter if no password is provided, otherwise the former.
 #' - `host`: your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
@@ -57,7 +57,8 @@ public=list(
     token=NULL,
 
     # authenticate and get subscriptions
-    initialize=function(tenant, app, auth_type="client_credentials", password,
+    initialize=function(tenant, app, password=NULL,
+                        auth_type=if(is.null(password)) "device_code" else "client_credentials",
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                         config_file=NULL, token=NULL)
     {
@@ -80,8 +81,8 @@ public=list(
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
         }
         self$host <- host
-        self$tenant <- tenant
-        self$token <- get_azure_token(aad_host, tenant, app, auth_type, password, host)
+        self$tenant <- normalize_tenant(tenant)
+        self$token <- get_azure_token(self$host, self$tenant, app, password, auth_type, aad_host)
         NULL
     },
 

@@ -4,22 +4,22 @@
 \alias{get_azure_token}
 \title{Generate an Azure OAuth token}
 \usage{
-get_azure_token(aad_host, tenant, app,
-  auth_type = c("client_credentials", "device_code"), password,
-  resource_host)
+get_azure_token(resource_host, tenant, app, password = NULL,
+  auth_type = if (is.null(password)) "device_code" else
+  "client_credentials", aad_host = "https://login.microsoftonline.com/")
 }
 \arguments{
-\item{aad_host}{URL for your Azure Active Directory host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
+\item{resource_host}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
 
 \item{tenant}{Your tenant ID.}
 
 \item{app}{Your client/app ID which you registered in AAD.}
 
-\item{auth_type}{The authentication type, either \code{"client_credentials"} or \code{"device_code"}.}
-
 \item{password}{Your password. Required for \code{auth_type == "client_credentials"}, ignored for \code{auth_type == "device_code"}.}
 
-\item{resource_host}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
+\item{auth_type}{The authentication type, either \code{"client_credentials"} or \code{"device_code"}. Defaults to the latter if no password is provided, otherwise the former.}
+
+\item{aad_host}{URL for your Azure Active Directory host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
 }
 \description{
 This extends the OAuth functionality in httr to allow for device code authentication.
