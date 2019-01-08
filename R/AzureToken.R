@@ -172,8 +172,3 @@ auth_with_device <- function(base_url, app, resource)
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
 }
 
-
-is_azure_token <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "AzureToken")
-}
