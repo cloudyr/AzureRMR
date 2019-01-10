@@ -27,9 +27,10 @@ The best way to authenticate with ARM is probably via the \link{create_azure_log
 To authenticate with the \code{az_rm} class directly, provide the following arguments to the \code{new} method:
 \itemize{
 \item \code{tenant}: Your tenant ID.
-\item \code{app}: Your client/app ID which you registered in Azure Active Directory.
-\item \code{password}: if \code{auth_type == "client_credentials"}, your password.
-\item \code{auth_type}: Either \code{"client_credentials"} or \code{"device_code"}. Defaults to the latter if no password is provided, otherwise the former.
+\item \code{app}: The client/app ID to use to authenticate with Azure Active Directory.
+\item \code{password}: if \code{auth_type == "client_credentials"}, the app secret; if \code{auth_type == "resource_owner"}, your account password.
+\item \code{username}: if \code{auth_type == "resource_owner"}, your username.
+\item \code{auth_type}: The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See \link{get_azure_token} for how the default method is chosen.
 \item \code{host}: your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.
 \item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
 \item \code{config_file}: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.

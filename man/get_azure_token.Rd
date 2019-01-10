@@ -5,42 +5,60 @@
 \title{Generate an Azure OAuth token}
 \usage{
 get_azure_token(resource_host, tenant, app, password = NULL,
-  auth_type = if (is.null(password)) "device_code" else
-  "client_credentials", aad_host = "https://login.microsoftonline.com/")
+  username = NULL, auth_type = NULL,
+  aad_host = "https://login.microsoftonline.com/")
 }
 \arguments{
 \item{resource_host}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
 
 \item{tenant}{Your tenant ID.}
 
-\item{app}{Your client/app ID which you registered in AAD.}
+\item{app}{The client/app ID to use to authenticate with Azure Active Directory (AAD).}
 
-\item{password}{Your password. Required for \code{auth_type == "client_credentials"}, ignored for \code{auth_type == "device_code"}.}
+\item{password}{The password, either for the app, or your username if supplied. See 'Details' below.}
 
-\item{auth_type}{The authentication type, either \code{"client_credentials"} or \code{"device_code"}. Defaults to the latter if no password is provided, otherwise the former.}
+\item{username}{Your AAD username, if using the resource owner grant. See 'Details' below.}
 
-\item{aad_host}{URL for your Azure Active Directory host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
+\item{auth_type}{The authentication type. See 'Details' below.}
+
+\item{aad_host}{URL for your AAD host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
 }
 \description{
 This extends the OAuth functionality in httr to allow for device code authentication.
 }
 \details{
 This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+
+The OAuth authentication type can be one of 4 possible values: "authorization_code", "device_code", "client_credentials" or "resource_owner". If this is not specified, the value is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
+\itemize{
+\item Password and username present: "resource_owner"
+\item Password and username absent: "authorization_code" if the httpuv package is installed, "device_code" otherwise
+\item Password present, username absent: "client_credentials"
+\item Password absent, username present: error
+}
+
+The httpuv package must be installed to use the "authorization_code" method, as this requires a web server to listen on the (local) redirect URI. See \link[httr:oauth2.0_token]{httr::oauth2.0_token} for more information; note that Azure does not support the \code{use_oob} feature of the httr OAuth 2.0 token class.
 }
 \examples{
 \dontrun{
 
-token <- get_azure_token(
-   aad_host="https://login.microsoftonline.com/",
+arm_token <- get_azure_token(
+   resource_host="https://management.azure.com/",  # authenticate with Azure Resource Manager
+   tenant="myaadtenant.onmicrosoft.com",
+   app="app_id")
+
+storage_token <- get_azure_token(
+   resource_host="https://storage.azure.com/",  # authenticate with Azure storage
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id",
-   password="password",
-   resource_host="https://management.azure.com/")
+   password="password")
 
 }
 }
 \seealso{
 \link{AzureToken}, \link[httr:oauth2.0_token]{httr::oauth2.0_token}, \link[httr:Token]{httr::Token},
+
 \href{https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code}{OAuth authentication for Azure Active Directory},
-\href{https://www.oauth.com/oauth2-servers/device-flow/token-request/}{Device code flow on OAuth.com}
+\href{https://www.oauth.com/oauth2-servers/device-flow/token-request/}{Device code flow on OAuth.com},
+\href{https://tools.ietf.org/html/rfc6749}{OAuth 2.0 RFC} for the gory details on how OAuth works
 }
