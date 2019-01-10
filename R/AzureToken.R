@@ -192,6 +192,10 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
     if(is.null(auth_type))
         auth_type <- select_auth_type(password, username)
 
+    # fail if authorization_code selected but httpuv not available
+    if(auth_type == "authorization_code" && system.file(package="httpuv") == "")
+        stop("httpuv package must be installed to use authorization_code method", call.=FALSE)
+
     switch(auth_type,
         client_credentials=
             auth_with_client_creds(base_url, app, password, resource_host),
