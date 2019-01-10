@@ -20,12 +20,12 @@ AzureToken <- R6::R6Class("AzureToken", inherit=httr::Token2.0,
 public=list(
 
     # need to do hacky init to support explicit re-authentication instead of using a refresh token
-    initialize=function(endpoint, app, user_params, use_device=FALSE)
+    initialize=function(endpoint, app, user_params, use_device=FALSE, client_credentials=TRUE)
     {
         private$az_use_device <- use_device
 
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=use_device, config_init=list(), client_credentials=TRUE)
+                       use_basic_auth=use_device, config_init=list(), client_credentials=client_credentials)
 
         super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
 
@@ -142,16 +142,21 @@ private=list(
 #'
 #' }
 #' @export
-get_azure_token=function(resource_host, tenant, app, password=NULL,
-                         auth_type=if(is.null(password)) "device_code" else "client_credentials",
-                         aad_host="https://login.microsoftonline.com/")
+get_azure_token <- function(resource_host, tenant, app, password=NULL, username=NULL, auth_type=NULL,
+                            aad_host="https://login.microsoftonline.com/")
 {
     tenant <- normalize_tenant(tenant)
-
     base_url <- construct_path(aad_host, tenant)
-    if(auth_type == "client_credentials")
-        auth_with_creds(base_url, app, password, resource_host)
-    else auth_with_device(base_url, app, resource_host)
+
+    if(is.null(auth_type))
+        auth_type <- select_auth_type(password, username)
+
+    switch(auth_type,
+        client_credentials=auth_with_creds(base_url, app, password, resource_host),
+        device_code=auth_with_device(base_url, app, resource_host),
+        password=auth_with_password(base_url, app, password, username, resource_host),
+        authorization_code=auth_with_code(base_url, app, resource_host),
+        stop("Invalid auth_type argument", call.=FALSE))
 }
 
 
@@ -172,3 +177,25 @@ auth_with_device <- function(base_url, app, resource)
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
 }
 
+
+# select authentication method based on input arguments and presence of httpuv
+select_auth_type <- function(password, username)
+{
+    got_pwd <- !is.null(password)
+    got_user <- !is.null(username)
+
+    if(got_pwd && got_user)
+        "password"
+    else if(!got_pwd && !got_user)
+    {
+        if(system.file(package="httpuv") == "")
+        {
+            message("httpuv package not found, defaulting to device code authentication")
+            "device_code"
+        }
+        else "authorization_code"
+    }
+    else if(got_pwd && !got_user)
+        "client_credentials"
+    else stop("Can't select authentication method", call.=FALSE)
+}
