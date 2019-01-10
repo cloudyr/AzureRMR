@@ -27,11 +27,17 @@ public=list(
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
                        use_basic_auth=use_device, config_init=list(), client_credentials=client_credentials)
 
-        if(!is.null(params$username))
+        if(is.null(user_params$username))
             super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
         else
         {
+            self$app <- app
+            self$endpoint <- endpoint
+            self$params <- params
+            self$cache_path <- NULL
+            self$private_key <- NULL
             # handle username/password authentication
+            private$init_with_username(app=app, endpoint=endpoint, user_params)
         }
 
         # if auth is via device, token now contains initial server response; call devicecode handler to get actual token
@@ -67,7 +73,8 @@ public=list(
             return(super$refresh())
 
         # re-authenticate if no refresh token
-        self$initialize(self$endpoint, self$app, self$params$user_params, use_device=private$az_use_device)
+        self$initialize(self$endpoint, self$app, self$params$user_params, use_device=private$az_use_device,
+            client_credentials=self$params$client_credentials)
         NULL
     }
 ),
@@ -83,7 +90,7 @@ private=list(
 
         req_params <- list(client_id=app$key, grant_type="device_code", code=self$credentials$device_code)
         req_params <- utils::modifyList(user_params, req_params)
-        endpoint$access <- sub("devicecode", "token", endpoint$access)
+        endpoint$access <- sub("devicecode$", "token", endpoint$access)
 
         interval <- as.numeric(self$credentials$interval)
         ntries <- as.numeric(self$credentials$expires_in) %/% interval
@@ -112,6 +119,22 @@ private=list(
         self$endpoint <- endpoint
         self$credentials <- cont
         NULL
+    },
+
+    # resource owner authentication: send username/password
+    init_with_username=function(endpoint, app, user_params)
+    {
+        body <- list(
+            client_id=app$key,
+            grant_type="password",
+            username=user_params$username,
+            password=user_params$password)
+
+        res <- httr::POST(endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+                          body=body)
+
+        httr::stop_for_status(res, task="get an access token")
+        httr::content(res)
     }
 ))
 
@@ -153,13 +176,13 @@ private=list(
 #' arm_token <- get_azure_token(
 #'    resource_host="https://management.azure.com/",  # authenticate with Azure Resource Manager
 #'    tenant="myaadtenant.onmicrosoft.com",
-#'    app="app_id",
-#'    password="password")
+#'    app="app_id")
 #'
 #' storage_token <- get_azure_token(
 #'    resource_host="https://storage.azure.com/",  # authenticate with Azure storage
 #'    tenant="myaadtenant.onmicrosoft.com",
-#'    app="app_id")
+#'    app="app_id",
+#'    password="password")
 #'
 #' }
 #' @export
@@ -217,7 +240,7 @@ auth_with_username <- function(base_url, app, password, username, resource)
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
     app <- httr::oauth_app("azure", key=app, secret=NULL)
 
-    AzureToken$new(endp, app, user_params=list(resource=resource, username=username),
+    AzureToken$new(endp, app, user_params=list(resource=resource, username=username, password=password),
         use_device=TRUE, client_credentials=FALSE)
 }
 
