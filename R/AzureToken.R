@@ -130,7 +130,8 @@ private=list(
                           body=body)
 
         httr::stop_for_status(res, task="get an access token")
-        httr::content(res)
+        self$credentials <- httr::content(res)
+        NULL
     }
 ))
 
