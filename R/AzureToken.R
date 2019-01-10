@@ -20,22 +20,27 @@ AzureToken <- R6::R6Class("AzureToken", inherit=httr::Token2.0,
 public=list(
 
     # need to do hacky init to support explicit re-authentication instead of using a refresh token
-    initialize=function(endpoint, app, user_params, use_device=FALSE)
+    initialize=function(endpoint, app, user_params, use_device=FALSE, client_credentials=TRUE)
     {
         private$az_use_device <- use_device
 
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=use_device, config_init=list(), client_credentials=TRUE)
+                       use_basic_auth=FALSE, config_init=list(), client_credentials=client_credentials)
 
-        super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
+        # use httr initialize for authorization_code, client_credentials methods
+        if(!use_device && is.null(user_params$username))
+            return(super$initialize(app=app, endpoint=endpoint, params=params, cache_path=FALSE))
 
-        # if auth is via device, token now contains initial server response; call devicecode handler to get actual token
+        self$app <- app
+        self$endpoint <- endpoint
+        self$params <- params
+        self$cache_path <- NULL
+        self$private_key <- NULL
+
+        # use our own init functions for device_code, resource_owner methods
         if(use_device)
-            private$init_with_device(endpoint, app, user_params)
-
-        # ensure password is never NULL (important for renewing)
-        if(is_empty(self$app$secret))
-            self$app$secret <- ""
+            private$init_with_device(user_params)
+        else private$init_with_username(user_params)
     },
 
     # overrides httr::Token2.0 method
@@ -62,8 +67,9 @@ public=list(
             return(super$refresh())
 
         # re-authenticate if no refresh token
-        self$initialize(self$endpoint, self$app, self$params$user_params, use_device=private$az_use_device)
-        NULL
+        self$initialize(self$endpoint, self$app, self$params$user_params, use_device=private$az_use_device,
+            client_credentials=self$params$client_credentials)
+        self
     }
 ),
 
@@ -72,21 +78,24 @@ private=list(
 
     # device code authentication: after sending initial request, loop until server indicates code has been received
     # after init_oauth2.0, oauth2.0_access_token
-    init_with_device=function(endpoint, app, user_params)
+    init_with_device=function(user_params)
     {
-        cat(self$credentials$message, "\n")  # tell user to enter the code
+        creds <- httr::oauth2.0_access_token(self$endpoint, self$app, code=NULL, user_params=user_params,
+            redirect_uri=NULL)
 
-        req_params <- list(client_id=app$key, grant_type="device_code", code=self$credentials$device_code)
+        cat(creds$message, "\n")  # tell user to enter the code
+
+        req_params <- list(client_id=self$app$key, grant_type="device_code", code=creds$device_code)
         req_params <- utils::modifyList(user_params, req_params)
-        endpoint$access <- sub("devicecode", "token", endpoint$access)
+        self$endpoint$access <- sub("devicecode$", "token", self$endpoint$access)
 
-        interval <- as.numeric(self$credentials$interval)
-        ntries <- as.numeric(self$credentials$expires_in) %/% interval
+        interval <- as.numeric(creds$interval)
+        ntries <- as.numeric(creds$expires_in) %/% interval
         for(i in seq_len(ntries))
         {
             Sys.sleep(interval)
 
-            res <- httr::POST(endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+            res <- httr::POST(self$endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
                               body=req_params)
 
             status <- httr::status_code(res)
@@ -103,9 +112,25 @@ private=list(
         if(status >= 300)
             stop("Unable to authenticate")
 
-        # replace original fields with authenticated fields
-        self$endpoint <- endpoint
         self$credentials <- cont
+        NULL
+    },
+
+    # resource owner authentication: send username/password
+    init_with_username=function(user_params)
+    {
+        body <- list(
+            resource=user_params$resource,
+            client_id=self$app$key,
+            grant_type="password",
+            username=user_params$username,
+            password=user_params$password)
+
+        res <- httr::POST(self$endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+                          body=body)
+
+        httr::stop_for_status(res, task="get an access token")
+        self$credentials <- httr::content(res)
         NULL
     }
 ))
@@ -117,58 +142,132 @@ private=list(
 #'
 #' @param resource_host URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
 #' @param tenant Your tenant ID.
-#' @param app Your client/app ID which you registered in AAD.
-#' @param password Your password. Required for `auth_type == "client_credentials"`, ignored for `auth_type == "device_code"`.
-#' @param auth_type The authentication type, either `"client_credentials"` or `"device_code"`. Defaults to the latter if no password is provided, otherwise the former.
-#' @param aad_host URL for your Azure Active Directory host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
+#' @param app The client/app ID to use to authenticate with Azure Active Directory (AAD).
+#' @param password The password, either for the app, or your username if supplied. See 'Details' below.
+#' @param username Your AAD username, if using the resource owner grant. See 'Details' below.
+#' @param auth_type The authentication type. See 'Details' below.
+#' @param aad_host URL for your AAD host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
 #'
 #' @details
-#' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+#' This function does much the same thing as [httr::oauth2.0_token()], but customised for Azure.
+#'
+#' The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the [httr::Token2.0] token class, while the last two are provided by the AzureToken class which extends httr::Token2.0.
+#'
+#' If the authentication method is not specified, the value is chosen based on the presence or absence of the `password` and `username` arguments:
+#'
+#' - Password and username present: "resource_owner". In this 
+#' - Password and username absent: "authorization_code" if the httpuv package is installed, "device_code" otherwise
+#' - Password present, username absent: "client_credentials"
+#' - Password absent, username present: error
+#'
+#' The httpuv package must be installed to use the "authorization_code" method, as this requires a web server to listen on the (local) redirect URI. See [httr::oauth2.0_token] for more information; note that Azure does not support the `use_oob` feature of the httr OAuth 2.0 token class.
+#'
+#' Similarly, since the "authorization_code" method requires you to browse to a URL, your machine should have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
 #' 
 #' @seealso
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],
+#'
 #' [OAuth authentication for Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code),
-#' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/)
+#' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/),
+#' [OAuth 2.0 RFC](https://tools.ietf.org/html/rfc6749) for the gory details on how OAuth works
 #'
 #' @examples
 #' \dontrun{
 #'
-#' token <- get_azure_token(
-#'    aad_host="https://login.microsoftonline.com/",
+#' arm_token <- get_azure_token(
+#'    resource_host="https://management.azure.com/",  # authenticate with Azure Resource Manager
+#'    tenant="myaadtenant.onmicrosoft.com",
+#'    app="app_id")
+#'
+#' storage_token <- get_azure_token(
+#'    resource_host="https://storage.azure.com/",  # authenticate with Azure storage
 #'    tenant="myaadtenant.onmicrosoft.com",
 #'    app="app_id",
-#'    password="password",
-#'    resource_host="https://management.azure.com/")
+#'    password="password")
 #'
 #' }
 #' @export
-get_azure_token=function(resource_host, tenant, app, password=NULL,
-                         auth_type=if(is.null(password)) "device_code" else "client_credentials",
-                         aad_host="https://login.microsoftonline.com/")
+get_azure_token <- function(resource_host, tenant, app, password=NULL, username=NULL, auth_type=NULL,
+                            aad_host="https://login.microsoftonline.com/")
 {
     tenant <- normalize_tenant(tenant)
-
     base_url <- construct_path(aad_host, tenant)
-    if(auth_type == "client_credentials")
-        auth_with_creds(base_url, app, password, resource_host)
-    else auth_with_device(base_url, app, resource_host)
+
+    if(is.null(auth_type))
+        auth_type <- select_auth_type(password, username)
+
+    # fail if authorization_code selected but httpuv not available
+    if(auth_type == "authorization_code" && system.file(package="httpuv") == "")
+        stop("httpuv package must be installed to use authorization_code method", call.=FALSE)
+
+    switch(auth_type,
+        client_credentials=
+            auth_with_client_creds(base_url, app, password, resource_host),
+        device_code=
+            auth_with_device(base_url, app, resource_host),
+        authorization_code=
+            auth_with_code(base_url, app, resource_host),
+        resource_owner=
+            auth_with_username(base_url, app, password, username, resource_host),
+        stop("Invalid auth_type argument", call.=FALSE))
 }
 
 
-auth_with_creds <- function(base_url, app, password, resource)
+auth_with_client_creds <- function(base_url, app, password, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
     app <- httr::oauth_app("azure", key=app, secret=password)
 
-    AzureToken$new(endp, app, user_params=list(resource=resource))
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=FALSE, client_credentials=TRUE)
 }
 
 
 auth_with_device <- function(base_url, app, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
-    app <- httr::oauth_app("azure", key=app, secret="")
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
 
-    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE, client_credentials=FALSE)
 }
 
+
+auth_with_code <- function(base_url, app, resource)
+{
+    endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
+
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=FALSE, client_credentials=FALSE)
+}
+
+
+auth_with_username <- function(base_url, app, password, username, resource)
+{
+    endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
+
+    AzureToken$new(endp, app, user_params=list(resource=resource, username=username, password=password),
+        use_device=FALSE, client_credentials=FALSE)
+}
+
+
+# select authentication method based on input arguments and presence of httpuv
+select_auth_type <- function(password, username)
+{
+    got_pwd <- !is.null(password)
+    got_user <- !is.null(username)
+
+    if(got_pwd && got_user)
+        "resource_owner"
+    else if(!got_pwd && !got_user)
+    {
+        if(system.file(package="httpuv") == "")
+        {
+            message("httpuv not installed, defaulting to device code authentication")
+            "device_code"
+        }
+        else "authorization_code"
+    }
+    else if(got_pwd && !got_user)
+        "client_credentials"
+    else stop("Can't select authentication method", call.=FALSE)
+}

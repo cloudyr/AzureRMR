@@ -32,7 +32,7 @@ test_that("Authentication works",
 
 test_that("Persistent authentication works",
 {
-    expect_true(is.null(delete_azure_login(tenant, confirm=FALSE)))
+    expect_true(suppressWarnings(is.null(delete_azure_login(tenant, confirm=FALSE))))
     expect_true(all(names(list_azure_logins()) != tenant))
 
     login_dirs <- rappdirs::user_config_dir("AzureRMR", "AzureR", roaming=FALSE)
