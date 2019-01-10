@@ -25,28 +25,22 @@ public=list(
         private$az_use_device <- use_device
 
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=use_device, config_init=list(), client_credentials=client_credentials)
+                       use_basic_auth=FALSE, config_init=list(), client_credentials=client_credentials)
 
-        if(is.null(user_params$username))
-            super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
-        else
-        {
-            self$app <- app
-            self$endpoint <- endpoint
-            self$params <- params
-            self$cache_path <- NULL
-            self$private_key <- NULL
-            # handle username/password authentication
-            private$init_with_username(app=app, endpoint=endpoint, user_params)
-        }
+        # use httr initialize for authorization_code, client_credentials methods
+        if(!use_device && is.null(user_params$username))
+            return(super$initialize(app=app, endpoint=endpoint, params=params, cache_path=FALSE))
 
-        # if auth is via device, token now contains initial server response; call devicecode handler to get actual token
+        self$app <- app
+        self$endpoint <- endpoint
+        self$params <- params
+        self$cache_path <- NULL
+        self$private_key <- NULL
+
+        # use our own init functions for device_code, resource_owner methods
         if(use_device)
-            private$init_with_device(endpoint, app, user_params)
-
-        # ensure password is never NULL (important for renewing)
-        if(is_empty(self$app$secret))
-            self$app$secret <- ""
+            private$init_with_device(user_params)
+        else private$init_with_username(user_params)
     },
 
     # overrides httr::Token2.0 method
@@ -75,7 +69,7 @@ public=list(
         # re-authenticate if no refresh token
         self$initialize(self$endpoint, self$app, self$params$user_params, use_device=private$az_use_device,
             client_credentials=self$params$client_credentials)
-        NULL
+        self
     }
 ),
 
@@ -84,21 +78,24 @@ private=list(
 
     # device code authentication: after sending initial request, loop until server indicates code has been received
     # after init_oauth2.0, oauth2.0_access_token
-    init_with_device=function(endpoint, app, user_params)
+    init_with_device=function(user_params)
     {
-        cat(self$credentials$message, "\n")  # tell user to enter the code
+        creds <- httr::oauth2.0_access_token(self$endpoint, self$app, code=NULL, user_params=user_params,
+            redirect_uri=NULL)
 
-        req_params <- list(client_id=app$key, grant_type="device_code", code=self$credentials$device_code)
+        cat(creds$message, "\n")  # tell user to enter the code
+
+        req_params <- list(client_id=self$app$key, grant_type="device_code", code=creds$device_code)
         req_params <- utils::modifyList(user_params, req_params)
-        endpoint$access <- sub("devicecode$", "token", endpoint$access)
+        self$endpoint$access <- sub("devicecode$", "token", self$endpoint$access)
 
-        interval <- as.numeric(self$credentials$interval)
-        ntries <- as.numeric(self$credentials$expires_in) %/% interval
+        interval <- as.numeric(creds$interval)
+        ntries <- as.numeric(creds$expires_in) %/% interval
         for(i in seq_len(ntries))
         {
             Sys.sleep(interval)
 
-            res <- httr::POST(endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+            res <- httr::POST(self$endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
                               body=req_params)
 
             status <- httr::status_code(res)
@@ -115,23 +112,21 @@ private=list(
         if(status >= 300)
             stop("Unable to authenticate")
 
-        # replace original fields with authenticated fields
-        self$endpoint <- endpoint
         self$credentials <- cont
         NULL
     },
 
     # resource owner authentication: send username/password
-    init_with_username=function(endpoint, app, user_params)
+    init_with_username=function(user_params)
     {
         body <- list(
             resource=user_params$resource,
-            client_id=app$key,
+            client_id=self$app$key,
             grant_type="password",
             username=user_params$username,
             password=user_params$password)
 
-        res <- httr::POST(endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+        res <- httr::POST(self$endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
                           body=body)
 
         httr::stop_for_status(res, task="get an access token")
@@ -221,10 +216,9 @@ auth_with_client_creds <- function(base_url, app, password, resource)
 auth_with_device <- function(base_url, app, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
-    app <- httr::oauth_app("azure", key=app, secret="")
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
 
-    # client_credentials=TRUE to tell httr::init_oauth2.0 not to use authorization code flow
-    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE, client_credentials=TRUE)
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE, client_credentials=FALSE)
 }
 
 
@@ -243,7 +237,7 @@ auth_with_username <- function(base_url, app, password, username, resource)
     app <- httr::oauth_app("azure", key=app, secret=NULL)
 
     AzureToken$new(endp, app, user_params=list(resource=resource, username=username, password=password),
-        use_device=TRUE, client_credentials=FALSE)
+        use_device=FALSE, client_credentials=FALSE)
 }
 
 
