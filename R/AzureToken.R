@@ -125,6 +125,7 @@ private=list(
     init_with_username=function(endpoint, app, user_params)
     {
         body <- list(
+            resource=user_params$resource,
             client_id=app$key,
             grant_type="password",
             username=user_params$username,
