@@ -222,7 +222,8 @@ auth_with_device <- function(base_url, app, resource)
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
     app <- httr::oauth_app("azure", key=app, secret="")
 
-    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE, client_credentials=FALSE)
+    # client_credentials=TRUE to tell httr::init_oauth2.0 not to use authorization code flow
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE, client_credentials=TRUE)
 }
 
 
@@ -257,7 +258,7 @@ select_auth_type <- function(password, username)
     {
         if(system.file(package="httpuv") == "")
         {
-            message("httpuv package not found, defaulting to device code authentication")
+            message("httpuv not installed, defaulting to device code authentication")
             "device_code"
         }
         else "authorization_code"
