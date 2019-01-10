@@ -149,16 +149,20 @@ private=list(
 #' @param aad_host URL for your AAD host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
 #'
 #' @details
-#' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+#' This function does much the same thing as [httr::oauth2.0_token()], but customised for Azure.
 #'
-#' The OAuth authentication type can be one of 4 possible values: "authorization_code", "device_code", "client_credentials" or "resource_owner". If this is not specified, the value is chosen based on the presence or absence of the `password` and `username` arguments:
+#' The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the [httr::Token2.0] token class, while the last two are provided by the AzureToken class which extends httr::Token2.0.
 #'
-#' - Password and username present: "resource_owner"
+#' If the authentication method is not specified, the value is chosen based on the presence or absence of the `password` and `username` arguments:
+#'
+#' - Password and username present: "resource_owner". In this 
 #' - Password and username absent: "authorization_code" if the httpuv package is installed, "device_code" otherwise
 #' - Password present, username absent: "client_credentials"
 #' - Password absent, username present: error
 #'
 #' The httpuv package must be installed to use the "authorization_code" method, as this requires a web server to listen on the (local) redirect URI. See [httr::oauth2.0_token] for more information; note that Azure does not support the `use_oob` feature of the httr OAuth 2.0 token class.
+#'
+#' Similarly, since the "authorization_code" method requires you to browse to a URL, your machine should have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
 #' 
 #' @seealso
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],

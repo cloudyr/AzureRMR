@@ -27,17 +27,21 @@ get_azure_token(resource_host, tenant, app, password = NULL,
 This extends the OAuth functionality in httr to allow for device code authentication.
 }
 \details{
-This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but customised for Azure.
 
-The OAuth authentication type can be one of 4 possible values: "authorization_code", "device_code", "client_credentials" or "resource_owner". If this is not specified, the value is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
+The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0.
+
+If the authentication method is not specified, the value is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
 \itemize{
-\item Password and username present: "resource_owner"
+\item Password and username present: "resource_owner". In this
 \item Password and username absent: "authorization_code" if the httpuv package is installed, "device_code" otherwise
 \item Password present, username absent: "client_credentials"
 \item Password absent, username present: error
 }
 
 The httpuv package must be installed to use the "authorization_code" method, as this requires a web server to listen on the (local) redirect URI. See \link[httr:oauth2.0_token]{httr::oauth2.0_token} for more information; note that Azure does not support the \code{use_oob} feature of the httr OAuth 2.0 token class.
+
+Similarly, since the "authorization_code" method requires you to browse to a URL, your machine should have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may run into difficulties; use one of the other methods instead.
 }
 \examples{
 \dontrun{
