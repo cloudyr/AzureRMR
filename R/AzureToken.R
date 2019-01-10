@@ -27,7 +27,12 @@ public=list(
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
                        use_basic_auth=use_device, config_init=list(), client_credentials=client_credentials)
 
-        super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
+        if(!is.null(params$username))
+            super$initialize(app=app, endpoint=endpoint, params=params, credentials=NULL, cache_path=FALSE)
+        else
+        {
+            # handle username/password authentication
+        }
 
         # if auth is via device, token now contains initial server response; call devicecode handler to get actual token
         if(use_device)
@@ -117,28 +122,44 @@ private=list(
 #'
 #' @param resource_host URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
 #' @param tenant Your tenant ID.
-#' @param app Your client/app ID which you registered in AAD.
-#' @param password Your password. Required for `auth_type == "client_credentials"`, ignored for `auth_type == "device_code"`.
-#' @param auth_type The authentication type, either `"client_credentials"` or `"device_code"`. Defaults to the latter if no password is provided, otherwise the former.
-#' @param aad_host URL for your Azure Active Directory host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
+#' @param app The client/app ID to use to authenticate with Azure Active Directory (AAD).
+#' @param password The password, either for the app, or your username if supplied. See 'Details' below.
+#' @param username Your AAD username, if using the resource owner grant. See 'Details' below.
+#' @param auth_type The authentication type. See 'Details' below.
+#' @param aad_host URL for your AAD host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
 #'
 #' @details
 #' This function does much the same thing as [httr::oauth2.0_token()], but with support for device authentication and with unnecessary options removed. Device authentication removes the need to save a password on your machine. Instead, the server provides you with a code, along with a URL. You then visit the URL in your browser and enter the code, which completes the authentication process.
+#'
+#' The OAuth authentication type can be one of 4 possible values: "authorization_code", "device_code", "client_credentials" or "resource_owner". If this is not specified, the value is chosen based on the presence or absence of the `password` and `username` arguments:
+#'
+#' - Password and username present: "resource_owner"
+#' - Password and username absent: "authorization_code" if the httpuv package is installed, "device_code" otherwise
+#' - Password present, username absent: "client_credentials"
+#' - Password absent, username present: error
+#'
+#' The httpuv package must be installed to use the "authorization_code" method, as this requires a web server to listen on the (local) redirect URI. See [httr::oauth2.0_token] for more information; note that Azure does not support the `use_oob` feature of the httr OAuth 2.0 token class.
 #' 
 #' @seealso
 #' [AzureToken], [httr::oauth2.0_token], [httr::Token],
+#'
 #' [OAuth authentication for Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code),
-#' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/)
+#' [Device code flow on OAuth.com](https://www.oauth.com/oauth2-servers/device-flow/token-request/),
+#' [OAuth 2.0 RFC](https://tools.ietf.org/html/rfc6749) for the gory details on how OAuth works
 #'
 #' @examples
 #' \dontrun{
 #'
-#' token <- get_azure_token(
-#'    aad_host="https://login.microsoftonline.com/",
+#' arm_token <- get_azure_token(
+#'    resource_host="https://management.azure.com/",  # authenticate with Azure Resource Manager
 #'    tenant="myaadtenant.onmicrosoft.com",
 #'    app="app_id",
-#'    password="password",
-#'    resource_host="https://management.azure.com/")
+#'    password="password")
+#'
+#' storage_token <- get_azure_token(
+#'    resource_host="https://storage.azure.com/",  # authenticate with Azure storage
+#'    tenant="myaadtenant.onmicrosoft.com",
+#'    app="app_id")
 #'
 #' }
 #' @export
@@ -152,20 +173,24 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
         auth_type <- select_auth_type(password, username)
 
     switch(auth_type,
-        client_credentials=auth_with_creds(base_url, app, password, resource_host),
-        device_code=auth_with_device(base_url, app, resource_host),
-        password=auth_with_password(base_url, app, password, username, resource_host),
-        authorization_code=auth_with_code(base_url, app, resource_host),
+        client_credentials=
+            auth_with_client_creds(base_url, app, password, resource_host),
+        device_code=
+            auth_with_device(base_url, app, resource_host),
+        authorization_code=
+            auth_with_code(base_url, app, resource_host),
+        resource_owner=
+            auth_with_username(base_url, app, password, username, resource_host),
         stop("Invalid auth_type argument", call.=FALSE))
 }
 
 
-auth_with_creds <- function(base_url, app, password, resource)
+auth_with_client_creds <- function(base_url, app, password, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
     app <- httr::oauth_app("azure", key=app, secret=password)
 
-    AzureToken$new(endp, app, user_params=list(resource=resource))
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=FALSE, client_credentials=TRUE)
 }
 
 
@@ -174,7 +199,26 @@ auth_with_device <- function(base_url, app, resource)
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/devicecode")
     app <- httr::oauth_app("azure", key=app, secret="")
 
-    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE)
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=TRUE, client_credentials=FALSE)
+}
+
+
+auth_with_code <- function(base_url, app, resource)
+{
+    endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
+
+    AzureToken$new(endp, app, user_params=list(resource=resource), use_device=FALSE, client_credentials=FALSE)
+}
+
+
+auth_with_username <- function(base_url, app, password, username, resource)
+{
+    endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
+    app <- httr::oauth_app("azure", key=app, secret=NULL)
+
+    AzureToken$new(endp, app, user_params=list(resource=resource, username=username),
+        use_device=TRUE, client_credentials=FALSE)
 }
 
 
@@ -185,7 +229,7 @@ select_auth_type <- function(password, username)
     got_user <- !is.null(username)
 
     if(got_pwd && got_user)
-        "password"
+        "resource_owner"
     else if(!got_pwd && !got_user)
     {
         if(system.file(package="httpuv") == "")
