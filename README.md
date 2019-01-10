@@ -4,7 +4,7 @@
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureRMR)
 [![Travis Build Status](https://travis-ci.org/cloudyr/AzureRMR.png?branch=master)](https://travis-ci.org/cloudyr/AzureRMR)
 
-AzureRMR is a package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed.
+AzureRMR is a package for interacting with Azure Active Directory and Azure Resource Manager: obtain AAD authentication tokens, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed.
 
 You can install the development version from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
 
