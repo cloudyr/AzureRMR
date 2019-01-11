@@ -50,6 +50,16 @@ test_that("Template methods work",
 
     tpl2$delete(confirm=FALSE, free_resources=TRUE)
     expect_true(is_empty(rg$list_resources()))
+
+    # leave out parameters arg, modify template to incorporate parameters
+    tplname3 <- paste(sample(letters, 10, replace=TRUE), collapse="")
+    tpl_parsed$parameters$location$defaultValue <- "australiaeast"
+    tpl_parsed$parameters$name$defaultValue <- tplname3
+
+    tpl3 <- rg$deploy_template(tplname3, template=tpl_parsed, wait=TRUE)
+    tpl3$check()
+    expect_is(tpl3, "az_template")
+    expect_false(is_empty(rg$list_resources()))
 })
 
 rg$delete(confirm=FALSE)

@@ -72,7 +72,7 @@ public=list(
         self$subscription <- subscription
         self$resource_group <- resource_group
 
-        parms <- if(!is_empty(name) && !missing(template) && !missing(parameters))
+        parms <- if(!is_empty(name) && !missing(template))
             private$init_and_deploy(name, template, parameters, ..., wait=wait)
         else if(!is_empty(name))
             private$init_from_host(name)
@@ -197,6 +197,11 @@ private=list(
         properties <- modifyList(default_properties, list(...))
         private$validate_deploy_parms(properties)
 
+        # handle case of missing or empty parameters arg
+        # must be a _named_ list for jsonlite to turn into an object, not an array
+        if(missing(parameters) || is_empty(parameters))
+            parameters <- structure(list(), names=character(0))
+
         # fold template data into list of properties
         properties <- if(is.list(template))
             modifyList(properties, list(template=template))
@@ -205,7 +210,9 @@ private=list(
         else modifyList(properties, list(template=jsonlite::fromJSON(template, simplifyVector=FALSE)))
 
         # fold parameter data into list of properties
-        properties <- if(is.list(parameters))
+        properties <- if(is_empty(parameters))
+            modifyList(properties, list(parameters=parameters))
+        else if(is.list(parameters))
             modifyList(properties, list(parameters=private$make_param_list(parameters)))
         else if(is_url(parameters))
             modifyList(properties, list(parametersLink=list(uri=parameters)))
