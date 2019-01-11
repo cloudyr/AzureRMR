@@ -29,33 +29,63 @@ This extends the OAuth functionality in httr to allow for device code authentica
 \details{
 This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but customised for Azure.
 
-The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0.
-
-If the authentication method is not specified, the value is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
+The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
 \itemize{
-\item Password and username present: "resource_owner". In this
-\item Password and username absent: "authorization_code" if the httpuv package is installed, "device_code" otherwise
-\item Password present, username absent: "client_credentials"
+\item Using the authorization_code method is a 3-step process. First, \code{get_azure_token} contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which \code{get_azure_token} opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
+\item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your machine has input constraints. First, \code{get_azure_token} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL, possibly using a different machine, and enter the code. Meanwhile, \code{get_azure_token} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
+\item The client_credentials method is much simpler than the above methods, requiring only one step. \code{get_azure_token} contacts the access endpoint, passing it the app secret (which you supplied in the \code{password} argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
+\item The resource_owner method also requires only one step. In this method, \code{get_azure_token} passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
+}
+
+If the authentication method is not specified, it is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
+\itemize{
+\item Password and username present: resource_owner.
+\item Password and username absent: authorization_code if the httpuv package is installed, device_code otherwise
+\item Password present, username absent: client_credentials
 \item Password absent, username present: error
 }
 
-The httpuv package must be installed to use the "authorization_code" method, as this requires a web server to listen on the (local) redirect URI. See \link[httr:oauth2.0_token]{httr::oauth2.0_token} for more information; note that Azure does not support the \code{use_oob} feature of the httr OAuth 2.0 token class.
+The httpuv package must be installed to use the authorization_code method, as this requires a web server to listen on the (local) redirect URI. See \link[httr:oauth2.0_token]{httr::oauth2.0_token} for more information; note that Azure does not support the \code{use_oob} feature of the httr OAuth 2.0 token class.
 
-Similarly, since the "authorization_code" method requires you to browse to a URL, your machine should have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may run into difficulties; use one of the other methods instead.
+Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may run into difficulties; use one of the other methods instead.
 }
 \examples{
 \dontrun{
 
+# authenticate with Azure Resource Manager:
+# no user credentials are supplied, so this will use the authorization_code
+# method if httpuv is installed, and device_code if not
 arm_token <- get_azure_token(
-   resource_host="https://management.azure.com/",  # authenticate with Azure Resource Manager
+   resource_host="https://management.azure.com/",
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id")
 
-storage_token <- get_azure_token(
-   resource_host="https://storage.azure.com/",  # authenticate with Azure storage
+# you can force a specific authentication method with the auth_type argument
+arm_token <- get_azure_token(
+   resource_host="https://management.azure.com/",
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id",
-   password="password")
+   auth_type="device_code")
+
+# to use the client_credentials method, supply the app secret as the password
+arm_token <- get_azure_token(
+   resource_host="https://management.azure.com/",
+   tenant="myaadtenant.onmicrosoft.com",
+   app="app_id",
+   password="app_secret")
+
+# authenticate with Azure storage
+storage_token <- get_azure_token(
+   resource_host="https://storage.azure.com/",
+   tenant="myaadtenant.onmicrosoft.com",
+   app="app_id")
+
+# authenticate to your resource with the resource_owner method: provide your username and password
+owner_token <- get_azure_token(
+   resource_host="https://myresource/",
+   tenant="myaadtenant",
+   username="user",
+   password="abcdefg")
 
 }
 }
