@@ -55,8 +55,8 @@ config_dir <- function()
 #' @rdname azure_login
 #' @export
 create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
-                               host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                               config_file=NULL, ...)
+                            host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
+                            config_file=NULL, ...)
 {
     if(!is.null(config_file))
     {
@@ -70,6 +70,8 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
     }
 
     tenant <- normalize_tenant(tenant)
+    if(is_guid(app))
+        app <- normalize_guid(app)
     message("Creating Azure Resource Manager login for tenant '", tenant, "'")
     client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
     save_client(client, tenant)
@@ -123,9 +125,15 @@ delete_azure_login <- function(tenant, confirm=TRUE)
 list_azure_logins <- function()
 {
     tenants <- dir(config_dir(), full.names=TRUE)
-    lst <- lapply(tenants, readRDS)
+    lst <- lapply(tenants, function(fname)
+    {
+        x <- readRDS(fname)
+        if(is_azure_login(x))
+            x
+        else NULL
+    })
     names(lst) <- basename(tenants)
-    lst
+    lst[!sapply(lst, is.null)]
 }
 
 

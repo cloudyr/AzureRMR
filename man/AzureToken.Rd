@@ -21,7 +21,7 @@ Azure OAuth 2.0 token class, inheriting from the \link[httr:Token2.0]{Token2.0 c
 
 \section{Caching}{
 
-This class never caches its tokens, unlike httr::Token2.0.
+Unlike httr::Token2.0, caching for Azure tokens is handled outside the class. Tokens are automatically cached by the \code{get_azure_token} function, and can be (manually) deleted with the \code{delete_azure_token} function. Calling \code{AzureToken$new()} directly will always acquire a new token from the server.
 }
 
 \seealso{

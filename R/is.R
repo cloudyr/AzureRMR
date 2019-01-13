@@ -8,6 +8,14 @@
 #' A boolean.
 #' @rdname is
 #' @export
+is_azure_login <- function(object)
+{
+    R6::is.R6(object) && inherits(object, "az_rm")
+}
+
+
+#' @rdname is
+#' @export
 is_subscription <- function(object)
 {
     R6::is.R6(object) && inherits(object, "az_subscription")

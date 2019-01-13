@@ -2,11 +2,20 @@
 % Please edit documentation in R/AzureToken.R
 \name{get_azure_token}
 \alias{get_azure_token}
-\title{Generate an Azure OAuth token}
+\alias{delete_azure_token}
+\alias{list_azure_tokens}
+\title{Manage Azure Active Directory OAuth 2.0 tokens}
 \usage{
 get_azure_token(resource_host, tenant, app, password = NULL,
   username = NULL, auth_type = NULL,
   aad_host = "https://login.microsoftonline.com/")
+
+delete_azure_token(resource_host, tenant, app, password = NULL,
+  username = NULL, auth_type = NULL,
+  aad_host = "https://login.microsoftonline.com/", hash = NULL,
+  confirm = TRUE)
+
+list_azure_tokens()
 }
 \arguments{
 \item{resource_host}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
@@ -22,15 +31,21 @@ get_azure_token(resource_host, tenant, app, password = NULL,
 \item{auth_type}{The authentication type. See 'Details' below.}
 
 \item{aad_host}{URL for your AAD host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
+
+\item{hash}{The MD5 hash of this token, computed from the above inputs. Used by \code{delete_azure_token} for identification purposes.}
+
+\item{confirm}{For \code{delete_azure_token}, whether to prompt for confirmation before deleting a token.}
 }
 \description{
-This extends the OAuth functionality in httr for use with Azure Active Directory (AAD).
+These functions extend the OAuth functionality in httr for use with Azure Active Directory (AAD).
 }
 \details{
-This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but customised for Azure.
+\code{get_azure_token} does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but customised for Azure. It obtains an OAuth token, first by checking if a cached value exists on disk, and if not, acquiring it from the AAD server. \code{delete_azure_token} deletes a cached token, and \code{list_azure_tokens} lists currently cached tokens.
+}
+\section{Authentication methods}{
 
 The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
-\itemize{
+\enumerate{
 \item Using the authorization_code method is a 3-step process. First, \code{get_azure_token} contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which \code{get_azure_token} opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
 \item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, \code{get_azure_token} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, \code{get_azure_token} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
 \item The client_credentials method is much simpler than the above methods, requiring only one step. \code{get_azure_token} contacts the access endpoint, passing it the app secret (which you supplied in the \code{password} argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
@@ -49,6 +64,25 @@ The httpuv package must be installed to use the authorization_code method, as th
 
 Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may run into difficulties; use one of the other methods instead.
 }
+
+\section{Caching}{
+
+AzureRMR differs from httr in its handling of token caching in a number of ways.
+\itemize{
+\item It moves caching of OAuth tokens out of the token class, and into the \code{get_azure_token} function. Caching is based on all the inputs to \code{get_azure_token} as listed above. Directly calling the AzureToken class constructor will always acquire a new token from the server.
+\item It defines its own directory for caching tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.config/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. Note that a single directory is used for all tokens, unlike httr, and the working directory is not touched (which lessens the risk of accidentally introducing cached tokens into source control).
+}
+
+To list all cached tokens on disk, use \code{list_azure_tokens}. This returns a list of token objects, named according to their MD5 hashes.
+
+To delete a cached token, use \code{delete_azure_token}. This takes the same inputs as \code{get_azure_token}, or you can specify the MD5 hash directly in the \code{hash} argument.
+}
+
+\section{Value}{
+
+For \code{get_azure_token}, an object of class \code{AzureToken} representing the AAD token. For \code{list_azure_tokens}, a list of such objects retrieved from disk.
+}
+
 \examples{
 \dontrun{
 
@@ -84,8 +118,23 @@ storage_token <- get_azure_token(
 owner_token <- get_azure_token(
    resource_host="https://myresource/",
    tenant="myaadtenant",
+   app="app_id",
    username="user",
    password="abcdefg")
+
+# list saved tokens
+list_azure_tokens()
+
+# delete a saved token from disk
+delete_azure_token(
+   resource_host="https://myresource/",
+   tenant="myaadtenant",
+   app="app_id",
+   username="user",
+   password="abcdefg")
+
+# delete a saved token by specifying its MD5 hash
+delete_azure_token(hash="7ea491716e5b10a77a673106f3f53bfd")
 
 }
 }
