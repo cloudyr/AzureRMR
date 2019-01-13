@@ -43,22 +43,10 @@ public=list(
         else private$init_with_username(user_params)
     },
 
-    # overrides httr::Token method: include extra inputs in hash
+    # overrides httr::Token method: caching done outside class
     hash=function()
     {
-        # if device_code, hash on original access endpoint URI which ends in "devicecode"
-        hash_endp <- self$endpoint
-        if(private$az_use_device)
-            hash_endp$access <- sub("token$", "devicecode", hash_endp$access)
-
-        res <- self$params$user_params$resource
-        usr <- self$params$user_params$username
-        pwd <- self$params$user_params$password
-        ccd <- self$params$client_credentials
-        dev <- private$az_use_device
-        
-        msg <- serialize(list(hash_endp, self$app, res, usr, pwd, ccd, dev), NULL, version=2)
-        paste(openssl::md5(msg[-(1:14)]), collapse="")
+        NULL
     },
 
     # overrides httr::Token2.0 method
@@ -250,16 +238,29 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
     if(auth_type == "authorization_code" && system.file(package="httpuv") == "")
         stop("httpuv package must be installed to use authorization_code method", call.=FALSE)
 
-    switch(auth_type,
-        client_credentials=
-            auth_with_client_creds(base_url, app, password, resource_host),
-        device_code=
-            auth_with_device(base_url, app, resource_host),
-        authorization_code=
-            auth_with_code(base_url, app, resource_host),
-        resource_owner=
-            auth_with_username(base_url, app, password, username, resource_host),
-        stop("Invalid auth_type argument", call.=FALSE))
+    # load saved token if available
+    tokenfile <- file.path(config_dir(),
+        token_hash(resource_host, tenant, app, password, username, auth_type, aad_host))
+    if(file.exists(tokenfile))
+    {
+        token <- readRDS(tokenfile)
+        token$refresh()
+    }
+    else
+    {
+        token <- switch(auth_type,
+            client_credentials=
+                auth_with_client_creds(base_url, app, password, resource_host),
+            device_code=
+                auth_with_device(base_url, app, resource_host),
+            authorization_code=
+                auth_with_code(base_url, app, resource_host),
+            resource_owner=
+                auth_with_username(base_url, app, password, username, resource_host),
+            stop("Invalid auth_type argument", call.=FALSE))
+    }
+    saveRDS(token, tokenfile)
+    token
 }
 
 
@@ -321,3 +322,61 @@ select_auth_type <- function(password, username)
         "client_credentials"
     else stop("Can't select authentication method", call.=FALSE)
 }
+
+
+token_hash <- function(resource_host, tenant, app, password, username, auth_type, aad_host)
+{
+    msg <- serialize(list(resource_host, tenant, app, password, username, auth_type, aad_host), NULL, version=2)
+    paste(openssl::md5(msg[-(1:14)]), collapse="")
+}
+
+
+#' Normalizes a tenant
+#'
+#' @param tenant An Azure Active Directory tenant. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a valid GUID.
+#'
+#' @details
+#' This function is used by `get_azure_token` to recognise a tenant input. A tenant can be identified either by a GUID, or its name, or a fully-qualified domain name (FQDN). The rules for normalizing a tenant are:
+#' 1. If `tenant` is a valid GUID, return its canonically formatted value
+#' 2. Otherwise, if it is a FQDN, return it
+#' 3. Otherwise, if it is not the string "common", append ".onmicrosoft.com" to it
+#' 4. Otherwise, return the value of `tenant`
+#'
+#' @return
+#' The normalized ID or name of the tenant.
+#' @seealso
+#' [get_azure_token],
+#'
+#' [Parsing rules for GUIDs in .NET](https://docs.microsoft.com/en-us/dotnet/api/system.guid.parse]). `normalize_tenant` recognises the "N", "D", "B" and "P" formats for GUIDs.
+#' @export
+normalize_tenant <- function(tenant)
+{
+    # see https://docs.microsoft.com/en-us/dotnet/api/system.guid.parse
+    # for possible input formats for GUIDs
+    is_guid <- function(x)
+    {
+        grepl("^[0-9a-f]{32}$", x) ||
+        grepl("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", x) ||
+        grepl("^\\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}$", x) ||
+        grepl("^\\([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\)$", x)
+    }
+
+    # check if supplied a guid; if not, check if a fqdn;
+    # if not, check if 'common'; if not, append '.onmicrosoft.com'
+    if(is_guid(tenant))
+    {
+        tenant <- sub("^[({]?([-0-9a-f]+)[})]$", "\\1", tenant)
+        tenant <- gsub("-", "", tenant)
+        return(paste(
+            substr(tenant, 1, 8),
+            substr(tenant, 9, 12),
+            substr(tenant, 13, 16),
+            substr(tenant, 17, 20),
+            substr(tenant, 21, 32), sep="-"))
+    }
+
+    if(!grepl("\\.", tenant) && tenant != "common")
+        tenant <- paste(tenant, "onmicrosoft.com", sep=".")
+    tenant
+}
+

@@ -154,24 +154,3 @@ save_client <- function(client, tenant)
 }
 
 
-normalize_tenant <- function(tenant)
-{
-    # see https://docs.microsoft.com/en-us/dotnet/api/system.guid.parse
-    # for possible input formats for GUIDs
-    is_guid <- function(x)
-    {
-        grepl("^[0-9a-f]{32}$", x) ||
-        grepl("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", x) ||
-        grepl("^\\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\}$", x) ||
-        grepl("^\\([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\)$", x)
-    }
-
-    # check if supplied a guid; if not, check if a fqdn;
-    # if not, check if 'common'; if not, append '.onmicrosoft.com'
-    if(is_guid(tenant))
-        return(tenant)
-
-    if(!grepl("\\.", tenant) && tenant != "common")
-        tenant <- paste(tenant, "onmicrosoft.com", sep=".")
-    tenant
-}
