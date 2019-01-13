@@ -43,6 +43,24 @@ public=list(
         else private$init_with_username(user_params)
     },
 
+    # overrides httr::Token method: include extra inputs in hash
+    hash=function()
+    {
+        # if device_code, hash on original access endpoint URI which ends in "devicecode"
+        hash_endp <- self$endpoint
+        if(private$az_use_device)
+            hash_endp$access <- sub("token$", "devicecode", hash_endp$access)
+
+        res <- self$params$user_params$resource
+        usr <- self$params$user_params$username
+        pwd <- self$params$user_params$password
+        ccd <- self$params$client_credentials
+        dev <- private$az_use_device
+        
+        msg <- serialize(list(hash_endp, self$app, res, usr, pwd, ccd, dev), NULL, version=2)
+        paste(openssl::md5(msg[-(1:14)]), collapse="")
+    },
+
     # overrides httr::Token2.0 method
     can_refresh=function()
     {

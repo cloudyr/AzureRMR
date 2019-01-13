@@ -70,7 +70,7 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
     }
 
     tenant <- normalize_tenant(tenant)
-    message("Creating Azure Active Directory login for tenant '", tenant, "'")
+    message("Creating Azure Resource Manager login for tenant '", tenant, "'")
     client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
     save_client(client, tenant)
     client
@@ -87,7 +87,7 @@ get_azure_login <- function(tenant, ..., refresh=TRUE)
     if(!login_exists)
         return(create_azure_login(tenant, ...))
 
-    message("Loading Azure Active Directory login for tenant '", tenant, "'")
+    message("Loading Azure Resource Manager login for tenant '", tenant, "'")
     client <- readRDS(file.path(config_dir(), tenant))
     if(refresh)
     {
@@ -108,7 +108,7 @@ delete_azure_login <- function(tenant, confirm=TRUE)
     if(confirm && interactive())
     {
         yn <- readline(
-            paste0("Do you really want to delete the Azure Active Directory login for tenant ", tenant, "? (y/N) "))
+            paste0("Do you really want to delete the Azure Resource Manager login for tenant ", tenant, "? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
