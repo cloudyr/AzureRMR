@@ -14,7 +14,7 @@
 #' The best way to authenticate with ARM is probably via the [create_azure_login] and [get_azure_login] functions. With these, you only have to authenticate once, after which your credentials are saved and reused for subsequent sessions.
 #'
 #' To authenticate with the `az_rm` class directly, provide the following arguments to the `new` method:
-#' - `tenant`: Your tenant ID.
+#' - `tenant`: Your tenant ID. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
 #' - `app`: The client/app ID to use to authenticate with Azure Active Directory.
 #' - `password`: if `auth_type == "client_credentials"`, the app secret; if `auth_type == "resource_owner"`, your account password.
 #' - `username`: if `auth_type == "resource_owner"`, your username.

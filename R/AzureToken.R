@@ -89,6 +89,7 @@ private=list(
         req_params <- utils::modifyList(user_params, req_params)
         self$endpoint$access <- sub("devicecode$", "token", self$endpoint$access)
 
+        message("Waiting for device code in browser...\nPress Esc/Ctrl + C to abort")
         interval <- as.numeric(creds$interval)
         ntries <- as.numeric(creds$expires_in) %/% interval
         for(i in seq_len(ntries))
@@ -102,8 +103,7 @@ private=list(
             cont <- httr::content(res)
             if(status == 400 && cont$error == "authorization_pending")
             {
-                msg <- sub("[\r\n].*", "", cont$error_description)
-                cat(msg, "\n")
+                # do nothing
             }
             else if(status >= 300)
                 httr::stop_for_status(res)
@@ -138,11 +138,11 @@ private=list(
 
 #' Generate an Azure OAuth token
 #'
-#' This extends the OAuth functionality in httr to allow for device code authentication.
+#' This extends the OAuth functionality in httr for use with Azure Active Directory (AAD).
 #'
 #' @param resource_host URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
-#' @param tenant Your tenant ID.
-#' @param app The client/app ID to use to authenticate with Azure Active Directory (AAD).
+#' @param tenant Your tenant. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
+#' @param app The client/app ID to use to authenticate with.
 #' @param password The password, either for the app, or your username if supplied. See 'Details' below.
 #' @param username Your AAD username, if using the resource owner grant. See 'Details' below.
 #' @param auth_type The authentication type. See 'Details' below.
@@ -155,7 +155,7 @@ private=list(
 #'
 #' - Using the authorization_code method is a 3-step process. First, `get_azure_token` contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which `get_azure_token` opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
 #'
-#' - The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your machine has input constraints. First, `get_azure_token` contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL, possibly using a different machine, and enter the code. Meanwhile, `get_azure_token` polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
+#' - The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, `get_azure_token` contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, `get_azure_token` polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
 #'
 #' - The client_credentials method is much simpler than the above methods, requiring only one step. `get_azure_token` contacts the access endpoint, passing it the app secret (which you supplied in the `password` argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
 #'

@@ -166,11 +166,12 @@ normalize_tenant <- function(tenant)
         grepl("^\\([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\)$", x)
     }
 
-    # check if supplied a guid; if not, check if a fqdn; if not, append '.onmicrosoft.com'
+    # check if supplied a guid; if not, check if a fqdn;
+    # if not, check if 'common'; if not, append '.onmicrosoft.com'
     if(is_guid(tenant))
         return(tenant)
 
-    if(!grepl("\\.", tenant))
+    if(!grepl("\\.", tenant) && tenant != "common")
         tenant <- paste(tenant, "onmicrosoft.com", sep=".")
     tenant
 }

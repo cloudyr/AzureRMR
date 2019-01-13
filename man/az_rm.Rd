@@ -26,7 +26,7 @@ The best way to authenticate with ARM is probably via the \link{create_azure_log
 
 To authenticate with the \code{az_rm} class directly, provide the following arguments to the \code{new} method:
 \itemize{
-\item \code{tenant}: Your tenant ID.
+\item \code{tenant}: Your tenant ID. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
 \item \code{app}: The client/app ID to use to authenticate with Azure Active Directory.
 \item \code{password}: if \code{auth_type == "client_credentials"}, the app secret; if \code{auth_type == "resource_owner"}, your account password.
 \item \code{username}: if \code{auth_type == "resource_owner"}, your username.

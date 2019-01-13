@@ -11,9 +11,9 @@ get_azure_token(resource_host, tenant, app, password = NULL,
 \arguments{
 \item{resource_host}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
 
-\item{tenant}{Your tenant ID.}
+\item{tenant}{Your tenant. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.}
 
-\item{app}{The client/app ID to use to authenticate with Azure Active Directory (AAD).}
+\item{app}{The client/app ID to use to authenticate with.}
 
 \item{password}{The password, either for the app, or your username if supplied. See 'Details' below.}
 
@@ -24,7 +24,7 @@ get_azure_token(resource_host, tenant, app, password = NULL,
 \item{aad_host}{URL for your AAD host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
 }
 \description{
-This extends the OAuth functionality in httr to allow for device code authentication.
+This extends the OAuth functionality in httr for use with Azure Active Directory (AAD).
 }
 \details{
 This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but customised for Azure.
@@ -32,7 +32,7 @@ This function does much the same thing as \code{\link[httr:oauth2.0_token]{httr:
 The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
 \itemize{
 \item Using the authorization_code method is a 3-step process. First, \code{get_azure_token} contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which \code{get_azure_token} opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
-\item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your machine has input constraints. First, \code{get_azure_token} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL, possibly using a different machine, and enter the code. Meanwhile, \code{get_azure_token} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
+\item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, \code{get_azure_token} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, \code{get_azure_token} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
 \item The client_credentials method is much simpler than the above methods, requiring only one step. \code{get_azure_token} contacts the access endpoint, passing it the app secret (which you supplied in the \code{password} argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
 \item The resource_owner method also requires only one step. In this method, \code{get_azure_token} passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
 }
