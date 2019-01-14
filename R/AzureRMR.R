@@ -10,6 +10,10 @@ NULL
     if(!dir.exists(config_dir))
         dir.create(config_dir, recursive=TRUE)
 
+    arm_logins <- file.path(config_dir(), "arm_logins.json")
+    if(!file.exists(arm_logins))
+        writeLines(jsonlite::toJSON(structure(list(), names=character(0))), arm_logins)
+
     invisible(NULL)
 }
 

@@ -15,7 +15,9 @@
 #' See the link below for GUID formats recognised by these functions.
 #'
 #' @return
-#' For `normalize_guid`, the canonically formatted GUID. Note that if `normalize_guid` is given an improperly formatted GUID, its output is undefined; you should always test a string with `is_guid` before passing it to `normalize_guid`.
+#' For `is_guid`, whether the argument is a validly formatted GUID.
+#'
+#' For `normalize_guid`, the GUID in canonical format. If the argument is not recognised as a GUID, it throws an error.
 #'
 #' For `normalize_tenant`, the normalized ID or name of the tenant.
 #'
@@ -45,16 +47,6 @@
 #' @rdname guid
 normalize_tenant <- function(tenant)
 {
-    # see https://docs.microsoft.com/en-us/dotnet/api/system.guid.parse
-    # for possible input formats for GUIDs
-    is_guid <- function(x)
-    {
-        grepl("^[0-9a-f]{32}$", x) ||
-        grepl("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", x) ||
-        grepl("^\\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}$", x) ||
-        grepl("^\\([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\)$", x)
-    }
-
     # check if supplied a guid; if not, check if a fqdn;
     # if not, check if 'common'; if not, append '.onmicrosoft.com'
     if(is_guid(tenant))
@@ -74,6 +66,9 @@ normalize_tenant <- function(tenant)
 #' @rdname guid
 normalize_guid <- function(x)
 {
+    if(!is_guid(x))
+        stop("Not a GUID", call.=FALSE)
+
     x <- sub("^[({]?([-0-9a-f]+)[})]$", "\\1", x)
     x <- gsub("-", "", x)
     return(paste(

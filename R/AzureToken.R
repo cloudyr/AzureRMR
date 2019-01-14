@@ -315,8 +315,7 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
                             aad_host="https://login.microsoftonline.com/")
 {
     tenant <- normalize_tenant(tenant)
-    if(is_guid(app))
-        app <- normalize_guid(app)
+    app <- normalize_guid(app)
     base_url <- construct_path(aad_host, tenant)
 
     if(is.null(auth_type))
@@ -409,37 +408,7 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
                                confirm=TRUE)
 {
     if(is.null(hash))
-    {
-        # reconstruct the hash for the token object from the inputs
-        tenant <- normalize_tenant(tenant)
-        if(is_guid(app))
-            app <- normalize_guid(app)
-        base_url <- construct_path(aad_host, tenant)
-
-        if(is.null(auth_type))
-            auth_type <- select_auth_type(password, username)
-
-        base_url <- construct_path(aad_host, tenant)
-        use_device <- auth_type == "device_code"
-        client_credentials <- auth_type == "client_credentials"
-
-        endp <- httr::oauth_endpoint(base_url=base_url,
-            authorize="oauth2/authorize",
-            access=if(use_device) "oauth2/devicecode" else "oauth2/token")
-        app <- httr::oauth_app("azure", app,
-            secret=if(client_credentials) password else NULL,
-            redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
-
-        user_params <- list(resource=resource_host)
-        if(auth_type == "resource_owner")
-            user_params <- c(user_params, password=NULL, username=NULL)
-
-        params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=FALSE, config_init=list(),
-                       client_credentials=client_credentials, use_device=use_device)
-
-        hash <- token_hash(endp, app, params)
-    }
+        hash <- token_hash_from_original_args(resource_host, tenant, app, password, username, auth_type, aad_host)
 
     if(confirm && interactive())
     {
@@ -476,3 +445,36 @@ token_hash <- function(endpoint, app, params)
     paste(openssl::md5(msg[-(1:14)]), collapse="")
 }
 
+
+token_hash_from_original_args <- function(resource_host, tenant, app, password=NULL, username=NULL, auth_type=NULL,
+    aad_host="https://login.microsoftonline.com/")
+{
+    # reconstruct the hash for the token object from the inputs
+    tenant <- normalize_tenant(tenant)
+    app <- normalize_guid(app)
+    base_url <- construct_path(aad_host, tenant)
+
+    if(is.null(auth_type))
+        auth_type <- select_auth_type(password, username)
+
+    base_url <- construct_path(aad_host, tenant)
+    use_device <- auth_type == "device_code"
+    client_credentials <- auth_type == "client_credentials"
+
+    endp <- httr::oauth_endpoint(base_url=base_url,
+            authorize="oauth2/authorize",
+            access=if(use_device) "oauth2/devicecode" else "oauth2/token")
+    app <- httr::oauth_app("azure", app,
+            secret=if(client_credentials) password else NULL,
+            redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
+
+    user_params <- list(resource=resource_host)
+    if(auth_type == "resource_owner")
+        user_params <- c(user_params, password=NULL, username=NULL)
+
+    params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
+                       use_basic_auth=FALSE, config_init=list(),
+                       client_credentials=client_credentials, use_device=use_device)
+
+    token_hash(endp, app, params)
+}

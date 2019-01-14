@@ -56,9 +56,9 @@
 #' }
 #' @rdname azure_login
 #' @export
-get_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
-                            host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                            config_file=NULL, ...)
+create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
+                               host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
+                               config_file=NULL, ...)
 {
     if(!is.null(config_file))
     {
@@ -71,9 +71,115 @@ get_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type
         if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
     }
 
+    hash <- token_hash_from_original_args(resource_host=host,
+        tenant=tenant,
+        app=app,
+        password=password,
+        username=username,
+        auth_type=auth_type,
+        aad_host=aad_host)
+    tokenfile <- file.path(config_dir(), hash)
+    if(file.exists(tokenfile))
+    {
+        message("Deleting existing Azure Active Directory token for this set of credentials")
+        file.remove(tokenfile)
+    }
+
     tenant <- normalize_tenant(tenant)
-    if(is_guid(app))
-        app <- normalize_guid(app)
-    az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
+    app <- normalize_guid(app)
+
+    message("Creating Azure Resource Manager login for tenant '", tenant, "'")
+    client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
+
+    # save login info for future sessions
+    arm_logins <- load_arm_logins()
+    arm_logins[[tenant]] <- unique(c(arm_logins[[tenant]], client$token$hash()))
+    save_arm_logins(arm_logins)
+
+    client
+}
+
+
+#' @rdname azure_login
+#' @export
+get_azure_login <- function(tenant, ..., refresh=TRUE)
+{
+    tenant <- normalize_tenant(tenant)
+
+    arm_logins <- load_arm_logins()
+    this_login <- arm_logins[[tenant]]
+    if(is_empty(this_login))
+        create_azure_login(tenant, ...)
+
+    choice <- if(length(this_login) > 1)
+        utils::menu(this_login)
+    else 1
+
+    message("Loading Azure Resource Manager login for tenant '", tenant, "'")
+    token <- readRDS(file.path(config_dir(), this_login[choice]))
+    client <- az_rm$new(token=token)
+
+    if(refresh)
+        client$token$refresh()
+
+    client
+}
+
+
+#' @rdname azure_login
+#' @export
+delete_azure_login <- function(tenant, confirm=TRUE)
+{
+    tenant <- normalize_tenant(tenant)
+
+    if(confirm && interactive())
+    {
+        yn <- readline(
+            paste0("Do you really want to delete the Azure Resource Manager login(s) for tenant ",
+                   tenant, "? (y/N) "))
+        if(tolower(substr(yn, 1, 1)) != "y")
+            return(invisible(NULL))
+    }
+
+    arm_logins <- load_arm_logins()
+    arm_logins[[tenant]] <- NULL
+    save_arm_logins(arm_logins)
+    invisible(NULL)
+}
+
+
+#' @rdname azure_login
+#' @export
+list_azure_logins <- function()
+{
+    arm_logins <- load_arm_logins()
+    logins <- sapply(arm_logins, function(tenant)
+    {
+        sapply(tenant, function(hash)
+        {
+            file <- file.path(config_dir(), hash)
+            az_rm$new(token=readRDS(file))
+        }, simplify=FALSE)
+    }, simplify=FALSE)
+
+    logins
+}
+
+
+load_arm_logins <- function()
+{
+    file <- file.path(config_dir(), "arm_logins.json")
+    jsonlite::fromJSON(file)
+}
+
+
+save_arm_logins <- function(logins)
+{
+    if(is_empty(logins))
+        names(logins) <- character(0)
+
+    file <- file.path(config_dir(), "arm_logins.json")
+    writeLines(jsonlite::toJSON(logins, auto_unbox=TRUE, pretty=TRUE), file)
+    invisible(NULL)
 }
 

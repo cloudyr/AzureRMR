@@ -22,6 +22,7 @@
 #' - `host`: your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
+#' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @seealso
 #' [create_azure_login], [get_azure_token], [AzureToken],
@@ -59,8 +60,16 @@ public=list(
     # authenticate and get subscriptions
     initialize=function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                        config_file=NULL)
+                        config_file=NULL, token=NULL)
     {
+        if(is_azure_token(token))
+        {
+            self$host <- token$credentials$resource
+            self$tenant <- sub("/.+$", "", httr::parse_url(token$endpoint$authorize)$path)
+            self$token <- token
+            return(NULL)
+        }
+
         if(!is.null(config_file))
         {
             conf <- jsonlite::fromJSON(config_file)
@@ -73,8 +82,7 @@ public=list(
         }
         self$host <- host
         self$tenant <- normalize_tenant(tenant)
-        if(is_guid(app))
-            app <- normalize_guid(app)
+        app <- normalize_guid(app)
         self$token <- get_azure_token(self$host, self$tenant, app, password, username, auth_type, aad_host)
         NULL
     },
@@ -83,6 +91,16 @@ public=list(
     get_subscription=function(id)
     {
         az_subscription$new(self$token, id)
+    },
+
+    # return a subscription object given its name
+    get_subscription_by_name=function(name)
+    {
+        subs <- self$list_subscriptions()
+        found <- sapply(subs, function(x) x$name == name)
+        if(!any(found))
+            stop("Subscription '", name, "' not found", call.=FALSE)
+        subs[[found]]
     },
 
     # return all subscriptions for this app

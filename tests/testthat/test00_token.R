@@ -14,6 +14,7 @@ test_that("normalize_tenant, normalize_guid work",
     # improperly formatted GUID will be treated as a name
     guid5 <- paste0("(", guid)
     expect_false(is_guid(guid5))
+    expect_error(normalize_guid(guid5))
     expect_identical(normalize_tenant(guid5), paste0(guid5, ".onmicrosoft.com"))
 
     expect_identical(normalize_tenant("common"), "common")
