@@ -67,7 +67,7 @@ Similarly, since the authorization_code method opens a browser to load the AAD a
 
 \section{Caching}{
 
-AzureRMR differs from httr in its handling of token caching in a number of ways. First, caching is based on all the inputs to \code{get_azure_token} as listed above. Second, it defines its own directory for cached tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.config/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. Note that a single directory is used for all tokens, and the working directory is not touched (which eliminates the risk of accidentally introducing cached tokens into source control).
+AzureRMR differs from httr in its handling of token caching in a number of ways. First, caching is based on all the inputs to \code{get_azure_token} as listed above. Second, it defines its own directory for cached tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.config/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. Note that a single directory is used for all tokens, and the working directory is not touched (which significantly lessens the risk of accidentally introducing cached tokens into source control).
 
 To list all cached tokens on disk, use \code{list_azure_tokens}. This returns a list of token objects, named according to their MD5 hashes.
 
