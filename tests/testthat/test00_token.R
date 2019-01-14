@@ -31,7 +31,7 @@ test_that("normalize_tenant, normalize_guid work",
 
 test_that("Authentication works",
 {
-    suppressWarnings(delete_azure_token("https://management.azure.com/", tenant, app, password, confirm=FALSE))
+    suppressWarnings(file.remove(dir(AzureRMR:::config_dir(), full.names=TRUE)))
 
     token <- get_azure_token("https://management.azure.com/", tenant, app, password)
     expect_true(is_azure_token(token))

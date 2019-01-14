@@ -24,18 +24,27 @@ public=list(
                        use_basic_auth=FALSE, config_init=list(),
                        client_credentials=client_credentials, use_device=use_device)
 
-        # check for cached value
+        # if this is an existing object, don't use cached value
+        # avoids infinite loop when refresh() calls initialize()
         tokenfile <- file.path(config_dir(), token_hash(endpoint, app, params))
-        if(file.exists(tokenfile))
+        if(file.exists(tokenfile) && !isTRUE(private$initialized))
         {
+            message("Loading cached token")
             token <- readRDS(tokenfile)
-            token$refresh()
-            return(token)
+            self$app <- token$app
+            self$endpoint <- token$endpoint
+            self$params <- token$params
+            self$cache_path <- token$cache_path
+            self$private_key <- token$private_key
+            self$credentials <- token$credentials
+            private$initialized <- TRUE
+            return(self$refresh())
         }
+        private$initialized <- TRUE
 
         # use httr initialize for authorization_code, client_credentials methods
         if(!use_device && is.null(user_params$username))
-            return(super$initialize(app=app, endpoint=endpoint, params=params, cache_path=NULL))
+            return(super$initialize(app=app, endpoint=endpoint, params=params, cache_path=FALSE))
 
         self$app <- app
         self$endpoint <- endpoint
@@ -47,6 +56,9 @@ public=list(
         if(use_device)
             private$init_with_device(user_params)
         else private$init_with_username(user_params)
+
+        saveRDS(self, tokenfile)
+        self
     },
 
     # overrides httr::Token method
@@ -111,7 +123,7 @@ public=list(
             hash <- self$hash()
 
             res <- try(self$initialize(self$endpoint, self$app, self$params$user_params,
-                    use_device=self$params$az_use_device,
+                    use_device=self$params$use_device,
                     client_credentials=self$params$client_credentials), silent=TRUE)
             if(inherits(res, "try-error"))
             {
@@ -126,6 +138,8 @@ public=list(
 ),
 
 private=list(
+    initialized=NULL,
+
     # device code authentication: after sending initial request, loop until server indicates code has been received
     # after init_oauth2.0, oauth2.0_access_token
     init_with_device=function(user_params)
@@ -311,34 +325,16 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
     if(auth_type == "authorization_code" && system.file(package="httpuv") == "")
         stop("httpuv package must be installed to use authorization_code method", call.=FALSE)
 
-    # load saved token if available
-    tokenfile <- file.path(config_dir(),
-        token_hash(resource_host, tenant, app, password, username, auth_type, aad_host))
-
-    if(file.exists(tokenfile))
-    {
-        message("Loading saved Azure Active Directory token")
-        token <- readRDS(tokenfile)
-        token$refresh()
-    }
-    else
-    {
-        message("Acquiring Azure Active Directory token")
-        token <- switch(auth_type,
-            client_credentials=
-                auth_with_client_creds(base_url, app, password, resource_host),
-            device_code=
-                auth_with_device(base_url, app, resource_host),
-            authorization_code=
-                auth_with_code(base_url, app, resource_host),
-            resource_owner=
-                auth_with_username(base_url, app, password, username, resource_host),
-            stop("Invalid auth_type argument", call.=FALSE))
-    }
-
-    # keep the token from going stale
-    saveRDS(token, tokenfile)
-    token
+    switch(auth_type,
+        client_credentials=
+            auth_with_client_creds(base_url, app, password, resource_host),
+        device_code=
+            auth_with_device(base_url, app, resource_host),
+        authorization_code=
+            auth_with_code(base_url, app, resource_host),
+        resource_owner=
+            auth_with_username(base_url, app, password, username, resource_host),
+        stop("Invalid auth_type argument", call.=FALSE))
 }
 
 
