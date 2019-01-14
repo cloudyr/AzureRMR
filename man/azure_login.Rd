@@ -47,7 +47,13 @@ list_azure_logins()
 Login to Azure Resource Manager
 }
 \details{
-This function creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions.
+\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions.
+
+\code{create_azure_login} is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
+
+\code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if no tenant is found, it can call \code{create_azure_login} with any other arguments that it is supplied with. If multiple logins are found for a given tenant, it will prompt for you to choose one.
+
+One difference between \code{create_azure_login} and \code{get_azure_login} is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 }
 \section{Authentication methods}{
 
@@ -74,7 +80,7 @@ Similarly, since the authorization_code method opens a browser to load the AAD a
 
 \section{Value}{
 
-An object of class \code{az_rm}, representing the ARM login client.
+For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. Fr \code{list_azure_logins}, a (possibly nested) list of such objects.
 }
 
 \examples{
@@ -82,10 +88,14 @@ An object of class \code{az_rm}, representing the ARM login client.
 
 # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
 # using the client_credentials method
-az <- get_azure_login("microsoft", app="{app_id}", password="{password}")
+az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
 
 # you can also login using credentials in a json file
-az <- get_azure_login(config_file="~/creds.json")
+az <- create_azure_login(config_file="~/creds.json")
+
+
+# retrieve the login via the tenant
+az <- get_azure_login("myaadtenant")
 
 }
 }

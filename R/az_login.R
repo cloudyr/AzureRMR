@@ -14,7 +14,13 @@
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
 #' @details
-#' This function creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions.
+#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions.
+#'
+#' `create_azure_login` is roughly equivalent to the Azure CLI command `az login` without any arguments.
+#'
+#' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if no tenant is found, it can call `create_azure_login` with any other arguments that it is supplied with. If multiple logins are found for a given tenant, it will prompt for you to choose one.
+#'
+#' One difference between `create_azure_login` and `get_azure_login` is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 #'
 #' @section Authentication methods:
 #' The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the [httr::Token2.0] token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
@@ -39,7 +45,7 @@
 #' Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
 #'
 #' @section Value:
-#' An object of class `az_rm`, representing the ARM login client.
+#' For `get_azure_login` and `create_azure_login`, an object of class `az_rm`, representing the ARM login client. Fr `list_azure_logins`, a (possibly nested) list of such objects.
 #'
 #' @seealso
 #' [az_rm], [get_azure_token], [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
@@ -49,10 +55,14 @@
 #'
 #' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
 #' # using the client_credentials method
-#' az <- get_azure_login("microsoft", app="{app_id}", password="{password}")
+#' az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
 #'
 #' # you can also login using credentials in a json file
-#' az <- get_azure_login(config_file="~/creds.json")
+#' az <- create_azure_login(config_file="~/creds.json")
+#'
+#'
+#' # retrieve the login via the tenant
+#' az <- get_azure_login("myaadtenant")
 #'
 #' }
 #' @rdname azure_login

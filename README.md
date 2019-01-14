@@ -30,7 +30,7 @@ If you want to allow access at something other than subscription level, you can 
 
 ## Authentication
 
-Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `get_azure_login()` and supply your tenant, app ID and password. The resulting AAD authentication token is saved on your machine, and is reused in subsequent R sessions. AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call create_azure_login() and supply your tenant, app ID and password. The resulting Resource Manager client object is saved on your machine, and can be retrieved in subsequent R sessions with get_azure_login("{tenant}"). AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
 
 
 ## Sample workflow
