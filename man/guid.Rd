@@ -18,7 +18,9 @@ is_guid(x)
 \item{x}{For \code{is_guid}, a character string; for \code{normalize_guid}, a string containing a \emph{validly formatted} GUID.}
 }
 \value{
-For \code{normalize_guid}, the canonically formatted GUID. Note that if \code{normalize_guid} is given an improperly formatted GUID, its output is undefined; you should always test a string with \code{is_guid} before passing it to \code{normalize_guid}.
+For \code{is_guid}, whether the argument is a validly formatted GUID.
+
+For \code{normalize_guid}, the GUID in canonical format. If the argument is not recognised as a GUID, it throws an error.
 
 For \code{normalize_tenant}, the normalized ID or name of the tenant.
 }

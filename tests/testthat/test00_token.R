@@ -8,7 +8,7 @@ test_that("normalize_tenant, normalize_guid work",
     expect_identical(normalize_guid(guid2), guid)
     guid3 <- paste0("(", guid, ")")
     expect_identical(normalize_guid(guid3), guid)
-    guid4 <- sub("-", "", guid, fixed=TRUE)
+    guid4 <- gsub("-", "", guid, fixed=TRUE)
     expect_identical(normalize_guid(guid4), guid)
 
     # improperly formatted GUID will be treated as a name

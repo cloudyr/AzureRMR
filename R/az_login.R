@@ -9,6 +9,7 @@
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
+#' @param choice For `get_azure_login`, if you have multiple AAD tokens for a given tenant, which one to use. Note that this displays the MD5 hashes of the the token objects, so may be cryptic.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
@@ -102,7 +103,7 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
 
 #' @rdname azure_login
 #' @export
-get_azure_login <- function(tenant, ..., refresh=TRUE)
+get_azure_login <- function(tenant, ..., refresh=TRUE, choice=NULL)
 {
     tenant <- normalize_tenant(tenant)
 
@@ -111,12 +112,16 @@ get_azure_login <- function(tenant, ..., refresh=TRUE)
     if(is_empty(this_login))
         create_azure_login(tenant, ...)
 
-    choice <- if(length(this_login) > 1)
+    choice <- if(is.null(choice) && length(this_login) > 1)
         utils::menu(this_login)
     else 1
 
+    file <- file.path(config_dir(), this_login[choice])
+    if(!file.exists(file))
+        stop("Azure Active Directory token not found for this login", call.=FALSE)
+
     message("Loading Azure Resource Manager login for tenant '", tenant, "'")
-    token <- readRDS(file.path(config_dir(), this_login[choice]))
+    token <- readRDS(file)
     client <- az_rm$new(token=token)
 
     if(refresh)
@@ -169,6 +174,8 @@ list_azure_logins <- function()
 load_arm_logins <- function()
 {
     file <- file.path(config_dir(), "arm_logins.json")
+    if(!file.exists(file))
+        return(structure(list(), names=character(0)))
     jsonlite::fromJSON(file)
 }
 

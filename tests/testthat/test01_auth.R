@@ -22,10 +22,10 @@ test_that("Authentication works",
     expect_is(az2, "az_rm")
     expect_true(is_azure_token(az2$token))
 
-    az3 <- get_azure_login(tenant=tenant, app=app, password=password)
+    az3 <- create_azure_login(tenant=tenant, app=app, password=password)
     expect_is(az3, "az_rm")
 
-    az4 <- get_azure_login(config_file=creds)
+    az4 <- create_azure_login(config_file=creds)
     expect_is(az4, "az_rm")
 })
 
