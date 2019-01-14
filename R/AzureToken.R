@@ -7,6 +7,7 @@
 #' - `refresh`: Refreshes the token. For expired Azure tokens using client credentials, refreshing really means requesting a new token.
 #' - `validate`: Checks if the token is still valid. For Azure tokens using client credentials, this just checks if the current time is less than the token's expiry time.
 #' - `hash`: Computes an MD5 hash on selected fields of the token. Used internally for identification purposes when caching.
+#' - `cache`: Stores the token on disk for use in future sessions.
 #'
 #' @seealso
 #' [get_azure_token], [httr::Token]
@@ -239,7 +240,7 @@ private=list(
 #' Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
 #'
 #' @section Caching:
-#' AzureRMR differs from httr in its handling of token caching in a number of ways. First, caching is based on all the inputs to `get_azure_token` as listed above. Second, it defines its own directory for cached tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location `C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR`. On Linux, it will be in `~/.config/AzureRMR`, and on MacOS, it will be in `~/Library/Application Support/AzureRMR`. Note that a single directory is used for all tokens, and the working directory is not touched (which eliminates the risk of accidentally introducing cached tokens into source control).
+#' AzureRMR differs from httr in its handling of token caching in a number of ways. First, caching is based on all the inputs to `get_azure_token` as listed above. Second, it defines its own directory for cached tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location `C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR`. On Linux, it will be in `~/.config/AzureRMR`, and on MacOS, it will be in `~/Library/Application Support/AzureRMR`. Note that a single directory is used for all tokens, and the working directory is not touched (which significantly lessens the risk of accidentally introducing cached tokens into source control).
 #'
 #' To list all cached tokens on disk, use `list_azure_tokens`. This returns a list of token objects, named according to their MD5 hashes.
 #'
@@ -424,7 +425,7 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
 
         endp <- httr::oauth_endpoint(base_url=base_url,
             authorize="oauth2/authorize",
-            access=if(use_device) "oauth2/devicecode" else NULL)
+            access=if(use_device) "oauth2/devicecode" else "oauth2/token")
         app <- httr::oauth_app("azure", app,
             secret=if(client_credentials) password else NULL,
             redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
