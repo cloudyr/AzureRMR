@@ -16,12 +16,8 @@ Azure OAuth 2.0 token class, inheriting from the \link[httr:Token2.0]{Token2.0 c
 \itemize{
 \item \code{refresh}: Refreshes the token. For expired Azure tokens using client credentials, refreshing really means requesting a new token.
 \item \code{validate}: Checks if the token is still valid. For Azure tokens using client credentials, this just checks if the current time is less than the token's expiry time.
+\item \code{hash}: Computes an MD5 hash on selected fields of the token. Used internally for identification purposes when caching.
 }
-}
-
-\section{Caching}{
-
-Unlike httr::Token2.0, caching for Azure tokens is handled outside the class. Tokens are automatically cached by the \code{get_azure_token} function, and can be (manually) deleted with the \code{delete_azure_token} function. Calling \code{AzureToken$new()} directly will always acquire a new token from the server.
 }
 
 \seealso{

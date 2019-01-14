@@ -6,9 +6,7 @@
 #' @section Methods:
 #' - `refresh`: Refreshes the token. For expired Azure tokens using client credentials, refreshing really means requesting a new token.
 #' - `validate`: Checks if the token is still valid. For Azure tokens using client credentials, this just checks if the current time is less than the token's expiry time.
-#'
-#' @section Caching:
-#' Unlike httr::Token2.0, caching for Azure tokens is handled outside the class. Tokens are automatically cached by the `get_azure_token` function, and can be (manually) deleted with the `delete_azure_token` function. Calling `AzureToken$new()` directly will always acquire a new token from the server.
+#' - `hash`: Computes an MD5 hash on selected fields of the token. Used internally for identification purposes when caching.
 #'
 #' @seealso
 #' [get_azure_token], [httr::Token]
@@ -22,14 +20,22 @@ public=list(
     # need to do hacky init to support explicit re-authentication instead of using a refresh token
     initialize=function(endpoint, app, user_params, use_device=FALSE, client_credentials=TRUE)
     {
-        private$az_use_device <- use_device
-
         params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=FALSE, config_init=list(), client_credentials=client_credentials)
+                       use_basic_auth=FALSE, config_init=list(),
+                       client_credentials=client_credentials, use_device=use_device)
+
+        # check for cached value
+        tokenfile <- file.path(config_dir(), token_hash(endpoint, app, params))
+        if(file.exists(tokenfile))
+        {
+            token <- readRDS(tokenfile)
+            token$refresh()
+            return(token)
+        }
 
         # use httr initialize for authorization_code, client_credentials methods
         if(!use_device && is.null(user_params$username))
-            return(super$initialize(app=app, endpoint=endpoint, params=params, cache_path=FALSE))
+            return(super$initialize(app=app, endpoint=endpoint, params=params, cache_path=NULL))
 
         self$app <- app
         self$endpoint <- endpoint
@@ -43,10 +49,18 @@ public=list(
         else private$init_with_username(user_params)
     },
 
-    # overrides httr::Token method: caching done outside class
+    # overrides httr::Token method
     hash=function()
     {
-        stop("Caching not handled by AzureToken class")
+        token_hash(self$endpoint, self$app, self$params)
+    },
+
+    # overrides httr::Token method
+    cache=function()
+    {
+        filename <- file.path(config_dir(), self$hash())
+        saveRDS(self, filename)
+        invisible(NULL)
     },
 
     # overrides httr::Token2.0 method
@@ -69,19 +83,49 @@ public=list(
     # overrides httr::Token2.0 method
     refresh=function()
     {
+        # use a refresh token if it exists
+        # don't call superclass method b/c of different caching logic
         if(!is.null(self$credentials$refresh_token))
-            return(super$refresh())
+        {
+            body <- list(
+                refresh_token=self$credentials$refresh_token,
+                client_id=self$app$key,
+                client_secret=self$app$secret,
+                grant_type="refresh_token"
+            )
+            body <- modifyList(body, self$params$user_params)
 
-        # re-authenticate if no refresh token
-        self$initialize(self$endpoint, self$app, self$params$user_params, use_device=private$az_use_device,
-            client_credentials=self$params$client_credentials)
+            access_uri <- sub("devicecode$", "token", self$endpoint$access)
+            res <- httr::POST(access_uri, body=body, encode="form")
+
+            if(httr::status_code(res) >= 300)
+            {
+                delete_azure_token(hash=self$hash(), confirm=FALSE)
+                stop("Unable to refresh", call.=FALSE)
+            }
+            self$credentials <- utils::modifyList(self$credentials, httr::content(res))
+        }
+        else # re-authenticate if no refresh token
+        {
+            # save the hash so we can delete the cached token on failure (initialize can modify state)
+            hash <- self$hash()
+
+            res <- try(self$initialize(self$endpoint, self$app, self$params$user_params,
+                    use_device=self$params$az_use_device,
+                    client_credentials=self$params$client_credentials), silent=TRUE)
+            if(inherits(res, "try-error"))
+            {
+                delete_azure_token(hash=hash, confirm=FALSE)
+                stop("Unable to reauthenticate", call.=FALSE)
+            }
+        }
+
+        self$cache()
         self
     }
 ),
 
 private=list(
-    az_use_device=NULL,
-
     # device code authentication: after sending initial request, loop until server indicates code has been received
     # after init_oauth2.0, oauth2.0_access_token
     init_with_device=function(user_params)
@@ -93,7 +137,7 @@ private=list(
 
         req_params <- list(client_id=self$app$key, grant_type="device_code", code=creds$device_code)
         req_params <- utils::modifyList(user_params, req_params)
-        self$endpoint$access <- sub("devicecode$", "token", self$endpoint$access)
+        access_uri <- sub("devicecode$", "token", self$endpoint$access)
 
         message("Waiting for device code in browser...\nPress Esc/Ctrl + C to abort")
         interval <- as.numeric(creds$interval)
@@ -102,7 +146,7 @@ private=list(
         {
             Sys.sleep(interval)
 
-            res <- httr::POST(self$endpoint$access, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
+            res <- httr::POST(access_uri, httr::add_headers(`Cache-Control`="no-cache"), encode="form",
                               body=req_params)
 
             status <- httr::status_code(res)
@@ -118,6 +162,7 @@ private=list(
         if(status >= 300)
             stop("Unable to authenticate")
 
+        message("Authentication complete.")
         self$credentials <- cont
         NULL
     },
@@ -152,7 +197,7 @@ private=list(
 #' @param password The password, either for the app, or your username if supplied. See 'Details' below.
 #' @param username Your AAD username, if using the resource owner grant. See 'Details' below.
 #' @param auth_type The authentication type. See 'Details' below.
-#' @param aad_host URL for your AAD host. For the public Azure cloud, this is `https://login.microsoftonline.com/`.
+#' @param aad_host URL for your AAD host. For the public Azure cloud, this is `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #'
 #' @details
 #' `get_azure_token` does much the same thing as [httr::oauth2.0_token()], but customised for Azure. It obtains an OAuth token, first by checking if a cached value exists on disk, and if not, acquiring it from the AAD server. `delete_azure_token` deletes a cached token, and `list_azure_tokens` lists currently cached tokens.
@@ -180,11 +225,7 @@ private=list(
 #' Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
 #'
 #' @section Caching:
-#' AzureRMR differs from httr in its handling of token caching in a number of ways.
-#'
-#' - It moves caching of OAuth tokens out of the token class, and into the `get_azure_token` function. Caching is based on all the inputs to `get_azure_token` as listed above. Directly calling the AzureToken class constructor will always acquire a new token from the server.
-#'
-#' - It defines its own directory for caching tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location `C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR`. On Linux, it will be in `~/.config/AzureRMR`, and on MacOS, it will be in `~/Library/Application Support/AzureRMR`. Note that a single directory is used for all tokens, unlike httr, and the working directory is not touched (which lessens the risk of accidentally introducing cached tokens into source control).
+#' AzureRMR differs from httr in its handling of token caching in a number of ways. First, caching is based on all the inputs to `get_azure_token` as listed above. Second, it defines its own directory for cached tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location `C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR`. On Linux, it will be in `~/.config/AzureRMR`, and on MacOS, it will be in `~/Library/Application Support/AzureRMR`. Note that a single directory is used for all tokens, and the working directory is not touched (which eliminates the risk of accidentally introducing cached tokens into source control).
 #'
 #' To list all cached tokens on disk, use `list_azure_tokens`. This returns a list of token objects, named according to their MD5 hashes.
 #'
@@ -276,12 +317,13 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
 
     if(file.exists(tokenfile))
     {
-        message("Loading saved token")
+        message("Loading saved Azure Active Directory token")
         token <- readRDS(tokenfile)
         token$refresh()
     }
     else
     {
+        message("Acquiring Azure Active Directory token")
         token <- switch(auth_type,
             client_credentials=
                 auth_with_client_creds(base_url, app, password, resource_host),
@@ -293,6 +335,8 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
                 auth_with_username(base_url, app, password, username, resource_host),
             stop("Invalid auth_type argument", call.=FALSE))
     }
+
+    # keep the token from going stale
     saveRDS(token, tokenfile)
     token
 }
@@ -301,7 +345,7 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
 auth_with_client_creds <- function(base_url, app, password, resource)
 {
     endp <- httr::oauth_endpoint(base_url=base_url, authorize="oauth2/authorize", access="oauth2/token")
-    app <- httr::oauth_app("azure", key=app, secret=password)
+    app <- httr::oauth_app("azure", key=app, secret=password, redirect_uri=NULL)
 
     AzureToken$new(endp, app, user_params=list(resource=resource), use_device=FALSE, client_credentials=TRUE)
 }
@@ -358,7 +402,7 @@ select_auth_type <- function(password, username)
 }
 
 
-#' @param hash The MD5 hash of this token, computed from the above inputs. Used by `delete_azure_token` for identification purposes.
+#' @param hash The MD5 hash of this token, computed from the above inputs. Used by `delete_azure_token` to identify a cached token to delete.
 #' @param confirm For `delete_azure_token`, whether to prompt for confirmation before deleting a token.
 #' @rdname get_azure_token
 #' @export
@@ -369,6 +413,7 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
 {
     if(is.null(hash))
     {
+        # reconstruct the hash for the token object from the inputs
         tenant <- normalize_tenant(tenant)
         if(is_guid(app))
             app <- normalize_guid(app)
@@ -377,7 +422,26 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
         if(is.null(auth_type))
             auth_type <- select_auth_type(password, username)
 
-        hash <- token_hash(resource_host, tenant, app, password, username, auth_type, aad_host)
+        base_url <- construct_path(aad_host, tenant)
+        use_device <- auth_type == "device_code"
+        client_credentials <- auth_type == "client_credentials"
+
+        endp <- httr::oauth_endpoint(base_url=base_url,
+            authorize="oauth2/authorize",
+            access=if(use_device) "oauth2/devicecode" else NULL)
+        app <- httr::oauth_app("azure", app,
+            secret=if(client_credentials) password else NULL,
+            redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
+
+        user_params <- list(resource=resource_host)
+        if(auth_type == "resource_owner")
+            user_params <- c(user_params, password=NULL, username=NULL)
+
+        params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
+                       use_basic_auth=FALSE, config_init=list(),
+                       client_credentials=client_credentials, use_device=use_device)
+
+        hash <- token_hash(endp, app, params)
     }
 
     if(confirm && interactive())
@@ -409,10 +473,9 @@ list_azure_tokens <- function()
 }
 
 
-token_hash <- function(resource_host, tenant, app, password, username, auth_type, aad_host)
+token_hash <- function(endpoint, app, params)
 {
-    msg <- serialize(list(resource_host, tenant, app, password, username, auth_type, aad_host), NULL, version=2)
+    msg <- serialize(list(endpoint, app, params), NULL, version=2)
     paste(openssl::md5(msg[-(1:14)]), collapse="")
 }
-
 

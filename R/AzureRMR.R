@@ -13,3 +13,8 @@ NULL
     invisible(NULL)
 }
 
+
+config_dir <- function()
+{
+    rappdirs::user_config_dir(appname="AzureRMR", appauthor="AzureR", roaming=FALSE)
+}

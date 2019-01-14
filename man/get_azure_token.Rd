@@ -30,9 +30,9 @@ list_azure_tokens()
 
 \item{auth_type}{The authentication type. See 'Details' below.}
 
-\item{aad_host}{URL for your AAD host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}.}
+\item{aad_host}{URL for your AAD host. For the public Azure cloud, this is \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.}
 
-\item{hash}{The MD5 hash of this token, computed from the above inputs. Used by \code{delete_azure_token} for identification purposes.}
+\item{hash}{The MD5 hash of this token, computed from the above inputs. Used by \code{delete_azure_token} to identify a cached token to delete.}
 
 \item{confirm}{For \code{delete_azure_token}, whether to prompt for confirmation before deleting a token.}
 }
@@ -67,11 +67,7 @@ Similarly, since the authorization_code method opens a browser to load the AAD a
 
 \section{Caching}{
 
-AzureRMR differs from httr in its handling of token caching in a number of ways.
-\itemize{
-\item It moves caching of OAuth tokens out of the token class, and into the \code{get_azure_token} function. Caching is based on all the inputs to \code{get_azure_token} as listed above. Directly calling the AzureToken class constructor will always acquire a new token from the server.
-\item It defines its own directory for caching tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.config/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. Note that a single directory is used for all tokens, unlike httr, and the working directory is not touched (which lessens the risk of accidentally introducing cached tokens into source control).
-}
+AzureRMR differs from httr in its handling of token caching in a number of ways. First, caching is based on all the inputs to \code{get_azure_token} as listed above. Second, it defines its own directory for cached tokens, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.config/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. Note that a single directory is used for all tokens, and the working directory is not touched (which eliminates the risk of accidentally introducing cached tokens into source control).
 
 To list all cached tokens on disk, use \code{list_azure_tokens}. This returns a list of token objects, named according to their MD5 hashes.
 

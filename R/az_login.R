@@ -1,10 +1,4 @@
-config_dir <- function()
-{
-    rappdirs::user_config_dir(appname="AzureRMR", appauthor="AzureR", roaming=FALSE)
-}
-
-
-#' Functions to login to Azure Resource Manager
+#' Login to Azure Resource Manager
 #'
 #' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
 #' @param app The client/app ID to use to authenticate with Azure Active Directory.
@@ -19,42 +13,50 @@ config_dir <- function()
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
 #' @details
-#' These functions allow you to authenticate with Azure Resource Manager (ARM).
-#' - `create_azure_login` creates a login client, using the supplied credentials. You only have to create a login client once per tenant; the resulting object is saved on your machine and reused automatically in subsequent R sessions.
-#' - `get_azure_login` will load a previously saved ARM client object for the given tenant. If this is the first time you are logging in for this tenant, the client object is created via `create_login_client`.
-#' - `delete_azure_login` deletes the client object for the given tenant from your machine. Note that this doesn't invalidate any client you may be using in your R session.
-#' - `list_azure_logins` lists client objects that have been previously saved.
-#' - `refresh_azure_logins` refreshes all client objects existing on your machine.
+#' This function creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions.
 #'
-#' `create_azure_login` is roughly equivalent to the Azure CLI command `az login` with no arguments.
+#' @section Authentication methods:
+#' The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the [httr::Token2.0] token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
 #'
-#' @return
-#' For `create_azure_login` and `get_azure_login`, an object of class `az_rm`, representing the ARM login client. For `list_azure_logins`, a list of such objects.
+#' 1. Using the authorization_code method is a 3-step process. First, `get_azure_login` contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which `get_azure_login` opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
+#'
+#' 2. The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, `get_azure_login` contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, `get_azure_login` polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
+#'
+#' 3. The client_credentials method is much simpler than the above methods, requiring only one step. `get_azure_login` contacts the access endpoint, passing it the app secret (which you supplied in the `password` argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
+#'
+#' 4. The resource_owner method also requires only one step. In this method, `get_azure_login` passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
+#'
+#' If the authentication method is not specified, it is chosen based on the presence or absence of the `password` and `username` arguments:
+#'
+#' - Password and username present: resource_owner. 
+#' - Password and username absent: authorization_code if the httpuv package is installed, device_code otherwise
+#' - Password present, username absent: client_credentials
+#' - Password absent, username present: error
+#'
+#' The httpuv package must be installed to use the authorization_code method, as this requires a web server to listen on the (local) redirect URI. See [httr::oauth2.0_token] for more information; note that Azure does not support the `use_oob` feature of the httr OAuth 2.0 token class.
+#'
+#' Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
+#'
+#' @section Value:
+#' An object of class `az_rm`, representing the ARM login client.
 #'
 #' @seealso
-#' [az_rm], [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
+#' [az_rm], [get_azure_token], [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
 #' 
 #' @examples
 #' \dontrun{
 #'
-#' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com'
-#' # only has to be run once per tenant
-#' az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
+#' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
+#' # using the client_credentials method
+#' az <- get_azure_login("microsoft", app="{app_id}", password="{password}")
 #'
 #' # you can also login using credentials in a json file
-# az <- create_azure_login(config_file="~/creds.json")
-#'
-#' # in subsequent sessions, you can retrieve the client without re-authenticating:
-#' # authentication details will automatically be refreshed
-#' az <- get_azure_login("microsoft")
-#'
-#' # refresh (renew) authentication details for clients for all tenants
-#' refresh_azure_logins()
+#' az <- get_azure_login(config_file="~/creds.json")
 #'
 #' }
 #' @rdname azure_login
 #' @export
-create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
+get_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
                             host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                             config_file=NULL, ...)
 {
@@ -72,93 +74,6 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
     tenant <- normalize_tenant(tenant)
     if(is_guid(app))
         app <- normalize_guid(app)
-    message("Creating Azure Resource Manager login for tenant '", tenant, "'")
-    client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
-    save_client(client, tenant)
-    client
+    az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
 }
-
-
-#' @rdname azure_login
-#' @export
-get_azure_login <- function(tenant, ..., refresh=TRUE)
-{
-    tenant <- normalize_tenant(tenant)
-
-    login_exists <- file.exists(file.path(config_dir(), tenant))
-    if(!login_exists)
-        return(create_azure_login(tenant, ...))
-
-    message("Loading Azure Resource Manager login for tenant '", tenant, "'")
-    client <- readRDS(file.path(config_dir(), tenant))
-    if(refresh)
-    {
-        # refresh and save
-        client$token$refresh()
-        save_client(client, tenant)
-    }
-    client
-}
-
-
-#' @rdname azure_login
-#' @export
-delete_azure_login <- function(tenant, confirm=TRUE)
-{
-    tenant <- normalize_tenant(tenant)
-
-    if(confirm && interactive())
-    {
-        yn <- readline(
-            paste0("Do you really want to delete the Azure Resource Manager login for tenant ", tenant, "? (y/N) "))
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
-
-    file.remove(file.path(config_dir(), tenant))
-    invisible(NULL)
-}
-
-
-#' @rdname azure_login
-#' @export
-list_azure_logins <- function()
-{
-    tenants <- dir(config_dir(), full.names=TRUE)
-    lst <- lapply(tenants, function(fname)
-    {
-        x <- readRDS(fname)
-        if(is_azure_login(x))
-            x
-        else NULL
-    })
-    names(lst) <- basename(tenants)
-    lst[!sapply(lst, is.null)]
-}
-
-
-#' @rdname azure_login
-#' @export
-refresh_azure_logins <- function()
-{
-    refresh_and_save <- function(tenant)
-    {
-        client <- readRDS(tenant)
-        client$token$refresh()
-        save_client(client, basename(tenant))
-    }
-
-    lapply(dir(config_dir(), full.names=TRUE), refresh_and_save)
-    invisible(NULL)
-}
-
-
-save_client <- function(client, tenant)
-{
-    tenant <- normalize_tenant(tenant)
-
-    saveRDS(client, file=file.path(config_dir(), tenant))
-    invisible(client)
-}
-
 

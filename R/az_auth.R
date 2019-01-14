@@ -11,7 +11,7 @@
 #' - `get_subscription(id)`: Returns an object representing a subscription.
 #'
 #' @section Authentication:
-#' The best way to authenticate with ARM is probably via the [create_azure_login] and [get_azure_login] functions. With these, you only have to authenticate once, after which your credentials are saved and reused for subsequent sessions.
+#' The recommended way to authenticate with ARM is via the [get_azure_login] function, which creates a new instance of this class.
 #'
 #' To authenticate with the `az_rm` class directly, provide the following arguments to the `new` method:
 #' - `tenant`: Your tenant ID. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
@@ -22,7 +22,6 @@
 #' - `host`: your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
-#' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @seealso
 #' [create_azure_login], [get_azure_token], [AzureToken],
@@ -60,16 +59,8 @@ public=list(
     # authenticate and get subscriptions
     initialize=function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                        config_file=NULL, token=NULL)
+                        config_file=NULL)
     {
-        if(is_azure_token(token))
-        {
-            self$host <- token$credentials$resource
-            self$tenant <- sub("/.+$", "", httr::parse_url(token$endpoint$authorize)$path)
-            self$token <- token
-            return(NULL)
-        }
-
         if(!is.null(config_file))
         {
             conf <- jsonlite::fromJSON(config_file)

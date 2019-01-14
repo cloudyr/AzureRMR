@@ -31,13 +31,22 @@ test_that("normalize_tenant, normalize_guid work",
 
 test_that("Authentication works",
 {
-    suppressWarnings(delete_azure_token("http://management.azure.com/", tenant, app, password, confirm=FALSE))
+    suppressWarnings(delete_azure_token("https://management.azure.com/", tenant, app, password, confirm=FALSE))
 
-    token <- get_azure_token("http://management.azure.com/", tenant, app, password)
+    token <- get_azure_token("https://management.azure.com/", tenant, app, password)
     expect_true(is_azure_token(token))
 
     toklist <- list_azure_tokens()
+    hash <- AzureRMR:::token_hash(
+        "https://management.azure.com/", tenant, app, password, username=NULL,
+        auth_type="client_credentials",
+        aad_host="https://login.microsoftonline.com/")
     expect_true(length(toklist) > 0)
+    expect_true(hash %in% names(toklist))
 
-    expect_null(delete_azure_token("http://management.azure.com/", tenant, app, password, confirm=FALSE))
+    expect_true(is_azure_token(token$refresh()))
+    expect_null(delete_azure_token("https://management.azure.com/", tenant, app, password, confirm=FALSE))
+
+    token <- get_azure_token("https://management.azure.com/", tenant, app, password)
+    expect_null(delete_azure_token(hash=hash, confirm=FALSE))
 })
