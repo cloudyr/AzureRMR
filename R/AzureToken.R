@@ -27,7 +27,7 @@ public=list(
 
         # if this is an existing object, don't use cached value
         # avoids infinite loop when refresh() calls initialize()
-        tokenfile <- file.path(config_dir(), token_hash(endpoint, app, params))
+        tokenfile <- file.path(AzureRMR_dir(), token_hash(endpoint, app, params))
         if(file.exists(tokenfile) && !isTRUE(private$initialized))
         {
             message("Loading cached token")
@@ -71,7 +71,7 @@ public=list(
     # overrides httr::Token method
     cache=function()
     {
-        filename <- file.path(config_dir(), self$hash())
+        filename <- file.path(AzureRMR_dir(), self$hash())
         saveRDS(self, filename)
         invisible(NULL)
     },
@@ -417,7 +417,7 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
-    file.remove(file.path(config_dir(), hash))
+    file.remove(file.path(AzureRMR_dir(), hash))
     invisible(NULL)
 }
 
@@ -426,14 +426,14 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
 #' @export
 list_azure_tokens <- function()
 {
-    tokens <- dir(config_dir(), full.names=TRUE)
+    tokens <- dir(AzureRMR_dir(), pattern="[0-9a-f]{32}", full.names=TRUE)
     lst <- lapply(tokens, function(fname)
     {
-        x <- readRDS(fname)
+        x <- try(readRDS(fname), silent=TRUE)
         if(is_azure_token(x))
             x
         else NULL
-        })
+    })
     names(lst) <- basename(tokens)
     lst[!sapply(lst, is.null)]
 }
@@ -462,19 +462,19 @@ token_hash_from_original_args <- function(resource_host, tenant, app, password=N
     client_credentials <- auth_type == "client_credentials"
 
     endp <- httr::oauth_endpoint(base_url=base_url,
-            authorize="oauth2/authorize",
-            access=if(use_device) "oauth2/devicecode" else "oauth2/token")
+        authorize="oauth2/authorize",
+        access=if(use_device) "oauth2/devicecode" else "oauth2/token")
     app <- httr::oauth_app("azure", app,
-            secret=if(client_credentials) password else NULL,
-            redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
+        secret=if(client_credentials) password else NULL,
+        redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
 
     user_params <- list(resource=resource_host)
     if(auth_type == "resource_owner")
         user_params <- c(user_params, password=NULL, username=NULL)
 
     params <- list(scope=NULL, user_params=user_params, type=NULL, use_oob=FALSE, as_header=TRUE,
-                       use_basic_auth=FALSE, config_init=list(),
-                       client_credentials=client_credentials, use_device=use_device)
+                   use_basic_auth=FALSE, config_init=list(),
+                   client_credentials=client_credentials, use_device=use_device)
 
     token_hash(endp, app, params)
 }

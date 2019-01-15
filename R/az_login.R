@@ -9,16 +9,14 @@
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
-#' @param choice For `get_azure_login`, if you have multiple AAD tokens for a given tenant, which one to use. Note that this displays the MD5 hashes of the the token objects, so may be cryptic.
+#' @param selection For `get_azure_login`, if you have multiple AAD tokens for a given tenant, which one to use. Note that the selection menu displays the MD5 hashes of the the token objects, so may be cryptic.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
 #' @details
-#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions.
+#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. It is roughly equivalent to the Azure CLI command `az login` without any arguments.
 #'
-#' `create_azure_login` is roughly equivalent to the Azure CLI command `az login` without any arguments.
-#'
-#' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if no tenant is found, it can call `create_azure_login` with any other arguments that it is supplied with. If multiple logins are found for a given tenant, it will prompt for you to choose one.
+#' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 #'
 #' One difference between `create_azure_login` and `get_azure_login` is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 #'
@@ -89,7 +87,7 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
         username=username,
         auth_type=auth_type,
         aad_host=aad_host)
-    tokenfile <- file.path(config_dir(), hash)
+    tokenfile <- file.path(AzureRMR_dir(), hash)
     if(file.exists(tokenfile))
     {
         message("Deleting existing Azure Active Directory token for this set of credentials")
@@ -104,7 +102,7 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
 
     # save login info for future sessions
     arm_logins <- load_arm_logins()
-    arm_logins[[tenant]] <- unique(c(arm_logins[[tenant]], client$token$hash()))
+    arm_logins[[tenant]] <- sort(unique(c(arm_logins[[tenant]], client$token$hash())))
     save_arm_logins(arm_logins)
 
     client
@@ -113,20 +111,23 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
 
 #' @rdname azure_login
 #' @export
-get_azure_login <- function(tenant, ..., refresh=TRUE, choice=NULL)
+get_azure_login <- function(tenant, refresh=TRUE, selection=NULL)
 {
     tenant <- normalize_tenant(tenant)
 
     arm_logins <- load_arm_logins()
     this_login <- arm_logins[[tenant]]
     if(is_empty(this_login))
-        create_azure_login(tenant, ...)
+        stop("No Azure Resource Manager login found for tenant '",
+             tenant, "';\nuse create_azure_login() to create one", call.=FALSE)
 
-    choice <- if(is.null(choice) && length(this_login) > 1)
+    selection <- if(is.null(selection) && length(this_login) > 1)
         utils::menu(this_login)
     else 1
+    if(selection == 0)
+        return(NULL)
 
-    file <- file.path(config_dir(), this_login[choice])
+    file <- file.path(AzureRMR_dir(), this_login[selection])
     if(!file.exists(file))
         stop("Azure Active Directory token not found for this login", call.=FALSE)
 
@@ -172,7 +173,7 @@ list_azure_logins <- function()
     {
         sapply(tenant, function(hash)
         {
-            file <- file.path(config_dir(), hash)
+            file <- file.path(AzureRMR_dir(), hash)
             az_rm$new(token=readRDS(file))
         }, simplify=FALSE)
     }, simplify=FALSE)
@@ -183,7 +184,7 @@ list_azure_logins <- function()
 
 load_arm_logins <- function()
 {
-    file <- file.path(config_dir(), "arm_logins.json")
+    file <- file.path(AzureRMR_dir(), "arm_logins.json")
     if(!file.exists(file))
         return(structure(list(), names=character(0)))
     jsonlite::fromJSON(file)
@@ -195,7 +196,7 @@ save_arm_logins <- function(logins)
     if(is_empty(logins))
         names(logins) <- character(0)
 
-    file <- file.path(config_dir(), "arm_logins.json")
+    file <- file.path(AzureRMR_dir(), "arm_logins.json")
     writeLines(jsonlite::toJSON(logins, auto_unbox=TRUE, pretty=TRUE), file)
     invisible(NULL)
 }

@@ -17,6 +17,7 @@ Base class for interacting with Azure Resource Manager.
 \item \code{new(tenant, app, ...)}: Initialize a new ARM connection with the given credentials. See 'Authentication` for more details.
 \item \code{list_subscriptions()}: Returns a list of objects, one for each subscription associated with this app ID.
 \item \code{get_subscription(id)}: Returns an object representing a subscription.
+\item \code{get_subscription_by_name(name)}: Returns the subscription with the given name (as opposed to a GUID).
 }
 }
 

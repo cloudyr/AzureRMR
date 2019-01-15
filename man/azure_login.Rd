@@ -12,7 +12,7 @@ create_azure_login(tenant, app, password = NULL, username = NULL,
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
-get_azure_login(tenant, ..., refresh = TRUE, choice = NULL)
+get_azure_login(tenant, refresh = TRUE, selection = NULL)
 
 delete_azure_login(tenant, confirm = TRUE)
 
@@ -39,7 +39,7 @@ list_azure_logins()
 
 \item{refresh}{For \code{get_azure_login}, whether to refresh the authentication token on loading the client.}
 
-\item{choice}{For \code{get_azure_login}, if you have multiple AAD tokens for a given tenant, which one to use. Note that this displays the MD5 hashes of the the token objects, so may be cryptic.}
+\item{selection}{For \code{get_azure_login}, if you have multiple AAD tokens for a given tenant, which one to use. Note that the selection menu displays the MD5 hashes of the the token objects, so may be cryptic.}
 
 \item{confirm}{For \code{delete_azure_login}, whether to ask for confirmation before deleting.}
 }
@@ -47,11 +47,9 @@ list_azure_logins()
 Login to Azure Resource Manager
 }
 \details{
-\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions.
+\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. It is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
 
-\code{create_azure_login} is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
-
-\code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if no tenant is found, it can call \code{create_azure_login} with any other arguments that it is supplied with. If multiple logins are found for a given tenant, it will prompt for you to choose one.
+\code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 
 One difference between \code{create_azure_login} and \code{get_azure_login} is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 }

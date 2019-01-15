@@ -9,6 +9,7 @@
 #' - `new(tenant, app, ...)`: Initialize a new ARM connection with the given credentials. See 'Authentication` for more details.
 #' - `list_subscriptions()`: Returns a list of objects, one for each subscription associated with this app ID.
 #' - `get_subscription(id)`: Returns an object representing a subscription.
+#' - `get_subscription_by_name(name)`: Returns the subscription with the given name (as opposed to a GUID).
 #'
 #' @section Authentication:
 #' The recommended way to authenticate with ARM is via the [get_azure_login] function, which creates a new instance of this class.
@@ -97,9 +98,11 @@ public=list(
     get_subscription_by_name=function(name)
     {
         subs <- self$list_subscriptions()
-        found <- sapply(subs, function(x) x$name == name)
-        if(!any(found))
+        found <- which(sapply(subs, function(x) x$name) == name)
+        if(is_empty(found))
             stop("Subscription '", name, "' not found", call.=FALSE)
+        if(length(found) > 1)
+            stop("More than 1 subscription with the name '", name, "'", call.=FALSE) # sanity check
         subs[[found]]
     },
 

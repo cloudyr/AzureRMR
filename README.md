@@ -30,7 +30,7 @@ If you want to allow access at something other than subscription level, you can 
 
 ## Authentication
 
-Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call create_azure_login() and supply your tenant, app ID and password. The resulting Resource Manager client object is saved on your machine, and can be retrieved in subsequent R sessions with get_azure_login("{tenant}"). AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()` and supply your tenant, app ID and password. The resulting Resource Manager client object is saved on your machine, and can be retrieved in subsequent R sessions with `get_azure_login("{tenant}")`. AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
 
 
 ## Sample workflow
@@ -41,7 +41,7 @@ library(AzureRMR)
 # authenticate with Azure AD:
 # - on first login to this client, call create_azure_login(...)
 # - on subsequent logins, call get_azure_login("myaadtenant")
-az <- create_azure_login("myaadtenant.onmicrosoft.com", app="app_id", password="password")
+az <- create_azure_login("myaadtenant", app="app_id", password="password")
 
 # get a subscription and resource group
 sub <- az$get_subscription("{subscription_id}")

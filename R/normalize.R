@@ -50,11 +50,7 @@ normalize_tenant <- function(tenant)
     # check if supplied a guid; if not, check if a fqdn;
     # if not, check if 'common'; if not, append '.onmicrosoft.com'
     if(is_guid(tenant))
-    {
-        tenant <- sub("^[({]?([-0-9a-f]+)[})]$", "\\1", tenant)
-        tenant <- gsub("-", "", tenant)
         return(normalize_guid(tenant))
-    }
 
     if(!grepl("\\.", tenant) && tenant != "common")
         tenant <- paste(tenant, "onmicrosoft.com", sep=".")
