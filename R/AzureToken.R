@@ -139,8 +139,8 @@ public=list(
 
     print=function()
     {
-        super$print()
-        cat("Resource:", self$params$user_params$resource, "\n")
+        cat(format_auth_header(self))
+        invisible(self)
     }
 ),
 

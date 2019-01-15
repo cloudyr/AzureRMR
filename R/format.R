@@ -13,17 +13,29 @@
 #' @export
 format_auth_header <- function(token)
 {
+    stopifnot(is_azure_token(token))
     expiry <- as.POSIXct(as.numeric(token$credentials$expires_on), origin="1970-01-01")
     obtained <- expiry - as.numeric(token$credentials$expires_in)
-    host <- token$credentials$resource
+    resource <- token$credentials$resource
     tenant <- sub("/.+$", "", httr::parse_url(token$endpoint$access)$path)
+    app <- token$app$key
 
-    paste0("  Authentication details:\n",
-           "    host: ", host, "\n",
-           "    tenant: ", tenant, "\n",
-           "    token obtained: ", format(obtained, usetz=TRUE), "\n",
-           "    token valid to: ", format(expiry, usetz=TRUE), "\n",
-           "---\n")
+    auth_type <- if(token$params$client_credentials)
+        "client_credentials"
+    else if(token$params$use_device)
+        "device_code"
+    else if(!is.null(token$params$user_params$username))
+        "authorization_code"
+    else "resource_owner"
+
+    hash <- token$hash()
+
+    paste0("Azure Active Directory token for resource ", resource, "\n",
+           "  Tenant: ", tenant, "\n",
+           "  App ID: ", app, "\n",
+           "  Authentication method: ", auth_type, "\n",
+           "  Token valid from: ", format(obtained, usetz=TRUE), "  to: ", format(expiry, usetz=TRUE), "\n",
+           "  MD5 hash of inputs: ", hash, "\n")
 }
 
 

@@ -123,7 +123,10 @@ public=list(
     print=function(...)
     {
         cat("<Azure Resource Manager client>\n")
-        cat(format_auth_header(self$token))
+        cat("<Authentication>\n")
+        fmt_token <- gsub("\n  ", "\n    ", format_auth_header(self$token))
+        cat(" ", fmt_token)
+        cat("---\n")
         cat(format_public_methods(self))
         invisible(NULL)
     }
