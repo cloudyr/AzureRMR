@@ -25,8 +25,8 @@ format_auth_header <- function(token)
     else if(token$params$use_device)
         "device_code"
     else if(!is.null(token$params$user_params$username))
-        "authorization_code"
-    else "resource_owner"
+        "resource_owner"
+    else "authorization_code"
 
     hash <- token$hash()
 
