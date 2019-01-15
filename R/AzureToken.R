@@ -135,6 +135,12 @@ public=list(
 
         self$cache()
         self
+    },
+
+    print=function()
+    {
+        super$print()
+        cat("Resource:", self$params$user_params$resource, "\n")
     }
 ),
 
@@ -245,6 +251,8 @@ private=list(
 #' To list all cached tokens on disk, use `list_azure_tokens`. This returns a list of token objects, named according to their MD5 hashes.
 #'
 #' To delete a cached token, use `delete_azure_token`. This takes the same inputs as `get_azure_token`, or you can specify the MD5 hash directly in the `hash` argument.
+#'
+#' To delete _all_ cached tokens, use `clean_token_directory`.
 #'
 #' @section Value:
 #' For `get_azure_token`, an object of class `AzureToken` representing the AAD token. For `list_azure_tokens`, a list of such objects retrieved from disk.
@@ -412,12 +420,27 @@ delete_azure_token <- function(resource_host, tenant, app, password=NULL, userna
 
     if(confirm && interactive())
     {
-        yn <- readline(
-            paste0("Do you really want to delete this Azure Active Directory token? (y/N) "))
+        yn <- readline(paste0("Do you really want to delete this Azure Active Directory token? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
     file.remove(file.path(AzureRMR_dir(), hash))
+    invisible(NULL)
+}
+
+
+#' @rdname get_azure_token
+#' @export
+clean_token_directory <- function(confirm=TRUE)
+{
+    if(confirm && interactive())
+    {
+        yn <- readline(paste0("Do you really want to delete ALL saved Azure Active Directory tokens? (y/N) "))
+        if(tolower(substr(yn, 1, 1)) != "y")
+            return(invisible(NULL))
+    }
+    toks <- dir(AzureRMR_dir(), pattern="^[0-9a-f]{32}$", full.names=TRUE)
+    file.remove(toks)
     invisible(NULL)
 }
 

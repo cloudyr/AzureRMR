@@ -3,6 +3,7 @@
 \name{get_azure_token}
 \alias{get_azure_token}
 \alias{delete_azure_token}
+\alias{clean_token_directory}
 \alias{list_azure_tokens}
 \title{Manage Azure Active Directory OAuth 2.0 tokens}
 \usage{
@@ -14,6 +15,8 @@ delete_azure_token(resource_host, tenant, app, password = NULL,
   username = NULL, auth_type = NULL,
   aad_host = "https://login.microsoftonline.com/", hash = NULL,
   confirm = TRUE)
+
+clean_token_directory(confirm = TRUE)
 
 list_azure_tokens()
 }
@@ -72,6 +75,8 @@ AzureRMR differs from httr in its handling of token caching in a number of ways.
 To list all cached tokens on disk, use \code{list_azure_tokens}. This returns a list of token objects, named according to their MD5 hashes.
 
 To delete a cached token, use \code{delete_azure_token}. This takes the same inputs as \code{get_azure_token}, or you can specify the MD5 hash directly in the \code{hash} argument.
+
+To delete \emph{all} cached tokens, use \code{clean_token_directory}.
 }
 
 \section{Value}{
