@@ -212,7 +212,7 @@ private=list(
 #'
 #' These functions extend the OAuth functionality in httr for use with Azure Active Directory (AAD).
 #'
-#' @param resource_host URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
+#' @param resource URL for your resource host. For Resource Manager in the public Azure cloud, this is `https://management.azure.com/`.
 #' @param tenant Your tenant. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
 #' @param app The client/app ID to use to authenticate with.
 #' @param password The password, either for the app, or your username if supplied. See 'Details' below.
@@ -271,33 +271,33 @@ private=list(
 #' # no user credentials are supplied, so this will use the authorization_code
 #' # method if httpuv is installed, and device_code if not
 #' arm_token <- get_azure_token(
-#'    resource_host="https://management.azure.com/",
+#'    resource="https://management.azure.com/",
 #'    tenant="myaadtenant.onmicrosoft.com",
 #'    app="app_id")
 #'
 #' # you can force a specific authentication method with the auth_type argument
 #' arm_token <- get_azure_token(
-#'    resource_host="https://management.azure.com/",
+#'    resource="https://management.azure.com/",
 #'    tenant="myaadtenant.onmicrosoft.com",
 #'    app="app_id",
 #'    auth_type="device_code")
 #'
 #' # to use the client_credentials method, supply the app secret as the password
 #' arm_token <- get_azure_token(
-#'    resource_host="https://management.azure.com/",
+#'    resource="https://management.azure.com/",
 #'    tenant="myaadtenant.onmicrosoft.com",
 #'    app="app_id",
 #'    password="app_secret")
 #'
 #' # authenticate with Azure storage
 #' storage_token <- get_azure_token(
-#'    resource_host="https://storage.azure.com/",
+#'    resource="https://storage.azure.com/",
 #'    tenant="myaadtenant.onmicrosoft.com",
 #'    app="app_id")
 #'
 #' # authenticate to your resource with the resource_owner method: provide your username and password
 #' owner_token <- get_azure_token(
-#'    resource_host="https://myresource/",
+#'    resource="https://myresource/",
 #'    tenant="myaadtenant",
 #'    app="app_id",
 #'    username="user",
@@ -308,7 +308,7 @@ private=list(
 #'
 #' # delete a saved token from disk
 #' delete_azure_token(
-#'    resource_host="https://myresource/",
+#'    resource="https://myresource/",
 #'    tenant="myaadtenant",
 #'    app="app_id",
 #'    username="user",
@@ -319,7 +319,7 @@ private=list(
 #'
 #' }
 #' @export
-get_azure_token <- function(resource_host, tenant, app, password=NULL, username=NULL, auth_type=NULL,
+get_azure_token <- function(resource, tenant, app, password=NULL, username=NULL, auth_type=NULL,
                             aad_host="https://login.microsoftonline.com/")
 {
     tenant <- normalize_tenant(tenant)
@@ -335,13 +335,13 @@ get_azure_token <- function(resource_host, tenant, app, password=NULL, username=
 
     switch(auth_type,
         client_credentials=
-            auth_with_client_creds(base_url, app, password, resource_host),
+            auth_with_client_creds(base_url, app, password, resource),
         device_code=
-            auth_with_device(base_url, app, resource_host),
+            auth_with_device(base_url, app, resource),
         authorization_code=
-            auth_with_code(base_url, app, resource_host),
+            auth_with_code(base_url, app, resource),
         resource_owner=
-            auth_with_username(base_url, app, password, username, resource_host),
+            auth_with_username(base_url, app, password, username, resource),
         stop("Invalid auth_type argument", call.=FALSE))
 }
 
@@ -410,13 +410,13 @@ select_auth_type <- function(password, username)
 #' @param confirm For `delete_azure_token`, whether to prompt for confirmation before deleting a token.
 #' @rdname get_azure_token
 #' @export
-delete_azure_token <- function(resource_host, tenant, app, password=NULL, username=NULL, auth_type=NULL,
+delete_azure_token <- function(resource, tenant, app, password=NULL, username=NULL, auth_type=NULL,
                                aad_host="https://login.microsoftonline.com/",
                                hash=NULL,
                                confirm=TRUE)
 {
     if(is.null(hash))
-        hash <- token_hash_from_original_args(resource_host, tenant, app, password, username, auth_type, aad_host)
+        hash <- token_hash_from_original_args(resource, tenant, app, password, username, auth_type, aad_host)
 
     if(confirm && interactive())
     {
@@ -469,7 +469,7 @@ token_hash <- function(endpoint, app, params)
 }
 
 
-token_hash_from_original_args <- function(resource_host, tenant, app, password=NULL, username=NULL, auth_type=NULL,
+token_hash_from_original_args <- function(resource, tenant, app, password=NULL, username=NULL, auth_type=NULL,
     aad_host="https://login.microsoftonline.com/")
 {
     # reconstruct the hash for the token object from the inputs
@@ -491,7 +491,7 @@ token_hash_from_original_args <- function(resource_host, tenant, app, password=N
         secret=if(client_credentials) password else NULL,
         redirect_uri=if(client_credentials) NULL else httr::oauth_callback())
 
-    user_params <- list(resource=resource_host)
+    user_params <- list(resource=resource)
     if(auth_type == "resource_owner")
         user_params <- c(user_params, password=NULL, username=NULL)
 

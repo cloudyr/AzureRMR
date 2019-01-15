@@ -80,13 +80,15 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
         if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
     }
 
-    hash <- token_hash_from_original_args(resource_host=host,
+    hash <- token_hash_from_original_args(
+        resource=host,
         tenant=tenant,
         app=app,
         password=password,
         username=username,
         auth_type=auth_type,
-        aad_host=aad_host)
+        aad_host=aad_host
+    )
     tokenfile <- file.path(AzureRMR_dir(), hash)
     if(file.exists(tokenfile))
     {

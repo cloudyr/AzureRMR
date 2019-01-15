@@ -7,11 +7,11 @@
 \alias{list_azure_tokens}
 \title{Manage Azure Active Directory OAuth 2.0 tokens}
 \usage{
-get_azure_token(resource_host, tenant, app, password = NULL,
+get_azure_token(resource, tenant, app, password = NULL,
   username = NULL, auth_type = NULL,
   aad_host = "https://login.microsoftonline.com/")
 
-delete_azure_token(resource_host, tenant, app, password = NULL,
+delete_azure_token(resource, tenant, app, password = NULL,
   username = NULL, auth_type = NULL,
   aad_host = "https://login.microsoftonline.com/", hash = NULL,
   confirm = TRUE)
@@ -21,7 +21,7 @@ clean_token_directory(confirm = TRUE)
 list_azure_tokens()
 }
 \arguments{
-\item{resource_host}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
+\item{resource}{URL for your resource host. For Resource Manager in the public Azure cloud, this is \code{https://management.azure.com/}.}
 
 \item{tenant}{Your tenant. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.}
 
@@ -91,33 +91,33 @@ For \code{get_azure_token}, an object of class \code{AzureToken} representing th
 # no user credentials are supplied, so this will use the authorization_code
 # method if httpuv is installed, and device_code if not
 arm_token <- get_azure_token(
-   resource_host="https://management.azure.com/",
+   resource="https://management.azure.com/",
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id")
 
 # you can force a specific authentication method with the auth_type argument
 arm_token <- get_azure_token(
-   resource_host="https://management.azure.com/",
+   resource="https://management.azure.com/",
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id",
    auth_type="device_code")
 
 # to use the client_credentials method, supply the app secret as the password
 arm_token <- get_azure_token(
-   resource_host="https://management.azure.com/",
+   resource="https://management.azure.com/",
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id",
    password="app_secret")
 
 # authenticate with Azure storage
 storage_token <- get_azure_token(
-   resource_host="https://storage.azure.com/",
+   resource="https://storage.azure.com/",
    tenant="myaadtenant.onmicrosoft.com",
    app="app_id")
 
 # authenticate to your resource with the resource_owner method: provide your username and password
 owner_token <- get_azure_token(
-   resource_host="https://myresource/",
+   resource="https://myresource/",
    tenant="myaadtenant",
    app="app_id",
    username="user",
@@ -128,7 +128,7 @@ list_azure_tokens()
 
 # delete a saved token from disk
 delete_azure_token(
-   resource_host="https://myresource/",
+   resource="https://myresource/",
    tenant="myaadtenant",
    app="app_id",
    username="user",
