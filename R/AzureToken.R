@@ -151,6 +151,10 @@ private=list(
     # after init_oauth2.0, oauth2.0_access_token
     init_with_device=function(user_params)
     {
+        # must be in an interactive session to use devicecode; should not affect cached tokens
+        if(!interactive())
+            stop("Must be in an interactive session to use device code authentication", call.=FALSE)
+
         creds <- httr::oauth2.0_access_token(self$endpoint, self$app, code=NULL, user_params=user_params,
             redirect_uri=NULL)
 

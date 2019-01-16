@@ -20,6 +20,8 @@ test_that("normalize_tenant, normalize_guid work",
     expect_identical(normalize_tenant("common"), "common")
     expect_identical(normalize_tenant("mytenant"), "mytenant.onmicrosoft.com")
     expect_identical(normalize_tenant("mytenant.com"), "mytenant.com")
+    # iterating normalize shouldn't change result
+    expect_identical(normalize_tenant(normalize_tenant("mytenant")), "mytenant.onmicrosoft.com")
 })
 
 
