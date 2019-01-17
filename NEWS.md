@@ -19,6 +19,7 @@
 * Add `wait` argument when creating a new resource, similar to deploying a template, since some resources will return before provisioning is complete. Defaults to `FALSE` for backward compatibility.
 * Export `is_azure_token`.
 * Allow `az_resource_group$deploy_template()` to work without `parameters` arg (parameters folded into template itself).
+* Fix a bug that kept `az_resource_group$delete_resource` from deleting the resource.
 
 # AzureRMR 1.0.0
 
