@@ -201,14 +201,14 @@ public=list(
         !inherits(res, "try-error")
     },
 
-    delete_resource=function(provider, path, type, name, id, api_version=NULL, ..., confirm=TRUE, wait=FALSE)
+    delete_resource=function(provider, path, type, name, id, api_version=NULL, confirm=TRUE, wait=FALSE)
     {
         # supply deployed_properties arg to prevent querying host for resource info
         az_resource$
             new(self$token, self$subscription, self$name,
                 provider=provider, path=path, type=type, name=name, id=id,
                 deployed_properties=list(NULL), api_version=api_version)$
-            delete(..., api_version=api_version, confirm=confirm, wait=wait)
+            delete(confirm=confirm, wait=wait)
     },
 
     create_resource=function(provider, path, type, name, id, location=self$location, ...)

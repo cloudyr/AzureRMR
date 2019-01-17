@@ -5,7 +5,7 @@
 #' @docType class
 #' @section Methods:
 #' - `new(...)`: Initialize a new resource object. See 'Initialization' for more details.
-#' - `delete(..., confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
+#' - `delete(confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 #' - `update(...)`: Update this resource on the host.
 #' - `sync_fields()`: Update the fields in this object with information from the host. Returns the `properties$provisioningState` field, so you can query this programmatically to check if a resource has finished provisioning. Not all resource types require explicit provisioning, in which case this method will return NULL.
 #' - `set_api_version(api_version)`: Set the API version to use when interacting with the host. By default, use the latest API version available.
@@ -177,7 +177,7 @@ public=list(
         self$properties$provisioningState
     },
 
-    delete=function(..., options=list(), confirm=TRUE, wait=FALSE)
+    delete=function(confirm=TRUE, wait=FALSE)
     {
         if(confirm && interactive())
         {
@@ -187,7 +187,7 @@ public=list(
         }
 
         message("Deleting resource '", construct_path(self$type, self$name), "'")
-        private$res_op(..., options=options, http_verb="DELETE")
+        private$res_op(http_verb="DELETE")
 
         if(wait)
         {
