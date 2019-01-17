@@ -2,7 +2,7 @@
 
 ## Significant interface changes
 
-* New `get_azure_login` function to handle ARM authentication. While directly calling `az_rm$new()` will still work, it's recommended to use `get_azure_login` going forward. Login credentials will be saved and reused for subsequent sessions (see below).
+* New `create_azure_login`, `get_azure_login` and `delete_azure_login` functions to handle ARM authentication. While directly calling `az_rm$new()` will still work, it's recommended to use `create_azure_login` and `get_azure_login` going forward. Login credentials will be saved and reused for subsequent sessions (see below).
 * `get_azure_token` significantly revamped. It now supports four authentication methods for obtaining AAD tokens:
   - Client credentials (what you would use with a "web app" registered service principal)
   - Authorization code (for a "native" service principal)
