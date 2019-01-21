@@ -177,6 +177,6 @@ public=list(
         cat("<Azure subscription ", self$id, ">\n", sep="")
         cat(format_public_fields(self, exclude="id"))
         cat(format_public_methods(self))
-        invisible(NULL)
+        invisible(self)
     }
 ))

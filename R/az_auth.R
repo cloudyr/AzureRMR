@@ -128,7 +128,7 @@ public=list(
         cat(" ", fmt_token)
         cat("---\n")
         cat(format_public_methods(self))
-        invisible(NULL)
+        invisible(self)
     }
 ))
 

@@ -166,7 +166,7 @@ public=list(
         cat("<Azure template ", self$name, ">\n", sep="")
         cat(format_public_fields(self, exclude=c("subscription", "resource_group", "name")))
         cat(format_public_methods(self))
-        invisible(NULL)
+        invisible(self)
     }
 ),
 
