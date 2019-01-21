@@ -22,19 +22,19 @@ test_that("Resource methods work",
     resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 
     expect_false(rg$resource_exists(type="foo/bar", name="randomname"))
-    expect_false(rg$resource_exists(type="restype", name=resname))
+    expect_false(rg$resource_exists(type=restype, name=resname))
 
-    res <- rg$create_resource(type="restype", name=resname,
+    res <- rg$create_resource(type=restype, name=resname,
         kind="Storage",
         sku=list(name="Standard_LRS", tier="Standard"))
 
-    expect_true(rg$resource_exists(type="restype", name=resname))
+    expect_true(rg$resource_exists(type=restype, name=resname))
     expect_is(res, "az_resource")
-    expect_true(res$type == "restype" && res$name == resname && !is_empty(res$properties))
+    expect_true(res$type == restype && res$name == resname && !is_empty(res$properties))
     
-    res1 <- rg$get_resource(type="restype", name=resname)
+    res1 <- rg$get_resource(type=restype, name=resname)
     expect_is(res1, "az_resource")
-    expect_true(res1$type == "restype" && res1$name == resname && !is_empty(res1$properties))
+    expect_true(res1$type == restype && res1$name == resname && !is_empty(res1$properties))
 
     reslst <- rg$list_resources()
     expect_true(is.list(reslst) && all(sapply(reslst, is_resource)))
@@ -48,12 +48,12 @@ test_that("Resource methods work",
     expect_true(!is.null(res$tags))
 
     # deletion
-    expect_null(rg$delete_resource(type="restype", name=resname, confirm=FALSE, wait=TRUE))
-    expect_false(rg$resource_exists(type="restype", name=resname))
+    expect_null(rg$delete_resource(type=restype, name=resname, confirm=FALSE, wait=TRUE))
+    expect_false(rg$resource_exists(type=restype, name=resname))
 
     # wait arg
     resname2 <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    res2 <- rg$create_resource(type="restype", name=resname2,
+    res2 <- rg$create_resource(type=restype, name=resname2,
         kind="Storage",
         sku=list(name="Standard_LRS", tier="Standard"),
         properties=list(isHnsEnabled=TRUE),
