@@ -48,7 +48,7 @@ list_azure_logins()
 Login to Azure Resource Manager
 }
 \details{
-\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only saved if you allowed AzureRMR to create a data directory at package startup.
+\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 
 \code{create_azure_login("tenant")} is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
 
@@ -81,7 +81,7 @@ Similarly, since the authorization_code method opens a browser to load the AAD a
 
 \section{Value}{
 
-For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. Fr \code{list_azure_logins}, a (possibly nested) list of such objects.
+For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. For \code{list_azure_logins}, a (possibly nested) list of such objects.
 
 If the AzureRMR data directory for saving credentials does not exist, \code{get_azure_login} will throw an error.
 }

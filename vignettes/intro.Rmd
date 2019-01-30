@@ -20,9 +20,43 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 - Create and delete resource groups (if you gave your service principal subscription-level access)
 
 
-## Before you begin
+## Authentication
 
-To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()` and supply your credentials. AzureRMR will prompt you for permission to create a special data directory in which to cache the obtained authentication token and Resource Manager login. Once this information is saved on your machine, it be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
+
+Unless you have a good reason otherwise, you should allow AzureRMR to create this caching directory. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself.
+
+```{r, eval=FALSE}
+library(AzureRMR)
+#> AzureRMR can cache Azure Active Directory tokens and Resource Manager logins in the directory:
+#>
+#> C:\Users\hongooi\AppData\Local\AzureR\AzureRMR
+#>
+#> This saves you having to reauthenticate with Azure in future sessions. Create this directory? (Y/n) y
+
+
+# if this is the first time you're logging in to this tenant
+az <- create_azure_login("myaadtenant")
+#> Creating Azure Resource Manager login for tenant 'myaadtenant.onmicrosoft.com'
+#> Waiting for authentication in browser...
+#> Press Esc/Ctrl + C to abort
+#> Authentication complete.
+
+
+# for subsequent sessions
+az <- get_azure_login("myaadtenant")
+#> Loading Azure Resource Manager login for tenant 'myaadtenant.onmicrosoft.com'
+
+
+# you can also list the tenants that you've previously authenticated with
+list_azure_logins()
+```
+
+### Service principal
+
+Authenticating with Azure Active Directory requires providing an app or service principal ID. If you don't provide one, AzureRMR will authenticate using the Azure CLI cross-platform app. This is usually sufficient for most purposes, however if possible it's recommended that you create your own service principal to authenticate with. For example, if security is a concern, this lets you restrict the scope of the resources that AzureRMR that manipulate.
+
+Creating a service principal is a one-time task, and the easiest method is to use the Azure cloud shell.
 
 - In the Azure Portal (https://portal.azure.com/), click on the Cloud Shell icon:
 
@@ -34,28 +68,15 @@ To use AzureRMR, you must create and register a service principal with Azure Act
 
 ![](images/cloudshell.png)
 
-- Record your tenant ID, app ID, and password.
+- Record your app ID and password.
 
 If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
 
-
-## Authentication
-
-Let's look at a sample workflow involving AzureRMR.
-
-Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()` and supply your tenant, app ID and password. The resulting Resource Manager client object is saved on your machine, and can be retrieved in subsequent R sessions with `get_azure_login("{tenant}")`. AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
+Once you have created your own service principal, you can supply the app ID and password as arguments to `create_azure_login`:
 
 ```{r, eval=FALSE}
-library(AzureRMR)
-
-# if this is the first time you're logging in to this tenant
-az <- create_azure_login("myaadtenant")
-
-# for subsequent sessions
-az <- get_azure_login("myaadtenant")
-
-# you can also list the tenants that you've previously authenticated with
-list_azure_logins()
+# authenticating with a custom service principal
+create_azure_login("myaadtenant", app="app_id", password="password")
 ```
 
 
@@ -66,29 +87,29 @@ AzureRMR allows you to work with your subscriptions and resource groups. Note th
 ```{r, eval=FALSE}
 # all subscriptions
 az$list_subscriptions()
-#$`5710aa44-281f-49fe-bfa6-69e66bb55b11`
-#<Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
-#  authorization_source: RoleBased
-#  name: Visual Studio Ultimate with MSDN
-#  policies: list(locationPlacementId, quotaId, spendingLimit)
-#  state: Enabled
-#---
-#  Methods:
-#    create_resource_group, delete_resource_group, get_provider_api_version, get_resource_group,
-#    list_locations, list_resource_groups, list_resources
-#
-#$`e26f4a80-370f-4a77-88df-5a8d291cd2f9`
-#<Azure subscription e26f4a80-370f-4a77-88df-5a8d291cd2f9>
-#  authorization_source: RoleBased
-#  name: ADLTrainingMS
-#  policies: list(locationPlacementId, quotaId, spendingLimit)
-#  state: Enabled
-#---
-#  Methods:
-#    create_resource_group, delete_resource_group, get_provider_api_version, get_resource_group,
-#    list_locations, list_resource_groups, list_resources
-#
-#...
+#> $`5710aa44-281f-49fe-bfa6-69e66bb55b11`
+#> <Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
+#>   authorization_source: RoleBased
+#>   name: Visual Studio Ultimate with MSDN
+#>   policies: list(locationPlacementId, quotaId, spendingLimit)
+#>   state: Enabled
+#> ---
+#>   Methods:
+#>     create_resource_group, delete_resource_group, get_provider_api_version, get_resource_group,
+#>     list_locations, list_resource_groups, list_resources
+#> 
+#> $`e26f4a80-370f-4a77-88df-5a8d291cd2f9`
+#> <Azure subscription e26f4a80-370f-4a77-88df-5a8d291cd2f9>
+#>   authorization_source: RoleBased
+#>   name: ADLTrainingMS
+#>   policies: list(locationPlacementId, quotaId, spendingLimit)
+#>   state: Enabled
+#> ---
+#>   Methods:
+#>     create_resource_group, delete_resource_group, get_provider_api_version, get_resource_group,
+#>     list_locations, list_resource_groups, list_resources
+#> 
+#> ...
 ```
 
 Notice that AzureRMR is based on R6 classes, where methods are part of the object itself (much like objects in C++, C# and Java). Thus `list_subscriptions` is a member of the `az` object, and we call it with `az$list_subscriptions()`. R6 is used because it allows objects to have persistent state; in this case, the objects in R represent corresponding objects in Azure.
@@ -98,29 +119,29 @@ The `list_subscriptions()` call returns a list of subscription objects. You can 
 ```{r, eval=FALSE}
 # get a subscription
 (sub1 <- az$get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11"))
-#<Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
-#  authorization_source: Legacy
-#  name: Visual Studio Ultimate with MSDN
-#  policies: list(locationPlacementId, quotaId, spendingLimit)
-#  state: Enabled
-#---
-#  Methods:
-#    create_resource_group, delete_resource_group, get_provider_api_version, get_resource_group,
-#    list_locations, list_resource_groups, list_resources
+#> <Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
+#>   authorization_source: Legacy
+#>   name: Visual Studio Ultimate with MSDN
+#>   policies: list(locationPlacementId, quotaId, spendingLimit)
+#>   state: Enabled
+#> ---
+#>   Methods:
+#>     create_resource_group, delete_resource_group, get_provider_api_version, get_resource_group,
+#>     list_locations, list_resource_groups, list_resources
 ```
 
 A subscription object in turn has methods to get, create and delete resource groups (and also list all resource groups):
 
 ```{r, eval=FALSE}
 (rg <- sub1$get_resource_group("rdev1"))
-#<Azure resource group rdev1>
-#  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1
-#  location: australiaeast
-#  properties: list(provisioningState)
-#---
-#  Methods:
-#    check, create_resource, delete, delete_resource, delete_template, deploy_template, get_resource,
-#    get_template, list_resources, list_templates
+#> <Azure resource group rdev1>
+#>   id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1
+#>   location: australiaeast
+#>   properties: list(provisioningState)
+#> ---
+#>   Methods:
+#>     check, create_resource, delete, delete_resource, delete_template, deploy_template, get_resource,
+#>     get_template, list_resources, list_templates
 
 # create and delete a resource group
 test <- sub1$create_resource_group("test_group")
@@ -133,18 +154,18 @@ Methods for working with resources and templates are exposed as part of the `az_
 
 ```{r, eval=FALSE}
 (stor <- rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1"))
-#<Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
-#  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft.Sto ...
-#  is_synced: TRUE
-#  kind: Storage
-#  location: australiasoutheast
-#  properties: list(networkAcls, trustedDirectories, supportsHttpsTrafficOnly, encryption,
-#    provisioningState, creationTime, primaryEndpoints, primaryLocation, statusOfPrimary)
-#  sku: list(name, tier)
-#  tags: list()
-#---
-#  Methods:
-#    check, delete, do_operation, set_api_version, sync_fields, update
+#> <Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
+#>   id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft.Sto ...
+#>   is_synced: TRUE
+#>   kind: Storage
+#>   location: australiasoutheast
+#>   properties: list(networkAcls, trustedDirectories, supportsHttpsTrafficOnly, encryption,
+#>     provisioningState, creationTime, primaryEndpoints, primaryLocation, statusOfPrimary)
+#>   sku: list(name, tier)
+#>   tags: list()
+#> ---
+#>   Methods:
+#>     check, delete, do_operation, set_api_version, sync_fields, update
 ```
 
 One benefit of the syntax that AzureRMR uses is that _method chaining_ works. This is the OOP version of pipelines, which most R users will recognise from the tidyverse.
@@ -162,17 +183,17 @@ Once we have a resource, we can do _things_ with it, via the `do_operation()` me
 
 ```{r, eval=FALSE}
 stor$do_operation("listKeys", http_verb="POST")
-# $`keys`
-# $`keys`[[1]]
-# $`keys`[[1]]$`keyName`
-# [1] "key1"
-# 
-# $`keys`[[1]]$value
-# [1] "k0gGFi8LirKcDNe73fzwDzhZ2+4oRKzvz+6+Pfn2ZCKO/JLnpyBSpVO7btLxBXQj+j8MZatDTGZ2NXUItye/vA=="
-# 
-# $`keys`[[1]]$permissions
-# [1] "FULL"
-#...
+#>  $`keys`
+#>  $`keys`[[1]]
+#>  $`keys`[[1]]$`keyName`
+#>  [1] "key1"
+#>  
+#>  $`keys`[[1]]$value
+#>  [1] "k0gGFi8LirKcDNe73fzwDzhZ2+4oRKzvz+6+Pfn2ZCKO/JLnpyBSpVO7btLxBXQj+j8MZatDTGZ2NXUItye/vA=="
+#>  
+#>  $`keys`[[1]]$permissions
+#>  [1] "FULL"
+#> ...
 ```
 
 Here is another example. If we have a virtual machine, we can start it, execute shell commands, and then shut it down again:

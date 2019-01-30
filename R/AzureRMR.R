@@ -37,15 +37,17 @@ make_AzureRMR_dir <- function()
 #' Data directory for AzureRMR
 #'
 #' @details
-#' AzureRMR can store authentication credentials and OAuth tokens in a user-specific directory, using the rappdirs package. On recent Windows versions, this will usually be in the location `C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR`. On Linux, it will be in `~/.local/share/AzureRMR`, and on MacOS, it will be in `~/Library/Application Support/AzureRMR`. The working directory is not touched (which significantly lessens the risk of accidentally introducing cached tokens into source control).
+#' AzureRMR can store authentication credentials and OAuth tokens in a user-specific directory, using the rappdirs package. On recent Windows versions, this will usually be in the location `C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR`. On Unix/Linux, it will be in `~/.local/share/AzureRMR`, and on MacOS, it will be in `~/Library/Application Support/AzureRMR`. The working directory is not touched (which significantly lessens the risk of accidentally introducing cached tokens into source control).
 #'
-#' On package startup, if this directory does not exist, AzureRMR will prompt you for permission to create it.
+#' On package startup, if this directory does not exist, AzureRMR will prompt you for permission to create it. It's recommended that you allow the directory to be created, as otherwise you will have to reauthenticate with Azure every time. Note that many cloud engineering tools, including the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest), save authentication credentials in this way.
 #'
 #' @return
 #' A string containing the data directory.
 #'
 #' @seealso
 #' [get_azure_token], [get_azure_login]
+#'
+#' [rappdirs::user_data_dir]
 #'
 #' @export
 AzureRMR_dir <- function()

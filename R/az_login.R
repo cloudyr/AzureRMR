@@ -14,7 +14,7 @@
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
 #' @details
-#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only saved if you allowed AzureRMR to create a data directory at package startup.
+#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 #'
 #' `create_azure_login("tenant")` is roughly equivalent to the Azure CLI command `az login` without any arguments. 
 #'
@@ -45,7 +45,7 @@
 #' Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may run into difficulties; use one of the other methods instead.
 #'
 #' @section Value:
-#' For `get_azure_login` and `create_azure_login`, an object of class `az_rm`, representing the ARM login client. Fr `list_azure_logins`, a (possibly nested) list of such objects.
+#' For `get_azure_login` and `create_azure_login`, an object of class `az_rm`, representing the ARM login client. For `list_azure_logins`, a (possibly nested) list of such objects.
 #'
 #' If the AzureRMR data directory for saving credentials does not exist, `get_azure_login` will throw an error.
 #'

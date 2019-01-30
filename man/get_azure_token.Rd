@@ -44,6 +44,8 @@ These functions extend the OAuth functionality in httr for use with Azure Active
 }
 \details{
 \code{get_azure_token} does much the same thing as \code{\link[httr:oauth2.0_token]{httr::oauth2.0_token()}}, but customised for Azure. It obtains an OAuth token, first by checking if a cached value exists on disk, and if not, acquiring it from the AAD server. \code{delete_azure_token} deletes a cached token, and \code{list_azure_tokens} lists currently cached tokens.
+
+Note that tokens are only cached if you allowed AzureRMR to create a data directory at package startup.
 }
 \section{Authentication methods}{
 
