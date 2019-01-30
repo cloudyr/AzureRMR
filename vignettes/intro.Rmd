@@ -49,7 +49,7 @@ Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI
 library(AzureRMR)
 
 # if this is the first time you're logging in to this tenant
-az <- create_azure_login("myaadtenant.onmicrosoft.com", app="app_id", password="password")
+az <- create_azure_login("myaadtenant")
 
 # for subsequent sessions
 az <- get_azure_login("myaadtenant")

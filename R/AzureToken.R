@@ -58,7 +58,9 @@ public=list(
             private$init_with_device(user_params)
         else private$init_with_username(user_params)
 
-        saveRDS(self, tokenfile)
+        if(dir.exists(AzureRMR_dir()))
+            saveRDS(self, tokenfile)
+
         self
     },
 
@@ -71,8 +73,11 @@ public=list(
     # overrides httr::Token method
     cache=function()
     {
-        filename <- file.path(AzureRMR_dir(), self$hash())
-        saveRDS(self, filename)
+        if(dir.exists(AzureRMR_dir()))
+        {
+            filename <- file.path(AzureRMR_dir(), self$hash())
+            saveRDS(self, filename)
+        }
         invisible(NULL)
     },
 
@@ -419,6 +424,9 @@ delete_azure_token <- function(resource, tenant, app, password=NULL, username=NU
                                hash=NULL,
                                confirm=TRUE)
 {
+    if(!dir.exists(AzureRMR_dir()))
+        return(invisible(NULL))
+
     if(is.null(hash))
         hash <- token_hash_from_original_args(resource, tenant, app, password, username, auth_type, aad_host)
 
@@ -437,6 +445,9 @@ delete_azure_token <- function(resource, tenant, app, password=NULL, username=NU
 #' @export
 clean_token_directory <- function(confirm=TRUE)
 {
+    if(!dir.exists(AzureRMR_dir()))
+        return(invisible(NULL))
+
     if(confirm && interactive())
     {
         yn <- readline(paste0("Do you really want to delete ALL saved Azure Active Directory tokens? (y/N) "))

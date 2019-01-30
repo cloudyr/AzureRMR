@@ -16,7 +16,7 @@
 #'
 #' To authenticate with the `az_rm` class directly, provide the following arguments to the `new` method:
 #' - `tenant`: Your tenant ID. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
-#' - `app`: The client/app ID to use to authenticate with Azure Active Directory.
+#' - `app`: The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.
 #' - `password`: if `auth_type == "client_credentials"`, the app secret; if `auth_type == "resource_owner"`, your account password.
 #' - `username`: if `auth_type == "resource_owner"`, your username.
 #' - `auth_type`: The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See [get_azure_token] for how the default method is chosen, along with some caveats.
@@ -59,7 +59,7 @@ public=list(
     token=NULL,
 
     # authenticate and get subscriptions
-    initialize=function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
+    initialize=function(tenant, app=.az_cli_app_id, password=NULL, username=NULL, auth_type=NULL,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                         config_file=NULL, token=NULL)
     {

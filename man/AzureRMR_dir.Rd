@@ -13,7 +13,9 @@ A string containing the data directory.
 Data directory for AzureRMR
 }
 \details{
-AzureRMR stores authentication credentials and OAuth tokens in a user-specific directory, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.local/share/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. The working directory is not touched (which significantly lessens the risk of accidentally introducing cached tokens into source control).
+AzureRMR can store authentication credentials and OAuth tokens in a user-specific directory, using the rappdirs package. On recent Windows versions, this will usually be in the location \code{C:\\Users\\(username)\\AppData\\Local\\AzureR\\AzureRMR}. On Linux, it will be in \code{~/.local/share/AzureRMR}, and on MacOS, it will be in \code{~/Library/Application Support/AzureRMR}. The working directory is not touched (which significantly lessens the risk of accidentally introducing cached tokens into source control).
+
+On package startup, if this directory does not exist, AzureRMR will prompt you for permission to create it.
 }
 \seealso{
 \link{get_azure_token}, \link{get_azure_login}

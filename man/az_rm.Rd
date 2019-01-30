@@ -28,7 +28,7 @@ The recommended way to authenticate with ARM is via the \link{get_azure_login} f
 To authenticate with the \code{az_rm} class directly, provide the following arguments to the \code{new} method:
 \itemize{
 \item \code{tenant}: Your tenant ID. This can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
-\item \code{app}: The client/app ID to use to authenticate with Azure Active Directory.
+\item \code{app}: The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.
 \item \code{password}: if \code{auth_type == "client_credentials"}, the app secret; if \code{auth_type == "resource_owner"}, your account password.
 \item \code{username}: if \code{auth_type == "resource_owner"}, your username.
 \item \code{auth_type}: The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See \link{get_azure_token} for how the default method is chosen, along with some caveats.

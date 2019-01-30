@@ -7,8 +7,9 @@
 \alias{list_azure_logins}
 \title{Login to Azure Resource Manager}
 \usage{
-create_azure_login(tenant, app, password = NULL, username = NULL,
-  auth_type = NULL, host = "https://management.azure.com/",
+create_azure_login(tenant, app = .az_cli_app_id, password = NULL,
+  username = NULL, auth_type = NULL,
+  host = "https://management.azure.com/",
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
@@ -21,7 +22,7 @@ list_azure_logins()
 \arguments{
 \item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.}
 
-\item{app}{The client/app ID to use to authenticate with Azure Active Directory.}
+\item{app}{The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.}
 
 \item{password}{If \code{auth_type == "client_credentials"}, the app secret; if \code{auth_type == "resource_owner"}, your account password.}
 
@@ -47,7 +48,9 @@ list_azure_logins()
 Login to Azure Resource Manager
 }
 \details{
-\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. It is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
+\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only saved if you allowed AzureRMR to create a data directory at package startup.
+
+\code{create_azure_login("tenant")} is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
 
 \code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 
@@ -57,10 +60,10 @@ One difference between \code{create_azure_login} and \code{get_azure_login} is t
 
 The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
 \enumerate{
-\item Using the authorization_code method is a 3-step process. First, \code{get_azure_login} contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which \code{get_azure_login} opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
-\item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, \code{get_azure_login} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, \code{get_azure_login} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
-\item The client_credentials method is much simpler than the above methods, requiring only one step. \code{get_azure_login} contacts the access endpoint, passing it the app secret (which you supplied in the \code{password} argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
-\item The resource_owner method also requires only one step. In this method, \code{get_azure_login} passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
+\item Using the authorization_code method is a 3-step process. First, \code{create_azure_login} contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which \code{create_azure_login} opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
+\item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, \code{create_azure_login} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, \code{create_azure_login} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
+\item The client_credentials method is much simpler than the above methods, requiring only one step. \code{create_azure_login} contacts the access endpoint, passing it the app secret (which you supplied in the \code{password} argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
+\item The resource_owner method also requires only one step. In this method, \code{create_azure_login} passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
 }
 
 If the authentication method is not specified, it is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
@@ -79,6 +82,8 @@ Similarly, since the authorization_code method opens a browser to load the AAD a
 \section{Value}{
 
 For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. Fr \code{list_azure_logins}, a (possibly nested) list of such objects.
+
+If the AzureRMR data directory for saving credentials does not exist, \code{get_azure_login} will throw an error.
 }
 
 \examples{
@@ -98,5 +103,12 @@ az <- get_azure_login("myaadtenant")
 }
 }
 \seealso{
-\link{az_rm}, \link{get_azure_token}, \href{https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest}{Azure CLI documentation}
+\link{az_rm}, \link{get_azure_token},
+
+\href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
+\href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
+
+\href{https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios}{Authentication in Azure Active Directory}
+
+\href{https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest}{Azure CLI documentation}
 }

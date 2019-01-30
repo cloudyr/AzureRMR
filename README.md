@@ -9,28 +9,11 @@ AzureRMR is a package for interacting with Azure Active Directory and Azure Reso
 You can install the development version from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
 
 
-## Before you begin
-
-To use AzureRMR, you must create and register a service principal with Azure Active Directory. This is a one-time task, and the easiest method is to use the Azure cloud shell.
-
-- In the Azure Portal (https://portal.azure.com/), click on the Cloud Shell icon:
-
-![](vignettes/images/cloudportal2.png)
-
-- If you haven't used the shell before, there will be a dialog box to choose whether to use bash or PowerShell. Choose bash.
-- In the shell, type `az ad sp create-for-rbac --name {app-name} --subscription "{your-subscription-name}" --years {N}`, substituting the desired name of your service principal (try to make it memorable to you, and unlikely to clash with other names), your subscription name, and the number of years you want the password to be valid.
-- Wait until the app creation is complete. You should see a screen like this.
-
-![](vignettes/images/cloudshell.png)
-
-- Record your tenant ID, app ID, and password.
-
-If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
-
-
 ## Authentication
 
 Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()` and supply your tenant, app ID and password. The resulting Resource Manager client object is saved on your machine, and can be retrieved in subsequent R sessions with `get_azure_login("{tenant}")`. AzureRMR will automatically refresh your credentials so you don't have to re-authenticate.
+
+By default, AzureRMR will authenticate using the Azure CLI cross-platform app. However, if possible, it's a good idea to you create your own service principal to authenticate with. See the "Introduction to AzureRMR" vignette for more details.
 
 
 ## Sample workflow
@@ -39,9 +22,9 @@ Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI
 library(AzureRMR)
 
 # authenticate with Azure AD:
-# - on first login to this client, call create_azure_login(...)
-# - on subsequent logins, call get_azure_login("myaadtenant")
-az <- create_azure_login("myaadtenant", app="app_id", password="password")
+# - on first login to this client, call create_azure_login()
+# - on subsequent logins, call get_azure_login()
+az <- create_azure_login("myaadtenant")
 
 # get a subscription and resource group
 sub <- az$get_subscription("{subscription_id}")

@@ -1,7 +1,7 @@
 #' Login to Azure Resource Manager
 #'
 #' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
-#' @param app The client/app ID to use to authenticate with Azure Active Directory.
+#' @param app The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.
 #' @param password If `auth_type == "client_credentials"`, the app secret; if `auth_type == "resource_owner"`, your account password.
 #' @param username If `auth_type == "resource_owner"`, your username.
 #' @param auth_type The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See [get_azure_token] for how the default method is chosen.
@@ -14,7 +14,9 @@
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
 #' @details
-#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. It is roughly equivalent to the Azure CLI command `az login` without any arguments.
+#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only saved if you allowed AzureRMR to create a data directory at package startup.
+#'
+#' `create_azure_login("tenant")` is roughly equivalent to the Azure CLI command `az login` without any arguments. 
 #'
 #' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 #'
@@ -23,13 +25,13 @@
 #' @section Authentication methods:
 #' The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the [httr::Token2.0] token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
 #'
-#' 1. Using the authorization_code method is a 3-step process. First, `get_azure_login` contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which `get_azure_login` opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
+#' 1. Using the authorization_code method is a 3-step process. First, `create_azure_login` contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which `create_azure_login` opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
 #'
-#' 2. The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, `get_azure_login` contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, `get_azure_login` polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
+#' 2. The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, `create_azure_login` contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, `create_azure_login` polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
 #'
-#' 3. The client_credentials method is much simpler than the above methods, requiring only one step. `get_azure_login` contacts the access endpoint, passing it the app secret (which you supplied in the `password` argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
+#' 3. The client_credentials method is much simpler than the above methods, requiring only one step. `create_azure_login` contacts the access endpoint, passing it the app secret (which you supplied in the `password` argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
 #'
-#' 4. The resource_owner method also requires only one step. In this method, `get_azure_login` passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
+#' 4. The resource_owner method also requires only one step. In this method, `create_azure_login` passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
 #'
 #' If the authentication method is not specified, it is chosen based on the presence or absence of the `password` and `username` arguments:
 #'
@@ -45,8 +47,17 @@
 #' @section Value:
 #' For `get_azure_login` and `create_azure_login`, an object of class `az_rm`, representing the ARM login client. Fr `list_azure_logins`, a (possibly nested) list of such objects.
 #'
+#' If the AzureRMR data directory for saving credentials does not exist, `get_azure_login` will throw an error.
+#'
 #' @seealso
-#' [az_rm], [get_azure_token], [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
+#' [az_rm], [get_azure_token],
+#'
+#' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
+#' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
+#'
+#' [Authentication in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios)
+#'
+#' [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
 #' 
 #' @examples
 #' \dontrun{
@@ -65,7 +76,7 @@
 #' }
 #' @rdname azure_login
 #' @export
-create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_type=NULL,
+create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, username=NULL, auth_type=NULL,
                                host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                                config_file=NULL, ...)
 {
@@ -115,13 +126,16 @@ create_azure_login <- function(tenant, app, password=NULL, username=NULL, auth_t
 #' @export
 get_azure_login <- function(tenant, refresh=TRUE, selection=NULL)
 {
+    if(!dir.exists(AzureRMR_dir()))
+        stop("AzureRMR data directory does not exist; cannot load saved logins")
+
     tenant <- normalize_tenant(tenant)
 
     arm_logins <- load_arm_logins()
     this_login <- arm_logins[[tenant]]
     if(is_empty(this_login))
-        stop("No Azure Resource Manager login found for tenant '",
-             tenant, "';\nuse create_azure_login() to create one", call.=FALSE)
+        stop("No Azure Resource Manager login found for tenant '", tenant,
+             "';\nuse create_azure_login() to create one", call.=FALSE)
 
     selection <- if(is.null(selection) && length(this_login) > 1)
         utils::menu(this_login)
@@ -148,6 +162,12 @@ get_azure_login <- function(tenant, refresh=TRUE, selection=NULL)
 #' @export
 delete_azure_login <- function(tenant, confirm=TRUE)
 {
+    if(!dir.exists(AzureRMR_dir()))
+    {
+        warning("AzureRMR data directory does not exist; no logins to delete")
+        return(invisible(NULL))
+    }
+
     tenant <- normalize_tenant(tenant)
 
     if(confirm && interactive())
@@ -195,6 +215,12 @@ load_arm_logins <- function()
 
 save_arm_logins <- function(logins)
 {
+    if(!dir.exists(AzureRMR_dir()))
+    {
+        message("AzureRMR data directory does not exist; login credentials not saved")
+        return(invisible(NULL))
+    }
+
     if(is_empty(logins))
         names(logins) <- character(0)
 
