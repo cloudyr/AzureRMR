@@ -9,7 +9,7 @@
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
-#' @param selection For `get_azure_login`, if you have multiple AAD tokens for a given tenant, which one to use. Note that the selection menu displays the MD5 hashes of the the token objects, so may be cryptic.
+#' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'
@@ -124,7 +124,7 @@ create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, userna
 
 #' @rdname azure_login
 #' @export
-get_azure_login <- function(tenant, refresh=TRUE, selection=NULL)
+get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
 {
     if(!dir.exists(AzureRMR_dir()))
         stop("AzureRMR data directory does not exist; cannot load saved logins")
@@ -137,14 +137,40 @@ get_azure_login <- function(tenant, refresh=TRUE, selection=NULL)
         stop("No Azure Resource Manager login found for tenant '", tenant,
              "';\nuse create_azure_login() to create one", call.=FALSE)
 
-    selection <- if(is.null(selection) && length(this_login) > 1)
-        utils::menu(this_login)
-    else 1
+    if(length(this_login) == 1)
+        selection <- 1
+    else if(is.null(selection))
+    {
+        tokens <- lapply(this_login, function(f)
+            readRDS(file.path(AzureRMR_dir(), f)))
+
+        choices <- sapply(tokens, function(token)
+        {
+            app <- token$app$key
+
+            auth_type <- if(token$params$client_credentials)
+                "client_credentials"
+            else if(token$params$use_device)
+                "device_code"
+            else if(!is.null(token$params$user_params$username))
+                "resource_owner"
+            else "authorization_code"
+            paste0("App ID: ", app, "\n   Authentication method: ", auth_type)
+        })
+        selection <- utils::menu(choices,
+            title=paste0("Choose an Azure Resource Manager login for tenant '", tenant, "'"))
+    }
+
     if(selection == 0)
         return(NULL)
 
-    file <- file.path(AzureRMR_dir(), this_login[selection])
-    if(!file.exists(file))
+    file <- if(is.numeric(selection))
+        this_login[selection]
+    else if(is.character(selection))
+        this_login[which(this_login == selection)] # force an error if supplied hash doesn't match available logins
+
+    file <- file.path(AzureRMR_dir(), file)
+    if(is_empty(file) || !file.exists(file))
         stop("Azure Active Directory token not found for this login", call.=FALSE)
 
     message("Loading Azure Resource Manager login for tenant '", tenant, "'")

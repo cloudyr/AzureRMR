@@ -13,7 +13,7 @@ create_azure_login(tenant, app = .az_cli_app_id, password = NULL,
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
-get_azure_login(tenant, refresh = TRUE, selection = NULL)
+get_azure_login(tenant, selection = NULL, refresh = TRUE)
 
 delete_azure_login(tenant, confirm = TRUE)
 
@@ -38,9 +38,9 @@ list_azure_logins()
 
 \item{...}{Other arguments passed to \code{az_rm$new()}.}
 
-\item{refresh}{For \code{get_azure_login}, whether to refresh the authentication token on loading the client.}
+\item{selection}{For \code{get_azure_login}, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, \code{get_azure_login} will print a menu and ask you to choose a login.}
 
-\item{selection}{For \code{get_azure_login}, if you have multiple AAD tokens for a given tenant, which one to use. Note that the selection menu displays the MD5 hashes of the the token objects, so may be cryptic.}
+\item{refresh}{For \code{get_azure_login}, whether to refresh the authentication token on loading the client.}
 
 \item{confirm}{For \code{delete_azure_login}, whether to ask for confirmation before deleting.}
 }
