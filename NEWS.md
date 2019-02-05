@@ -10,6 +10,7 @@
   - Device code
   - With a username and password (resource owner grant)
 * `get_azure_token` will now cache AAD tokens and refresh them for subsequent sessions. Tokens are cached in a user-specific configuration directory, using the rappdirs package (unlike httr, which saves them in a special file in the R working directory).
+* By default, use the latest _stable_ API version when interacting with resources. `az_resource$set_api_version` gains a new argument `stable_only` which defaults to `TRUE`; set this to `FALSE` if you want the latest preview version.
 * Token acquisition logic will shortly move to a new package, to allow it to be used by other packages independently of the Resource Manager interface.
 
 ## Other changes
@@ -21,6 +22,7 @@
 * Export `is_azure_token`.
 * Allow `az_resource_group$deploy_template()` to work without `parameters` arg (parameters folded into template itself).
 * Fix a bug that kept `az_resource_group$delete_resource` from deleting the resource.
+* New resource method `az_resource$get_api_version` to match `set_api_version`.
 
 # AzureRMR 1.0.0
 

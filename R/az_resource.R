@@ -8,7 +8,8 @@
 #' - `delete(confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 #' - `update(...)`: Update this resource on the host.
 #' - `sync_fields()`: Update the fields in this object with information from the host. Returns the `properties$provisioningState` field, so you can query this programmatically to check if a resource has finished provisioning. Not all resource types require explicit provisioning, in which case this method will return NULL.
-#' - `set_api_version(api_version)`: Set the API version to use when interacting with the host. By default, use the latest API version available.
+#' - `set_api_version(api_version, stable_only=TRUE)`: Set the API version to use when interacting with the host. If `api_version` is not supplied, use the latest version available, either the latest stable version (if `stable_only=TRUE`) or the latest preview version (if `stable_only=FALSE`).
+#' - `get_api_version()`: Get the current API version.
 #' - `do_operation(...)` Carry out an operation. See 'Operations' for more details.
 #'
 #' @section Initialization:
@@ -147,15 +148,20 @@ public=list(
         NULL
     },
 
-    # API versions vary across different providers; find the latest for this resource
-    set_api_version=function(api_version=NULL)
+    get_api_version=function()
+    {
+        private$api_version
+    },
+
+    set_api_version=function(api_version=NULL, stable_only=TRUE)
     {
         if(!is_empty(api_version))
         {
             private$api_version <- api_version
-            return()
+            return(invisible(api_version))
         }
 
+        # API versions vary across different providers; find the latest for this resource
         slash <- regexpr("/", self$type)
         provider <- substr(self$type, 1, slash - 1)
         path <- substr(self$type, slash + 1, nchar(self$type))
@@ -164,7 +170,13 @@ public=list(
         apis <- named_list(call_azure_rm(self$token, self$subscription, op)$resourceTypes, "resourceType")
 
         names(apis) <- tolower(names(apis))
-        private$api_version <- apis[[tolower(path)]]$apiVersions[[1]]
+        apis <- unlist(apis[[tolower(path)]]$apiVersions)
+        if(stable_only)
+            apis <- grep("preview", apis, value=TRUE, invert=TRUE)
+        if(is_empty(apis))
+            stop("No API versions found (try setting stable_only=FALSE)", call.=FALSE)
+
+        private$api_version <- apis[1]
         if(is_empty(private$api_version))
             stop("Unable to retrieve API version for resource '", self$type, "'.", call.=FALSE)
 

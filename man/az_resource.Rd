@@ -18,7 +18,8 @@ Class representing a generic Azure resource.
 \item \code{delete(confirm=TRUE, wait=FALSE)}: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 \item \code{update(...)}: Update this resource on the host.
 \item \code{sync_fields()}: Update the fields in this object with information from the host. Returns the \code{properties$provisioningState} field, so you can query this programmatically to check if a resource has finished provisioning. Not all resource types require explicit provisioning, in which case this method will return NULL.
-\item \code{set_api_version(api_version)}: Set the API version to use when interacting with the host. By default, use the latest API version available.
+\item \code{set_api_version(api_version, stable_only=TRUE)}: Set the API version to use when interacting with the host. If \code{api_version} is not supplied, use the latest version available, either the latest stable version (if \code{stable_only=TRUE}) or the latest preview version (if \code{stable_only=FALSE}).
+\item \code{get_api_version()}: Get the current API version.
 \item \code{do_operation(...)} Carry out an operation. See 'Operations' for more details.
 }
 }
