@@ -11,7 +11,7 @@
   - With a username and password (resource owner grant)
 * `get_azure_token` will now cache AAD tokens and refresh them for subsequent sessions. Tokens are cached in a user-specific configuration directory, using the rappdirs package (unlike httr, which saves them in a special file in the R working directory).
 * By default, use the latest _stable_ API version when interacting with resources. `az_resource$set_api_version` gains a new argument `stable_only` which defaults to `TRUE`; set this to `FALSE` if you want the latest preview version.
-* Token acquisition logic will shortly move to a new package, to allow it to be used by other packages independently of the Resource Manager interface.
+* Token acquisition logic moved to a new package, [AzureAuth](https://github.com/cloudyr/AzureAuth).
 
 ## Other changes
 
