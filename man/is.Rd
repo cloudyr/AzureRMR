@@ -6,7 +6,6 @@
 \alias{is_resource_group}
 \alias{is_resource}
 \alias{is_template}
-\alias{is_azure_token}
 \title{Informational functions}
 \usage{
 is_azure_login(object)
@@ -18,8 +17,6 @@ is_resource_group(object)
 is_resource(object)
 
 is_template(object)
-
-is_azure_token(object)
 }
 \arguments{
 \item{object}{An R object.}
