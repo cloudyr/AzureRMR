@@ -9,6 +9,7 @@
 \alias{is_azure_token}
 \alias{is_guid}
 \alias{list_azure_tokens}
+\alias{AzureR_dir}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -16,6 +17,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{AzureAuth}{\code{\link[AzureAuth]{clean_token_directory}}, \code{\link[AzureAuth]{delete_azure_token}}, \code{\link[AzureAuth]{get_azure_token}}, \code{\link[AzureAuth]{is_azure_token}}, \code{\link[AzureAuth]{is_guid}}, \code{\link[AzureAuth]{list_azure_tokens}}}
+  \item{AzureAuth}{\code{\link[AzureAuth]{clean_token_directory}}, \code{\link[AzureAuth]{delete_azure_token}}, \code{\link[AzureAuth]{get_azure_token}}, \code{\link[AzureAuth]{is_azure_token}}, \code{\link[AzureAuth]{is_guid}}, \code{\link[AzureAuth]{list_azure_tokens}}, \code{\link[AzureAuth]{AzureR_dir}}}
 }}
 

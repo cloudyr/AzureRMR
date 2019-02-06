@@ -15,3 +15,6 @@ AzureAuth::is_guid
 
 #' @export
 AzureAuth::list_azure_tokens
+
+#' @export
+AzureAuth::AzureR_dir

@@ -91,7 +91,7 @@ create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, userna
         if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
     }
 
-    hash <- token_hash_from_original_args(
+    hash <- token_hash(
         resource=host,
         tenant=tenant,
         app=app,
@@ -100,7 +100,7 @@ create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, userna
         auth_type=auth_type,
         aad_host=aad_host
     )
-    tokenfile <- file.path(AzureRMR_dir(), hash)
+    tokenfile <- file.path(AzureR_dir(), hash)
     if(file.exists(tokenfile))
     {
         message("Deleting existing Azure Active Directory token for this set of credentials")
@@ -126,7 +126,7 @@ create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, userna
 #' @export
 get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
 {
-    if(!dir.exists(AzureRMR_dir()))
+    if(!dir.exists(AzureR_dir()))
         stop("AzureRMR data directory does not exist; cannot load saved logins")
 
     tenant <- normalize_tenant(tenant)
@@ -142,7 +142,7 @@ get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
     else if(is.null(selection))
     {
         tokens <- lapply(this_login, function(f)
-            readRDS(file.path(AzureRMR_dir(), f)))
+            readRDS(file.path(AzureR_dir(), f)))
 
         choices <- sapply(tokens, function(token)
         {
@@ -169,7 +169,7 @@ get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
     else if(is.character(selection))
         this_login[which(this_login == selection)] # force an error if supplied hash doesn't match available logins
 
-    file <- file.path(AzureRMR_dir(), file)
+    file <- file.path(AzureR_dir(), file)
     if(is_empty(file) || !file.exists(file))
         stop("Azure Active Directory token not found for this login", call.=FALSE)
 
@@ -188,7 +188,7 @@ get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
 #' @export
 delete_azure_login <- function(tenant, confirm=TRUE)
 {
-    if(!dir.exists(AzureRMR_dir()))
+    if(!dir.exists(AzureR_dir()))
     {
         warning("AzureRMR data directory does not exist; no logins to delete")
         return(invisible(NULL))
@@ -221,7 +221,7 @@ list_azure_logins <- function()
     {
         sapply(tenant, function(hash)
         {
-            file <- file.path(AzureRMR_dir(), hash)
+            file <- file.path(AzureR_dir(), hash)
             az_rm$new(token=readRDS(file))
         }, simplify=FALSE)
     }, simplify=FALSE)
@@ -232,7 +232,7 @@ list_azure_logins <- function()
 
 load_arm_logins <- function()
 {
-    file <- file.path(AzureRMR_dir(), "arm_logins.json")
+    file <- file.path(AzureR_dir(), "arm_logins.json")
     if(!file.exists(file))
         return(structure(list(), names=character(0)))
     jsonlite::fromJSON(file)
@@ -241,7 +241,7 @@ load_arm_logins <- function()
 
 save_arm_logins <- function(logins)
 {
-    if(!dir.exists(AzureRMR_dir()))
+    if(!dir.exists(AzureR_dir()))
     {
         message("AzureRMR data directory does not exist; login credentials not saved")
         return(invisible(NULL))
@@ -250,7 +250,7 @@ save_arm_logins <- function(logins)
     if(is_empty(logins))
         names(logins) <- character(0)
 
-    file <- file.path(AzureRMR_dir(), "arm_logins.json")
+    file <- file.path(AzureR_dir(), "arm_logins.json")
     writeLines(jsonlite::toJSON(logins, auto_unbox=TRUE, pretty=TRUE), file)
     invisible(NULL)
 }

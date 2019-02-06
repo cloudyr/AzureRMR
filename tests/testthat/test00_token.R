@@ -43,7 +43,7 @@ if(!interactive())
 
 test_that("Authentication works",
 {
-    suppressWarnings(file.remove(dir(AzureRMR:::AzureRMR_dir(), full.names=TRUE)))
+    suppressWarnings(file.remove(dir(AzureR_dir(), full.names=TRUE)))
 
     res <- "https://management.azure.com/"
 
