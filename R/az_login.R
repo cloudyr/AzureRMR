@@ -50,7 +50,7 @@
 #' If the AzureRMR data directory for saving credentials does not exist, `get_azure_login` will throw an error.
 #'
 #' @seealso
-#' [az_rm], [get_azure_token],
+#' [az_rm], [AzureAuth::get_azure_token],
 #'
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
 #' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
