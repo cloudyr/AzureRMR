@@ -1,5 +1,7 @@
+#' @import AzureAuth
 #' @importFrom utils modifyList
 NULL
+
 
 .onLoad <- function(libname, pkgname)
 {
@@ -23,7 +25,7 @@ make_AzureRMR_dir <- function()
     if(!dir.exists(AzureRMR_dir) && interactive())
     {
         yn <- readline(paste0(
-                "AzureRMR can cache Azure Active Directory tokens and Resource Manager logins in the directory:\n\n",
+                "AzureRMR can cache Azure Resource Manager logins in the directory:\n\n",
                 AzureRMR_dir, "\n\n",
                 "This saves you having to re-authenticate with Azure in future sessions. Create this directory? (Y/n) "))
         if(tolower(substr(yn, 1, 1)) == "n")

@@ -45,10 +45,3 @@ is_template <- function(object)
     R6::is.R6(object) && inherits(object, "az_template")
 }
 
-
-#' @rdname is
-#' @export
-is_azure_token <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "AzureToken")
-}
