@@ -103,7 +103,7 @@ az <- get_azure_login("myaadtenant")
 }
 }
 \seealso{
-\link{az_rm}, \link{get_azure_token},
+\link{az_rm}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token},
 
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
