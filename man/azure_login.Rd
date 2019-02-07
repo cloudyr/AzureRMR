@@ -28,7 +28,7 @@ list_azure_logins()
 
 \item{username}{If \code{auth_type == "resource_owner"}, your username.}
 
-\item{auth_type}{The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See \link{get_azure_token} for how the default method is chosen.}
+\item{auth_type}{The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If \code{NULL}, this is chosen based on the presence of the \code{username} and \code{password} arguments.}
 
 \item{host}{Your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
 
@@ -56,29 +56,6 @@ Login to Azure Resource Manager
 
 One difference between \code{create_azure_login} and \code{get_azure_login} is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 }
-\section{Authentication methods}{
-
-The OAuth authentication type can be one of four possible values: "authorization_code", "client_credentials", "device_code", or "resource_owner". The first two are provided by the \link[httr:Token2.0]{httr::Token2.0} token class, while the last two are provided by the AzureToken class which extends httr::Token2.0. Here is a short description of these methods.
-\enumerate{
-\item Using the authorization_code method is a 3-step process. First, \code{create_azure_login} contacts the AAD authorization endpoint to obtain a temporary access code. It then contacts the AAD access endpoint, passing it the code. The access endpoint sends back a login URL which \code{create_azure_login} opens in your browser, where you can enter your credentials. Once this is completed, the endpoint returns the OAuth token via a HTTP redirect URI.
-\item The device_code method is similar in concept to authorization_code, but is meant for situations where you are unable to browse the Internet -- for example if you don't have a browser installed or your computer has input constraints. First, \code{create_azure_login} contacts the AAD devicecode endpoint, which responds with a login URL and an access code. You then visit the URL and enter the code, possibly using a different computer. Meanwhile, \code{create_azure_login} polls the AAD access endpoint for a token, which is provided once you have successfully entered the code.
-\item The client_credentials method is much simpler than the above methods, requiring only one step. \code{create_azure_login} contacts the access endpoint, passing it the app secret (which you supplied in the \code{password} argument). Assuming the secret is valid, the endpoint then returns the OAuth token.
-\item The resource_owner method also requires only one step. In this method, \code{create_azure_login} passes your (personal) username and password to the AAD access endpoint, which validates your credentials and returns the token.
-}
-
-If the authentication method is not specified, it is chosen based on the presence or absence of the \code{password} and \code{username} arguments:
-\itemize{
-\item Password and username present: resource_owner.
-\item Password and username absent: authorization_code if the httpuv package is installed, device_code otherwise
-\item Password present, username absent: client_credentials
-\item Password absent, username present: error
-}
-
-The httpuv package must be installed to use the authorization_code method, as this requires a web server to listen on the (local) redirect URI. See \link[httr:oauth2.0_token]{httr::oauth2.0_token} for more information; note that Azure does not support the \code{use_oob} feature of the httr OAuth 2.0 token class.
-
-Similarly, since the authorization_code method opens a browser to load the AAD authorization page, your machine must have an Internet browser installed that can be run from inside R. In particular, if you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may run into difficulties; use one of the other methods instead.
-}
-
 \section{Value}{
 
 For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. For \code{list_azure_logins}, a (possibly nested) list of such objects.
@@ -103,7 +80,7 @@ az <- get_azure_login("myaadtenant")
 }
 }
 \seealso{
-\link{az_rm}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token},
+\link{az_rm}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for more details on authentication methods
 
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
