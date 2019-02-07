@@ -84,7 +84,13 @@ public=list(
         self$host <- host
         self$tenant <- normalize_tenant(tenant)
         app <- normalize_guid(app)
-        self$token <- get_azure_token(self$host, self$tenant, app, password, username, auth_type, aad_host)
+        self$token <- get_azure_token(self$host, 
+            tenant=self$tenant, 
+            app=app, 
+            password=password, 
+            username=username, 
+            auth_type=auth_type, 
+            aad_host=aad_host)
         NULL
     },
 
