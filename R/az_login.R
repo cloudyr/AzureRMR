@@ -105,14 +105,14 @@ create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, userna
 get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
 {
     if(!dir.exists(AzureR_dir()))
-        stop("AzureRMR data directory does not exist; cannot load saved logins")
+        stop("AzureR data directory does not exist; cannot load saved logins")
 
     tenant <- normalize_tenant(tenant)
 
     arm_logins <- load_arm_logins()
     this_login <- arm_logins[[tenant]]
     if(is_empty(this_login))
-        stop("No Azure Resource Manager login found for tenant '", tenant,
+        stop("No Azure Resource Manager logins found for tenant '", tenant,
              "';\nuse create_azure_login() to create one", call.=FALSE)
 
     if(length(this_login) == 1)
@@ -124,16 +124,8 @@ get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
 
         choices <- sapply(tokens, function(token)
         {
-            app <- token$app$key
-
-            auth_type <- if(token$params$client_credentials)
-                "client_credentials"
-            else if(token$params$use_device)
-                "device_code"
-            else if(!is.null(token$params$user_params$username))
-                "resource_owner"
-            else "authorization_code"
-            paste0("App ID: ", app, "\n   Authentication method: ", auth_type)
+            app <- token$client$client_id
+            paste0("App ID: ", app, "\n   Authentication method: ", token$auth_type)
         })
         selection <- utils::menu(choices,
             title=paste0("Choose an Azure Resource Manager login for tenant '", tenant, "'"))

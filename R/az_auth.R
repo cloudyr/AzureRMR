@@ -65,8 +65,10 @@ public=list(
     {
         if(is_azure_token(token))
         {
-            self$host <- token$credentials$resource
-            self$tenant <- sub("/.+$", "", httr::parse_url(token$endpoint$authorize)$path)
+            self$host <- if(token$version == 1)
+                token$resource
+            else token$scope
+            self$tenant <- token$tenant
             self$token <- token
             return(NULL)
         }
