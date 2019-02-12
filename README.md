@@ -26,7 +26,7 @@ library(AzureRMR)
 # authenticate with Azure AD:
 # - on first login to this client, call create_azure_login()
 # - on subsequent logins, call get_azure_login()
-az <- create_azure_login("myaadtenant")
+az <- create_azure_login()
 
 # get a subscription and resource group
 sub <- az$get_subscription("{subscription_id}")

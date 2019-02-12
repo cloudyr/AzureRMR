@@ -1,6 +1,6 @@
 #' Login to Azure Resource Manager
 #'
-#' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.
+#' @param tenant The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID. The default is to login via the "common" tenant, which will infer your actual tenant from your credentials.
 #' @param app The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.
 #' @param password If `auth_type == "client_credentials"`, the app secret; if `auth_type == "resource_owner"`, your account password.
 #' @param username If `auth_type == "resource_owner"`, your username.
@@ -16,7 +16,7 @@
 #' @details
 #' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 #'
-#' `create_azure_login("tenant")` is roughly equivalent to the Azure CLI command `az login` without any arguments. 
+#' `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`.
 #'
 #' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 #'
@@ -40,6 +40,9 @@
 #' @examples
 #' \dontrun{
 #'
+#' # without any arguments, this will create a client using your AAD credentials
+#' az <- create_azure_login() 
+#'
 #' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
 #' # using the client_credentials method
 #' az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
@@ -54,7 +57,7 @@
 #' }
 #' @rdname azure_login
 #' @export
-create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, username=NULL, auth_type=NULL,
+create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NULL, username=NULL, auth_type=NULL,
                                host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                                config_file=NULL, ...)
 {
@@ -102,7 +105,7 @@ create_azure_login <- function(tenant, app=.az_cli_app_id, password=NULL, userna
 
 #' @rdname azure_login
 #' @export
-get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
+get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
 {
     if(!dir.exists(AzureR_dir()))
         stop("AzureR data directory does not exist; cannot load saved logins")
@@ -156,7 +159,7 @@ get_azure_login <- function(tenant, selection=NULL, refresh=TRUE)
 
 #' @rdname azure_login
 #' @export
-delete_azure_login <- function(tenant, confirm=TRUE)
+delete_azure_login <- function(tenant="common", confirm=TRUE)
 {
     if(!dir.exists(AzureR_dir()))
     {

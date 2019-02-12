@@ -7,20 +7,20 @@
 \alias{list_azure_logins}
 \title{Login to Azure Resource Manager}
 \usage{
-create_azure_login(tenant, app = .az_cli_app_id, password = NULL,
-  username = NULL, auth_type = NULL,
+create_azure_login(tenant = "common", app = .az_cli_app_id,
+  password = NULL, username = NULL, auth_type = NULL,
   host = "https://management.azure.com/",
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
-get_azure_login(tenant, selection = NULL, refresh = TRUE)
+get_azure_login(tenant = "common", selection = NULL, refresh = TRUE)
 
-delete_azure_login(tenant, confirm = TRUE)
+delete_azure_login(tenant = "common", confirm = TRUE)
 
 list_azure_logins()
 }
 \arguments{
-\item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID.}
+\item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID. The default is to login via the "common" tenant, which will infer your actual tenant from your credentials.}
 
 \item{app}{The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.}
 
@@ -50,7 +50,7 @@ Login to Azure Resource Manager
 \details{
 \code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 
-\code{create_azure_login("tenant")} is roughly equivalent to the Azure CLI command \code{az login} without any arguments.
+\code{create_azure_login()} without any arguments is roughly equivalent to the Azure CLI command \code{az login}.
 
 \code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 
@@ -65,6 +65,9 @@ If the AzureRMR data directory for saving credentials does not exist, \code{get_
 
 \examples{
 \dontrun{
+
+# without any arguments, this will create a client using your AAD credentials
+az <- create_azure_login() 
 
 # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
 # using the client_credentials method
