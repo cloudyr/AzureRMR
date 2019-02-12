@@ -16,7 +16,7 @@
 #' @details
 #' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 #'
-#' `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`.
+#' The `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`.
 #'
 #' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 #'
@@ -171,9 +171,12 @@ delete_azure_login <- function(tenant="common", confirm=TRUE)
 
     if(confirm && interactive())
     {
-        yn <- readline(
-            paste0("Do you really want to delete the Azure Resource Manager login(s) for tenant ",
-                   tenant, "? (y/N) "))
+        msg <- if(tenant == "common")
+            "Do you really want to delete the default Azure Resource Manager login(s)? (y/N) "
+        else paste0("Do you really want to delete the Azure Resource Manager login(s) for tenant ",
+                    tenant, "? (y/N) ")
+
+        yn <- readline(msg)
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
