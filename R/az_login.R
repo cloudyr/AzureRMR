@@ -16,7 +16,7 @@
 #' @details
 #' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 #'
-#' The `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`.
+#' `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`.
 #'
 #' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 #'
@@ -43,16 +43,15 @@
 #' # without any arguments, this will create a client using your AAD credentials
 #' az <- create_azure_login() 
 #'
+#' # retrieve the login in subsequent sessions
+#' az <- get_azure_login()
+#'
 #' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
 #' # using the client_credentials method
 #' az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
 #'
 #' # you can also login using credentials in a json file
 #' az <- create_azure_login(config_file="~/creds.json")
-#'
-#'
-#' # retrieve the login via the tenant
-#' az <- get_azure_login("myaadtenant")
 #'
 #' }
 #' @rdname azure_login

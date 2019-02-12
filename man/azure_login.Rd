@@ -69,16 +69,15 @@ If the AzureRMR data directory for saving credentials does not exist, \code{get_
 # without any arguments, this will create a client using your AAD credentials
 az <- create_azure_login() 
 
+# retrieve the login in subsequent sessions
+az <- get_azure_login()
+
 # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
 # using the client_credentials method
 az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
 
 # you can also login using credentials in a json file
 az <- create_azure_login(config_file="~/creds.json")
-
-
-# retrieve the login via the tenant
-az <- get_azure_login("myaadtenant")
 
 }
 }
