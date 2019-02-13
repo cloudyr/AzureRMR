@@ -118,7 +118,7 @@ res <- az_rm$new("tenant_id", "app_id", "secret") $
 
 Note that if you are writing a package that extends AzureRMR, these methods _must_ be defined in the package's `.onLoad` function. This is because the methods must be added at runtime, when the user loads your package, rather than at compile time, when it is built or installed.
 
-The `create_storage_account`, `get_storage_account` and `delete_storage_account` methods from the AzureStor package are defined like this:
+The `create_storage_account`, `get_storage_account` and `delete_storage_account` methods from the AzureStor package are defined like this. Note that calls to your class methods should include the `pkgname::` qualifier, to ensure they will work even if your package is not attached.
 
 ```{r, eval=FALSE}
 
@@ -131,16 +131,16 @@ The `create_storage_account`, `get_storage_account` and `delete_storage_account`
              sku=list(name="Standard_LRS", tier="Standard"),
              ...)
     {
-        az_storage$new(self$token, self$subscription, self$name,
-                       type="Microsoft.Storage/storageAccounts", name=name, location=location,
-                       kind=kind, sku=sku, ...)
+        AzureStor::az_storage$new(self$token, self$subscription, self$name,
+            type="Microsoft.Storage/storageAccounts", name=name, location=location,
+            kind=kind, sku=sku, ...)
     })
 
     AzureRMR::az_resource_group$set("public", "get_storage_account", overwrite=TRUE,
     function(name)
     {
-        az_storage$new(self$token, self$subscription, self$name,
-                       type="Microsoft.Storage/storageAccounts", name=name)
+        AzureStor::az_storage$new(self$token, self$subscription, self$name,
+            type="Microsoft.Storage/storageAccounts", name=name)
     })
 
     AzureRMR::az_resource_group$set("public", "delete_storage_account", overwrite=TRUE,
@@ -184,8 +184,8 @@ The corresponding accessor functions for AzureVM's `az_vm_template` class are mo
                 ext_file_uris=ext_file_uris, inst_command=inst_command,
                 clust_size=clust_size, template=template)
 
-        az_vm_template$new(self$token, self$subscription, self$name, name,
-                           template=template, parameters=parameters, ..., wait=wait)
+        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
+            template=template, parameters=parameters, ..., wait=wait)
     })
 
     # ... other startup code ...
