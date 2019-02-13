@@ -162,7 +162,7 @@ delete_azure_login <- function(tenant="common", confirm=TRUE)
 {
     if(!dir.exists(AzureR_dir()))
     {
-        warning("AzureRMR data directory does not exist; no logins to delete")
+        warning("AzureR data directory does not exist; no logins to delete")
         return(invisible(NULL))
     }
 
@@ -218,7 +218,7 @@ save_arm_logins <- function(logins)
 {
     if(!dir.exists(AzureR_dir()))
     {
-        message("AzureRMR data directory does not exist; login credentials not saved")
+        message("AzureR data directory does not exist; login credentials not saved")
         return(invisible(NULL))
     }
 
