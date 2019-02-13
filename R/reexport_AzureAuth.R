@@ -11,6 +11,12 @@ AzureAuth::get_azure_token
 AzureAuth::is_azure_token
 
 #' @export
+AzureAuth::is_azure_v1_token
+
+#' @export
+AzureAuth::is_azure_v1_token
+
+#' @export
 AzureAuth::is_guid
 
 #' @export
