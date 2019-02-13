@@ -90,7 +90,7 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NUL
     tenant <- normalize_tenant(tenant)
     app <- normalize_guid(app)
 
-    message("Creating Azure Resource Manager login for tenant '", tenant, "'")
+    message("Creating Azure Resource Manager login for ", format_tenant(tenant))
     client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
 
     # save login info for future sessions
@@ -114,8 +114,11 @@ get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
     arm_logins <- load_arm_logins()
     this_login <- arm_logins[[tenant]]
     if(is_empty(this_login))
-        stop("No Azure Resource Manager logins found for tenant '", tenant,
-             "';\nuse create_azure_login() to create one", call.=FALSE)
+    {
+        msg <- paste0("No Azure Resource Manager logins found for ", format_tenant(tenant),
+                      ";\nuse create_azure_login() to create one")
+        stop(msg, call.=FALSE)
+    }
 
     if(length(this_login) == 1)
         selection <- 1
@@ -129,8 +132,9 @@ get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
             app <- token$client$client_id
             paste0("App ID: ", app, "\n   Authentication method: ", token$auth_type)
         })
-        selection <- utils::menu(choices,
-            title=paste0("Choose an Azure Resource Manager login for tenant '", tenant, "'"))
+
+        msg <- paste0("Choose an Azure Resource Manager login for ", format_tenant(tenant))
+        selection <- utils::menu(choices, title=msg)
     }
 
     if(selection == 0)
@@ -145,7 +149,8 @@ get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
     if(is_empty(file) || !file.exists(file))
         stop("Azure Active Directory token not found for this login", call.=FALSE)
 
-    message("Loading Azure Resource Manager login for tenant '", tenant, "'")
+    message("Loading Azure Resource Manager login for ", format_tenant(tenant))
+
     token <- readRDS(file)
     client <- az_rm$new(token=token)
 
@@ -170,10 +175,8 @@ delete_azure_login <- function(tenant="common", confirm=TRUE)
 
     if(confirm && interactive())
     {
-        msg <- if(tenant == "common")
-            "Do you really want to delete the default Azure Resource Manager login(s)? (y/N) "
-        else paste0("Do you really want to delete the Azure Resource Manager login(s) for tenant ",
-                    tenant, "? (y/N) ")
+        msg <- paste0("Do you really want to delete the Azure Resource Manager login(s) for ",
+                      format_tenant(tenant), "? (y/N) ")
 
         yn <- readline(msg)
         if(tolower(substr(yn, 1, 1)) != "y")
@@ -230,3 +233,10 @@ save_arm_logins <- function(logins)
     invisible(NULL)
 }
 
+
+format_tenant <- function(tenant)
+{
+    if(tenant == "common")
+        "default tenant"
+    else paste0("tenant '", tenant, "'")
+}
