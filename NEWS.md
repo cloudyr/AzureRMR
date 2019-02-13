@@ -1,10 +1,8 @@
-# AzureRMR 1.0.0.9000
+# AzureRMR 2.0.0
 
 ## Significant interface changes
 
-* Allow authentication without having to create a service principal first, by leveraging the Azure CLI cross-platform app. It's still recommended to create your own SP for authentication, if possible.
-* New `create_azure_login`, `get_azure_login` and `delete_azure_login` functions to handle ARM authentication. While directly calling `az_rm$new()` will still work, it's recommended to use `create_azure_login` and `get_azure_login` going forward. Login credentials will be saved and reused for subsequent sessions (see below).
-* By default, use the latest _stable_ API version when interacting with resources. `az_resource$set_api_version` gains a new argument `stable_only` which defaults to `TRUE`; set this to `FALSE` if you want the latest preview version.
+* New `create_azure_login`, `get_azure_login` and `delete_azure_login` functions to handle ARM authentication. By default, these will authenticate using your AAD user credentials without requiring you to create a service principal. Directly calling `az_rm$new()` will still work, but it's recommended to use `create_azure_login` and `get_azure_login` going forward. Login credentials will be saved and reused for subsequent sessions (see below).
 * Token acquisition logic substantially enhanced and moved to a new package, [AzureAuth](https://github.com/cloudyr/AzureAuth). `get_azure_token` now supports four authentication methods for obtaining tokens (`client_credentials`, `authorization_code`, `device_code` and `resource_owner`). Tokens are also automatically cached and retrieved for use in subsequent sessions, without needing the user to reauthenticate. See the AzureAuth documentation for more details.
 
 ## Other changes
@@ -17,6 +15,7 @@
 * Allow `az_resource_group$deploy_template()` to work without `parameters` arg (parameters folded into template itself).
 * Fix a bug that kept `az_resource_group$delete_resource` from deleting the resource.
 * New resource method `az_resource$get_api_version` to match `set_api_version`.
+* By default, use the latest _stable_ API version when interacting with resources. `az_resource$set_api_version` gains a new argument `stable_only` which defaults to `TRUE`; set this to `FALSE` if you want the latest preview version.
 
 # AzureRMR 1.0.0
 
