@@ -22,9 +22,9 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 
 ## Authentication
 
-Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()` and supply your credentials. AzureRMR will prompt you for permission to create a special data directory in which to cache the obtained authentication token and Resource Manager login. Once this information is saved on your machine, it be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()`, which will log you into Azure. AzureRMR will prompt you for permission to create a special data directory in which to cache your credentials. Once this information is saved on your machine, it can be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
 
-Unless you have a good reason otherwise, you should allow AzureRMR to create this caching directory. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself.
+Unless you have a good reason otherwise, you should allow AzureRMR to create this caching directory. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself. You can see what directory AzureRMR has created with the function `AzureR_dir()`.
 
 ```{r, eval=FALSE}
 library(AzureRMR)
@@ -34,18 +34,21 @@ library(AzureRMR)
 #>
 #> This saves you having to reauthenticate with Azure in future sessions. Create this directory? (Y/n) y
 
+AzureR_dir()
+#> [1] "C:\\Users\\hongooi\\AppData\\Local\\AzureR"
 
-# if this is the first time you're logging in to this tenant
-az <- create_azure_login("myaadtenant")
-#> Creating Azure Resource Manager login for tenant 'myaadtenant.onmicrosoft.com'
+
+# if this is the first time you're logging in
+az <- create_azure_login()
+#> Creating Azure Resource Manager login for default tenant
 #> Waiting for authentication in browser...
 #> Press Esc/Ctrl + C to abort
 #> Authentication complete.
 
 
 # for subsequent sessions
-az <- get_azure_login("myaadtenant")
-#> Loading Azure Resource Manager login for tenant 'myaadtenant.onmicrosoft.com'
+az <- get_azure_login()
+#> Loading Azure Resource Manager login for default tenant
 
 
 # you can also list the tenants that you've previously authenticated with
@@ -72,11 +75,11 @@ Creating a service principal is a one-time task, and the easiest method is to us
 
 If you want to allow access at something other than subscription level, you can use the `--scopes` argument in place of `--subscription`. For example, to restrict AzureRMR to only the "AnalyticsRG" resource group: `az ad sp create-for-rbac --scopes /subscriptions/{your-subscription-ID}/resourceGroups/AnalyticsRG`.
 
-Once you have created your own service principal, you can supply the app ID and password as arguments to `create_azure_login`:
+Once you have created your own service principal, you can supply the app ID and password as arguments to `create_azure_login`. You'll also have to supply your Azure Active Directory tenant, as AAD does not have access to your personal credentials.
 
 ```{r, eval=FALSE}
 # authenticating with a custom service principal
-create_azure_login("myaadtenant", app="app_id", password="password")
+create_azure_login(tenant="myaadtenant", app="app_id", password="password")
 ```
 
 
