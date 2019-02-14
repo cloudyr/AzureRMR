@@ -185,7 +185,7 @@ public=list(
 
     sync_fields=function()
     {
-        self$initialize(self$token, self$subscription, id=self$id)
+        self$initialize(self$token, self$subscription, id=self$id, api_version=private$api_version)
         self$properties$provisioningState
     },
 
@@ -379,8 +379,8 @@ private=list(
 
     validate_response_parms=function(parms)
     {
-        required_names <- c("id", "name", "type", "location")
-        optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags", "etag")
+        required_names <- c("id", "name", "type")
+        optional_names <- c("location", "identity", "kind", "managedBy", "plan", "properties", "sku", "tags", "etag")
         validate_object_names(names(parms), required_names, optional_names)
     },
 
