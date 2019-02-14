@@ -255,6 +255,25 @@ public=list(
         self$tags
     },
 
+    lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    {
+        level <- match.arg(level)
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        body <- list(properties=list(level=level))
+        if(notes != "")
+            body$notes <- notes
+
+        self$do_operation(op, body=body, encode="json", http_verb="PUT", api_version=api)
+    },
+
+    unlock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        self$do_operation(op, http_verb="DELETE", api_version=api)
+    },
+
     print=function(...)
     {
         # generate label from id, since type and name are not guaranteed to be fixed for sub-resources

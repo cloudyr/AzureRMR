@@ -172,6 +172,25 @@ public=list(
         lst
     },
 
+    lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    {
+        level <- match.arg(level)
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        body <- list(properties=list(level=level))
+        if(notes != "")
+            body$notes <- notes
+
+        call_azure_rm(self$token, self$id, op, body=body, encode="json", http_verb="PUT", api_version=api)
+    },
+
+    unlock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        call_azure_rm(self$token, self$id, op, http_verb="DELETE", api_version=api)
+    },
+
     print=function(...)
     {
         cat("<Azure subscription ", self$id, ">\n", sep="")
