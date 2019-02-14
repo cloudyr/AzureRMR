@@ -15,7 +15,7 @@
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
 #' - `resource_exists(...)`: Check if a resource exists.
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
-#' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly".
+#' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #'

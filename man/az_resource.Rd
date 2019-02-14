@@ -21,7 +21,7 @@ Class representing a generic Azure resource.
 \item \code{set_api_version(api_version, stable_only=TRUE)}: Set the API version to use when interacting with the host. If \code{api_version} is not supplied, use the latest version available, either the latest stable version (if \code{stable_only=TRUE}) or the latest preview version (if \code{stable_only=FALSE}).
 \item \code{get_api_version()}: Get the current API version.
 \item \code{do_operation(...)} Carry out an operation. See 'Operations' for more details.
-\item \code{create_lock(name, level)}: Create a management lock on this resource. The \code{level} argument can be either "cannotdelete" or "readonly".
+\item \code{create_lock(name, level)}: Create a management lock on this resource. The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 }

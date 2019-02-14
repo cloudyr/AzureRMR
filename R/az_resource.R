@@ -11,7 +11,7 @@
 #' - `set_api_version(api_version, stable_only=TRUE)`: Set the API version to use when interacting with the host. If `api_version` is not supplied, use the latest version available, either the latest stable version (if `stable_only=TRUE`) or the latest preview version (if `stable_only=FALSE`).
 #' - `get_api_version()`: Get the current API version.
 #' - `do_operation(...)` Carry out an operation. See 'Operations' for more details.
-#' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly".
+#' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #'

@@ -47,6 +47,12 @@ test_that("Resource methods work",
     res$set_tags(tag1="value1")
     expect_true(!is.null(res$tags))
 
+    # locking
+    expect_is(res$create_lock("newlock_res", level="cannotdelete"), "az_resource")
+    expect_is(res$get_lock("newlock_res"), "az_resource")
+    expect_null(res$delete_lock("newlock_res"))
+    expect_error(res$get_lock("newlock_res"))
+
     # deletion
     expect_null(rg$delete_resource(type=restype, name=resname, confirm=FALSE, wait=TRUE))
     expect_false(rg$resource_exists(type=restype, name=resname))
