@@ -25,6 +25,9 @@ Class representing an Azure resource group.
 \item \code{delete_resource(..., confirm=TRUE, wait=FALSE)}: Delete an existing resource. Optionally wait for the delete to finish.
 \item \code{resource_exists(...)}: Check if a resource exists.
 \item \code{list_resources()}: Return a list of resource group objects for this subscription.
+\item \code{create_lock(name, level)}: Create a management lock on this resource group (which will propagate to all resources within it). The \code{level} argument can be either "cannotdelete" or "readonly".
+\item \code{get_lock(name}): Returns a management lock object.
+\item \code{delete_lock(name)}: Deletes a management lock object.
 }
 }
 
