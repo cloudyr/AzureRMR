@@ -255,7 +255,7 @@ public=list(
         self$tags
     },
 
-    lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
     {
         level <- match.arg(level)
         api <- getOption("azure_api_mgmt_version")
@@ -264,14 +264,24 @@ public=list(
         if(notes != "")
             body$notes <- notes
 
-        self$do_operation(op, body=body, encode="json", http_verb="PUT", api_version=api)
+        res <- self$do_operation(op, body=body, encode="json", http_verb="PUT", api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
     },
 
-    unlock=function(name)
+    get_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        res <- self$do_operation(op, api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
+    },
+
+    delete_lock=function(name)
     {
         api <- getOption("azure_api_mgmt_version")
         op <- file.path("providers/Microsoft.Authorization/locks", name)
         self$do_operation(op, http_verb="DELETE", api_version=api)
+        invisible(NULL)
     },
 
     print=function(...)
@@ -380,7 +390,8 @@ private=list(
     validate_response_parms=function(parms)
     {
         required_names <- c("id", "name", "type")
-        optional_names <- c("location", "identity", "kind", "managedBy", "plan", "properties", "sku", "tags", "etag")
+        optional_names <-
+            c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags", "etag")
         validate_object_names(names(parms), required_names, optional_names)
     },
 

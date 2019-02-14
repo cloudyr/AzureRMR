@@ -218,7 +218,7 @@ public=list(
                         location=location, ...)
     },
 
-    lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
     {
         level <- match.arg(level)
         api <- getOption("azure_api_mgmt_version")
@@ -227,14 +227,24 @@ public=list(
         if(notes != "")
             body$notes <- notes
 
-        private$rg_op(op, body=body, encode="json", http_verb="PUT", api_version=api)
+        res <- private$rg_op(op, body=body, encode="json", http_verb="PUT", api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
     },
 
-    unlock=function(name)
+    get_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        res <- private$rg_op(op, api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
+    },
+
+    delete_lock=function(name)
     {
         api <- getOption("azure_api_mgmt_version")
         op <- file.path("providers/Microsoft.Authorization/locks", name)
         private$rg_op(op, http_verb="DELETE", api_version=api)
+        invisible(NULL)
     },
 
     print=function(...)
