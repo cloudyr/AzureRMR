@@ -15,6 +15,9 @@
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
 #' - `resource_exists(...)`: Check if a resource exists.
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
+#' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+#' - `get_lock(name`): Returns a management lock object.
+#' - `delete_lock(name)`: Deletes a management lock object.
 #'
 #' @section Initialization:
 #' Initializing a new object of this class can either retrieve an existing resource group, or create a new resource group on the host. Generally, the easiest way to create a resource group object is via the `get_resource_group`, `create_resource_group` or `list_resource_groups` methods of the [az_subscription] class, which handle this automatically.
@@ -216,6 +219,35 @@ public=list(
         az_resource$new(self$token, self$subscription,
                         resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id,
                         location=location, ...)
+    },
+
+    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    {
+        level <- match.arg(level)
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        body <- list(properties=list(level=level))
+        if(notes != "")
+            body$notes <- notes
+
+        res <- private$rg_op(op, body=body, encode="json", http_verb="PUT", api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
+    },
+
+    get_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        res <- private$rg_op(op, api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
+    },
+
+    delete_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        private$rg_op(op, http_verb="DELETE", api_version=api)
+        invisible(NULL)
     },
 
     print=function(...)

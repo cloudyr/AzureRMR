@@ -5,8 +5,11 @@ NULL
 
 .onLoad <- function(libname, pkgname)
 {
-    azure_api_version="2018-05-01"
+    azure_api_version <- "2018-05-01"
+    azure_api_mgmt_version <- "2016-09-01"
+
     options(azure_api_version=azure_api_version)
+    options(azure_api_mgmt_version=azure_api_mgmt_version)
 
     make_AzureR_dir()
 

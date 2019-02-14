@@ -11,6 +11,9 @@
 #' - `set_api_version(api_version, stable_only=TRUE)`: Set the API version to use when interacting with the host. If `api_version` is not supplied, use the latest version available, either the latest stable version (if `stable_only=TRUE`) or the latest preview version (if `stable_only=FALSE`).
 #' - `get_api_version()`: Get the current API version.
 #' - `do_operation(...)` Carry out an operation. See 'Operations' for more details.
+#' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+#' - `get_lock(name`): Returns a management lock object.
+#' - `delete_lock(name)`: Deletes a management lock object.
 #'
 #' @section Initialization:
 #' There are multiple ways to initialize a new resource object. The `new()` method can retrieve an existing resource, deploy/create a new resource, or create an empty/null object (without communicating with the host), based on the arguments you supply.
@@ -185,7 +188,7 @@ public=list(
 
     sync_fields=function()
     {
-        self$initialize(self$token, self$subscription, id=self$id)
+        self$initialize(self$token, self$subscription, id=self$id, api_version=private$api_version)
         self$properties$provisioningState
     },
 
@@ -253,6 +256,35 @@ public=list(
     get_tags=function()
     {
         self$tags
+    },
+
+    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    {
+        level <- match.arg(level)
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        body <- list(properties=list(level=level))
+        if(notes != "")
+            body$notes <- notes
+
+        res <- self$do_operation(op, body=body, encode="json", http_verb="PUT", api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
+    },
+
+    get_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        res <- self$do_operation(op, api_version=api)
+        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
+    },
+
+    delete_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        self$do_operation(op, http_verb="DELETE", api_version=api)
+        invisible(NULL)
     },
 
     print=function(...)
@@ -360,8 +392,9 @@ private=list(
 
     validate_response_parms=function(parms)
     {
-        required_names <- c("id", "name", "type", "location")
-        optional_names <- c("identity", "kind", "managedBy", "plan", "properties", "sku", "tags", "etag")
+        required_names <- c("id", "name", "type")
+        optional_names <-
+            c("identity", "kind", "location", "managedBy", "plan", "properties", "sku", "tags", "etag")
         validate_object_names(names(parms), required_names, optional_names)
     },
 

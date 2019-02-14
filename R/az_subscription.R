@@ -14,6 +14,9 @@
 #' - `resource_group_exists(name)`: Check if a resource group exists.
 #' - `list_resources()`: List all resources deployed under this subscription.
 #' - `list_locations()`: List locations available.
+#' - `create_lock(name, level)`: Create a management lock on this subscription (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+#' - `get_lock(name`): Returns a management lock object.
+#' - `delete_lock(name)`: Deletes a management lock object.
 #' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
 #'
 #' @section Details:
@@ -170,6 +173,35 @@ public=list(
         }
         names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
         lst
+    },
+
+    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
+    {
+        level <- match.arg(level)
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        body <- list(properties=list(level=level))
+        if(notes != "")
+            body$notes <- notes
+
+        res <- call_azure_rm(self$token, self$id, op, body=body, encode="json", http_verb="PUT", api_version=api)
+        az_resource$new(self$token, self$id, deployed_properties=res, api_version=api)
+    },
+
+    get_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        res <- call_azure_rm(self$token, self$id, op, api_version=api)
+        az_resource$new(self$token, self$id, deployed_properties=res, api_version=api)
+    },
+
+    delete_lock=function(name)
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- file.path("providers/Microsoft.Authorization/locks", name)
+        call_azure_rm(self$token, self$id, op, http_verb="DELETE", api_version=api)
+        invisible(NULL)
     },
 
     print=function(...)
