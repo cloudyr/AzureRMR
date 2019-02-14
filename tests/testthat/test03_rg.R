@@ -26,6 +26,10 @@ test_that("Resource group methods work",
     expect_is(rgnew2, "az_resource_group")
     expect_equal(rgnew2$name, rgname)
 
+    # tagging
+    rgnew$set_tags(tag1="value1")
+    expect_true(!is.null(rgnew$tags))
+
     # locking
     expect_is(rgnew$create_lock("newlock_rg", level="cannotdelete"), "az_resource")
     expect_is(rgnew$get_lock("newlock_rg"), "az_resource")

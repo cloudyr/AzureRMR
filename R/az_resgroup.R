@@ -6,6 +6,7 @@
 #' @section Methods:
 #' - `new(token, subscription, id, ...)`: Initialize a resource group object. See 'Initialization' for more details.
 #' - `delete(confirm=TRUE)`: Delete this resource group, after a confirmation check. This is asynchronous: while the method returns immediately, the delete operation continues on the host in the background. For resource groups containing a large number of deployed resources, this may take some time to complete.
+#' - `sync_fields()`: Synchronise the R object with the resource group it represents in Azure.
 #' - `list_templates()`: List deployed templates in this resource group.
 #' - `get_template(name)`: Return an object representing an existing template.
 #' - `deploy_template(...)`: Deploy a new template. See 'Templates' for more details.
@@ -15,6 +16,8 @@
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
 #' - `resource_exists(...)`: Check if a resource exists.
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
+#' - `set_tags(...)`: Set the tags on this resource group. The tags should be name-value pairs.
+#' - `get_tags()`: Get the tags on this resource.
 #' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
@@ -219,6 +222,44 @@ public=list(
         az_resource$new(self$token, self$subscription,
                         resource_group=self$name, provider=provider, path=path, type=type, name=name, id=id,
                         location=location, ...)
+    },
+
+    sync_fields=function()
+    {
+        self$initialize(self$token, self$subscription, name=self$name)
+        invisible(NULL)
+    },
+
+    set_tags=function(..., keep_existing=TRUE)
+    {
+        # if tags is uninitialized (NULL), set it to named list
+        if(is.null(self$tags))
+            self$tags <- structure(list(), names=character(0))
+
+        tags <- match.call(expand.dots=FALSE)$...
+        unvalued <- names(tags) == ""
+
+        values <- lapply(seq_along(unvalued), function(i)
+        {
+            if(unvalued[i]) "" else as.character(eval.parent(tags[[i]]))
+        })
+        names(values) <- ifelse(unvalued, as.character(tags), names(tags))
+
+        if(keep_existing)
+            values <- modifyList(self$tags, values)
+
+        if(is.null(values))
+            values <- list()
+ 
+        private$rg_op(body=list(tags=values), encode="json", http_verb="PATCH")
+        self$sync_fields()
+    },
+
+    get_tags=function()
+    {
+        if(is.null(self$tags))
+            structure(list(), names=character(0))
+        else self$tags
     },
 
     create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")

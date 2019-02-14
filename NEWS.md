@@ -16,6 +16,9 @@
 * Fix a bug that kept `az_resource_group$delete_resource` from deleting the resource.
 * New resource method `az_resource$get_api_version` to match `set_api_version`.
 * By default, use the latest _stable_ API version when interacting with resources. `az_resource$set_api_version` gains a new argument `stable_only` which defaults to `TRUE`; set this to `FALSE` if you want the latest preview version.
+* `az_resource$sync_fields()` will respect a non-default API version.
+* Add management lock functionality for subscriptions, resource groups and resources. Call `create_lock` to create a lock, `get_lock` to retrieve an existing lock object, and `delete_lock` to delete a lock.
+* Add tagging functionality for resource groups, similar to that for resources. Call `set_tags` to set tags, and `get_tags` to retrieve them.
 
 # AzureRMR 1.0.0
 

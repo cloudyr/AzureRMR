@@ -7,10 +7,12 @@
 #' - `new(...)`: Initialize a new resource object. See 'Initialization' for more details.
 #' - `delete(confirm=TRUE, wait=FALSE)`: Delete this resource, after a confirmation check. Optionally wait for the delete to finish.
 #' - `update(...)`: Update this resource on the host.
-#' - `sync_fields()`: Update the fields in this object with information from the host. Returns the `properties$provisioningState` field, so you can query this programmatically to check if a resource has finished provisioning. Not all resource types require explicit provisioning, in which case this method will return NULL.
+#' - `sync_fields()`: Synchronise the R object with the resource it represents in Azure. Returns the `properties$provisioningState` field, so you can query this programmatically to check if a resource has finished provisioning. Not all resource types require explicit provisioning, in which case this method will return NULL.
 #' - `set_api_version(api_version, stable_only=TRUE)`: Set the API version to use when interacting with the host. If `api_version` is not supplied, use the latest version available, either the latest stable version (if `stable_only=TRUE`) or the latest preview version (if `stable_only=FALSE`).
 #' - `get_api_version()`: Get the current API version.
-#' - `do_operation(...)` Carry out an operation. See 'Operations' for more details.
+#' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
+#' - `set_tags(...)`: Set the tags on this resource. The tags should be name-value pairs.
+#' - `get_tags()`: Get the tags on this resource.
 #' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.

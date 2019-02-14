@@ -16,6 +16,7 @@ Class representing an Azure resource group.
 \itemize{
 \item \code{new(token, subscription, id, ...)}: Initialize a resource group object. See 'Initialization' for more details.
 \item \code{delete(confirm=TRUE)}: Delete this resource group, after a confirmation check. This is asynchronous: while the method returns immediately, the delete operation continues on the host in the background. For resource groups containing a large number of deployed resources, this may take some time to complete.
+\item \code{sync_fields()}: Synchronise the R object with the resource group it represents in Azure.
 \item \code{list_templates()}: List deployed templates in this resource group.
 \item \code{get_template(name)}: Return an object representing an existing template.
 \item \code{deploy_template(...)}: Deploy a new template. See 'Templates' for more details.
@@ -25,6 +26,8 @@ Class representing an Azure resource group.
 \item \code{delete_resource(..., confirm=TRUE, wait=FALSE)}: Delete an existing resource. Optionally wait for the delete to finish.
 \item \code{resource_exists(...)}: Check if a resource exists.
 \item \code{list_resources()}: Return a list of resource group objects for this subscription.
+\item \code{set_tags(...)}: Set the tags on this resource group. The tags should be name-value pairs.
+\item \code{get_tags()}: Get the tags on this resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource group (which will propagate to all resources within it). The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
