@@ -44,6 +44,11 @@ list_azure_logins()
 
 \item{confirm}{For \code{delete_azure_login}, whether to ask for confirmation before deleting.}
 }
+\value{
+For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. For \code{list_azure_logins}, a (possibly nested) list of such objects.
+
+If the AzureRMR data directory for saving credentials does not exist, \code{get_azure_login} will throw an error.
+}
 \description{
 Login to Azure Resource Manager
 }
@@ -56,11 +61,9 @@ Login to Azure Resource Manager
 
 One difference between \code{create_azure_login} and \code{get_azure_login} is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 }
-\section{Value}{
+\section{Linux DSVM note}{
 
-For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. For \code{list_azure_logins}, a (possibly nested) list of such objects.
-
-If the AzureRMR data directory for saving credentials does not exist, \code{get_azure_login} will throw an error.
+If you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may have problems running \code{create_azure_login()}. In this case, try \code{create_azure_login(auth_type="device_code")}.
 }
 
 \examples{

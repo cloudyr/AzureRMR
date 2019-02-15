@@ -15,7 +15,9 @@ Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI
 
 Unless you have a specific reason otherwise, it's recommended that you allow AzureRMR to create this caching directory. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself.
 
-By default, AzureRMR will authenticate using the Azure CLI cross-platform app. However, AzureRMR can also use a custom service principal, and in general it's a good idea to create your own service principal to authenticate with (if possible). See the ["Introduction to AzureRMR"](vignettes/intro.Rmd) vignette for more details.
+In most cases, AzureRMR can authenticate without requiring you to create your own service principal. However, AzureRMR can also use a custom service principal, and in general it's a good idea to supply your own to authenticate with (if possible). See the ["Introduction to AzureRMR"](vignettes/intro.Rmd) vignette for more details.
+
+**Linux DSVM note** If you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may have problems running `create_azure_login()`. In this case, try `create_azure_login(auth_type="device_code")`.
 
 
 ## Sample workflow

@@ -22,7 +22,10 @@
 #'
 #' One difference between `create_azure_login` and `get_azure_login` is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 #'
-#' @section Value:
+#' @section Linux DSVM note:
+#' If you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may have problems running `create_azure_login()`. In this case, try `create_azure_login(auth_type="device_code")`.
+#'
+#' @return
 #' For `get_azure_login` and `create_azure_login`, an object of class `az_rm`, representing the ARM login client. For `list_azure_logins`, a (possibly nested) list of such objects.
 #'
 #' If the AzureRMR data directory for saving credentials does not exist, `get_azure_login` will throw an error.
