@@ -219,7 +219,8 @@ private=list(
         else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters, simplifyVector=FALSE)))
 
         self$name <- name
-        parms <- private$tpl_op(body=list(properties=properties), encode="json", http_verb="PUT")
+        parms <- private$tpl_op(body=jsonlite::toJSON(list(properties=properties), auto_unbox=TRUE, digits=22),
+            encode="raw", http_verb="PUT")
 
         # do we wait until template has finished provisioning?
         if(wait)

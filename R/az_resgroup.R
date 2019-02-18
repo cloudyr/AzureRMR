@@ -253,7 +253,8 @@ public=list(
         # delete tags specified to be null
         values <- values[!sapply(values, is_empty)]
 
-        private$rg_op(body=list(tags=values), encode="json", http_verb="PATCH")
+        private$rg_op(body=jsonlite::toJSON(list(tags=values), auto_unbox=TRUE, digits=22),
+            encode="raw", http_verb="PATCH")
         self$sync_fields()
     },
 

@@ -215,7 +215,7 @@ load_arm_logins <- function()
 {
     file <- file.path(AzureR_dir(), "arm_logins.json")
     if(!file.exists(file))
-        return(structure(list(), names=character(0)))
+        return(named_list())
     jsonlite::fromJSON(file)
 }
 

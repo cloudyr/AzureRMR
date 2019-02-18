@@ -67,7 +67,7 @@ process_headers <- function(token, ..., auto_refresh)
 
     # default content-type is json, set this if encoding not specified
     dots <- list(...)
-    if(is_empty(dots) || !("encode" %in% names(dots)))
+    if(is_empty(dots) || !("encode" %in% names(dots)) || dots$encode == "raw")
         headers <- c(headers, `Content-type`="application/json")
 
     httr::add_headers(.headers=headers)

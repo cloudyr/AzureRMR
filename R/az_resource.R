@@ -231,7 +231,12 @@ public=list(
     {
         parms <- list(...)
         private$validate_update_parms(names(parms))
-        private$res_op(body=parms, options=options, encode="json", http_verb="PATCH")
+        private$res_op(
+            body=jsonlite::toJSON(parms, auto_unbox=TRUE, digits=22),
+            options=options,
+            encode="raw",
+            http_verb="PATCH"
+        )
         self$sync_fields()
     },
 
