@@ -11,7 +11,7 @@
 #' - `set_api_version(api_version, stable_only=TRUE)`: Set the API version to use when interacting with the host. If `api_version` is not supplied, use the latest version available, either the latest stable version (if `stable_only=TRUE`) or the latest preview version (if `stable_only=FALSE`).
 #' - `get_api_version()`: Get the current API version.
 #' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
-#' - `set_tags(...)`: Set the tags on this resource. The tags should be name-value pairs.
+#' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource.
 #' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
@@ -238,7 +238,9 @@ public=list(
     set_tags=function(..., keep_existing=TRUE)
     {
         tags <- match.call(expand.dots=FALSE)$...
-        unvalued <- names(tags) == ""
+        unvalued <- if(is.null(names(tags)))
+            rep(TRUE, length(tags))
+        else names(tags) == ""
 
         values <- lapply(seq_along(unvalued), function(i)
         {
@@ -249,10 +251,11 @@ public=list(
         if(keep_existing)
             values <- modifyList(self$tags, values)
 
-        if(is.null(values))
-            values <- list()
+        # delete tags specified to be null
+        values <- values[!sapply(values, is_empty)]
  
         self$update(tags=values)
+        invisible(NULL)
     },
 
     get_tags=function()

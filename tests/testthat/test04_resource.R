@@ -44,8 +44,13 @@ test_that("Resource methods work",
     res$set_api_version()
     expect_true(!is.null(res$.__enclos_env__$private$api_version))
 
+    # tagging
     res$set_tags(tag1="value1")
-    expect_true(!is.null(res$tags))
+    expect_identical(res$get_tags(), list(tag1="value1"))
+    res$set_tags(tag2)
+    expect_identical(res$get_tags(), list(tag1="value1", tag2=""))
+    res$set_tags(tag2=NULL)
+    expect_identical(res$get_tags(), list(tag1="value1"))
 
     # locking
     expect_is(res$create_lock("newlock_res", level="cannotdelete"), "az_resource")

@@ -16,7 +16,7 @@
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
 #' - `resource_exists(...)`: Check if a resource exists.
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
-#' - `set_tags(...)`: Set the tags on this resource group. The tags should be name-value pairs.
+#' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource.
 #' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
@@ -234,10 +234,12 @@ public=list(
     {
         # if tags is uninitialized (NULL), set it to named list
         if(is.null(self$tags))
-            self$tags <- structure(list(), names=character(0))
+            self$tags <- named_list()
 
         tags <- match.call(expand.dots=FALSE)$...
-        unvalued <- names(tags) == ""
+        unvalued <- if(is.null(names(tags)))
+            rep(TRUE, length(tags))
+        else names(tags) == ""
 
         values <- lapply(seq_along(unvalued), function(i)
         {
@@ -248,9 +250,9 @@ public=list(
         if(keep_existing)
             values <- modifyList(self$tags, values)
 
-        if(is.null(values))
-            values <- list()
- 
+        # delete tags specified to be null
+        values <- values[!sapply(values, is_empty)]
+
         private$rg_op(body=list(tags=values), encode="json", http_verb="PATCH")
         self$sync_fields()
     },
@@ -258,7 +260,7 @@ public=list(
     get_tags=function()
     {
         if(is.null(self$tags))
-            structure(list(), names=character(0))
+            named_list()
         else self$tags
     },
 

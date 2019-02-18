@@ -26,7 +26,7 @@ Class representing an Azure resource group.
 \item \code{delete_resource(..., confirm=TRUE, wait=FALSE)}: Delete an existing resource. Optionally wait for the delete to finish.
 \item \code{resource_exists(...)}: Check if a resource exists.
 \item \code{list_resources()}: Return a list of resource group objects for this subscription.
-\item \code{set_tags(...)}: Set the tags on this resource group. The tags should be name-value pairs.
+\item \code{set_tags(..., keep_existing=TRUE)}: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to \code{NULL}.
 \item \code{get_tags()}: Get the tags on this resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource group (which will propagate to all resources within it). The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.

@@ -19,6 +19,7 @@
 * `az_resource$sync_fields()` will respect a non-default API version.
 * Add management lock functionality for subscriptions, resource groups and resources. Call `create_lock` to create a lock, `get_lock` to retrieve an existing lock object, and `delete_lock` to delete a lock.
 * Add tagging functionality for resource groups, similar to that for resources. Call `set_tags` to set tags, and `get_tags` to retrieve them.
+* Allow `named_list` to accept empty inputs. The output will be a list of length 0 with a `names` attribute.
 
 # AzureRMR 1.0.0
 

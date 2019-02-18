@@ -21,7 +21,7 @@ Class representing a generic Azure resource.
 \item \code{set_api_version(api_version, stable_only=TRUE)}: Set the API version to use when interacting with the host. If \code{api_version} is not supplied, use the latest version available, either the latest stable version (if \code{stable_only=TRUE}) or the latest preview version (if \code{stable_only=FALSE}).
 \item \code{get_api_version()}: Get the current API version.
 \item \code{do_operation(...)}: Carry out an operation. See 'Operations' for more details.
-\item \code{set_tags(...)}: Set the tags on this resource. The tags should be name-value pairs.
+\item \code{set_tags(..., keep_existing=TRUE)}: Set the tags on this resource. The tags can be either names or name-value pairs. To delete a tag, set it to \code{NULL}.
 \item \code{get_tags()}: Get the tags on this resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource. The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.
