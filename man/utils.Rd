@@ -6,7 +6,7 @@
 \alias{is_empty}
 \title{Miscellaneous utility functions}
 \usage{
-named_list(lst, name_fields = "name")
+named_list(lst = NULL, name_fields = "name")
 
 is_url(x, https_only = FALSE)
 
@@ -22,7 +22,9 @@ is_empty(x)
 \item{https_only}{For \code{is_url}, whether to allow only HTTPS URLs.}
 }
 \value{
-For \code{named_list}, the list that was passed in but with names. For \code{is_url}, whether the object appears to be a URL (is character of length 1, and starts with the string \code{"http"}). Optionally, restricts the check to HTTPS URLs only. For \code{is_empty}, whether the length of the object is zero (this includes the special case of \code{NULL}).
+For \code{named_list}, the list that was passed in but with names. An empty input results in a \emph{named list} output: a list of length 0, with a \code{names} attribute.
+
+For \code{is_url}, whether the object appears to be a URL (is character of length 1, and starts with the string \code{"http"}). Optionally, restricts the check to HTTPS URLs only. For \code{is_empty}, whether the length of the object is zero (this includes the special case of \code{NULL}).
 }
 \description{
 Miscellaneous utility functions

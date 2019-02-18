@@ -9,14 +9,16 @@
 #' `named_list` extracts from each object in `lst`, the components named by `name_fields`. It then constructs names for `lst` from these components, separated by a `"/"`.
 #'
 #' @return
-#' For `named_list`, the list that was passed in but with names. For `is_url`, whether the object appears to be a URL (is character of length 1, and starts with the string `"http"`). Optionally, restricts the check to HTTPS URLs only. For `is_empty`, whether the length of the object is zero (this includes the special case of `NULL`).
+#' For `named_list`, the list that was passed in but with names. An empty input results in a _named list_ output: a list of length 0, with a `names` attribute.
+#'
+#' For `is_url`, whether the object appears to be a URL (is character of length 1, and starts with the string `"http"`). Optionally, restricts the check to HTTPS URLs only. For `is_empty`, whether the length of the object is zero (this includes the special case of `NULL`).
 #'
 #' @rdname utils
 #' @export
-named_list <- function(lst, name_fields="name")
+named_list <- function(lst=NULL, name_fields="name")
 {
     if(is_empty(lst))
-        return(list())
+        return(structure(list(), names=character(0)))
 
     lst_names <- sapply(name_fields, function(n) sapply(lst, `[[`, n))
     if(length(name_fields) > 1)
