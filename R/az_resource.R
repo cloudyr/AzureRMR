@@ -16,6 +16,7 @@
 #' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
+#' - `list_locks()`: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
 #'
 #' @section Initialization:
 #' There are multiple ways to initialize a new resource object. The `new()` method can retrieve an existing resource, deploy/create a new resource, or create an empty/null object (without communicating with the host), based on the arguments you supply.
@@ -295,6 +296,25 @@ public=list(
         op <- file.path("providers/Microsoft.Authorization/locks", name)
         self$do_operation(op, http_verb="DELETE", api_version=api)
         invisible(NULL)
+    },
+
+    list_locks=function()
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- "providers/Microsoft.Authorization/locks"
+        cont <- self$do_operation(op, api_version=api)
+
+        lst <- lapply(cont$value, function(parms)
+            az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
+        # keep going until paging is complete
+        while(!is_empty(cont$nextLink))
+        {
+            cont <- call_azure_url(self$token, cont$nextLink)
+            lst <- c(lst, lapply(cont$value, function(parms)
+                az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api)))
+        }
+        names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
+        lst
     },
 
     print=function(...)

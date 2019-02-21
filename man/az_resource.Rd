@@ -26,6 +26,7 @@ Class representing a generic Azure resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource. The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
+\item \code{list_locks()}: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
 }
 }
 

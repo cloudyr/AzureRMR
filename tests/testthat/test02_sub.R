@@ -35,5 +35,9 @@ test_that("Subscription methods work",
     # assume there are actually resources
     res <- sub$list_resources()
     expect_true(is.list(res) && all(sapply(res, is_resource)))
+
+    # locks (minimal testing at sub level right now)
+    locks <- sub$list_locks()
+    expect_true(is.list(locks))
 })
 

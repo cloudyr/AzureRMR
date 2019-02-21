@@ -25,6 +25,7 @@ Class representing an Azure subscription.
 \item \code{create_lock(name, level)}: Create a management lock on this subscription (which will propagate to all resources within it). The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
+\item \code{list_locks()}: List all locks that exist in this subscription.
 \item \code{get_provider_api_version(provider, type)}: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
 }
 }

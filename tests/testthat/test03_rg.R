@@ -39,6 +39,10 @@ test_that("Resource group methods work",
     # locking
     expect_is(rgnew$create_lock("newlock_rg", level="cannotdelete"), "az_resource")
     expect_is(rgnew$get_lock("newlock_rg"), "az_resource")
+    expect_true({
+        locks <- rgnew$list_locks()
+        is.list(locks) && all(sapply(locks, is_resource))
+    })
     expect_null(rgnew$delete_lock("newlock_rg"))
     expect_error(rgnew$get_lock("newlock_rg"))
 

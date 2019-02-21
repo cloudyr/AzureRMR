@@ -21,6 +21,7 @@
 #' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
+#' - `list_locks()`: List all locks that apply to this resource group. Note this includes locks created at the subscription level, and for any resources within the resource group.
 #'
 #' @section Initialization:
 #' Initializing a new object of this class can either retrieve an existing resource group, or create a new resource group on the host. Generally, the easiest way to create a resource group object is via the `get_resource_group`, `create_resource_group` or `list_resource_groups` methods of the [az_subscription] class, which handle this automatically.
@@ -181,7 +182,8 @@ public=list(
     list_resources=function()
     {
         cont <- private$rg_op("resources")
-        lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$subscription, deployed_properties=parms))
+        lst <- lapply(cont$value, function(parms)
+            az_resource$new(self$token, self$subscription, deployed_properties=parms))
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
@@ -292,6 +294,25 @@ public=list(
         op <- file.path("providers/Microsoft.Authorization/locks", name)
         private$rg_op(op, http_verb="DELETE", api_version=api)
         invisible(NULL)
+    },
+
+    list_locks=function()
+    {
+        api <- getOption("azure_api_mgmt_version")
+        op <- "providers/Microsoft.Authorization/locks"
+        cont <- private$rg_op(op, api_version=api)
+
+        lst <- lapply(cont$value, function(parms)
+            az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
+        # keep going until paging is complete
+        while(!is_empty(cont$nextLink))
+        {
+            cont <- call_azure_url(self$token, cont$nextLink)
+            lst <- c(lst, lapply(cont$value, function(parms)
+                az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api)))
+        }
+        names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
+        lst
     },
 
     print=function(...)

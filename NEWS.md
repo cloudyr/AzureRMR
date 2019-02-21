@@ -17,7 +17,7 @@
 * New resource method `az_resource$get_api_version` to match `set_api_version`.
 * By default, use the latest _stable_ API version when interacting with resources. `az_resource$set_api_version` gains a new argument `stable_only` which defaults to `TRUE`; set this to `FALSE` if you want the latest preview version.
 * `az_resource$sync_fields()` will respect a non-default API version.
-* Add management lock functionality for subscriptions, resource groups and resources. Call `create_lock` to create a lock, `get_lock` to retrieve an existing lock object, and `delete_lock` to delete a lock.
+* Add management lock functionality for subscriptions, resource groups and resources. Call `create_lock` to create a lock, `get_lock` to retrieve an existing lock object, and `delete_lock` to delete a lock. Call `list_locks` to list all the locks that apply to an object.
 * Add tagging functionality for resource groups, similar to that for resources. Call `set_tags` to set tags, and `get_tags` to retrieve them.
 * Allow `named_list` to accept empty inputs. The output will be a list of length 0 with a `names` attribute.
 * Fix template deployment not to drop empty fields (related to #13).

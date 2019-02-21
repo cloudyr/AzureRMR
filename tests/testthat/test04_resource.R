@@ -57,6 +57,10 @@ test_that("Resource methods work",
     # locking
     expect_is(res$create_lock("newlock_res", level="cannotdelete"), "az_resource")
     expect_is(res$get_lock("newlock_res"), "az_resource")
+    expect_true({
+        locks <- res$list_locks()
+        is.list(locks) && all(sapply(locks, is_resource))
+    })
     expect_null(res$delete_lock("newlock_res"))
     expect_error(res$get_lock("newlock_res"))
 
