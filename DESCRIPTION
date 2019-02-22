@@ -27,4 +27,3 @@ Suggests:
     httpuv
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0.9000
-Remotes: cloudyr/AzureAuth
