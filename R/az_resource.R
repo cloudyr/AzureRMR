@@ -392,24 +392,28 @@ private=list(
             message("Waiting for provisioning to complete")
             for(i in 1:1000) # some resources can take a long time to provision (AKS, Kusto)
             {
-                Sys.sleep(5)
-                res <- private$res_op()
-                status <- res$properties$provisioningState
-                if(status %in% c("Succeeded", "Error", "Failed"))
-                    break
                 message(".", appendLF=FALSE)
+                Sys.sleep(5)
+
+                # some resources return from creation before they can be retrieved, let http 404's through
+                res <- private$res_op(http_status_handler="pass")
+
+                success <- httr::status_code(res) < 300 &&
+                    httr::content(res)$properties$provisioningState %in% c("Succeeded", "Error", "Failed")
+                if(success)
+                    break
             }
-            if(status == "Succeeded")
+            if(success)
                 message("\nDeployment successful")
             else stop("\nUnable to create resource", call.=FALSE)
+            httr::content(res)
         }
         else
         {
             # allow time for provisioning setup, then get properties
             Sys.sleep(2)
-            res <- private$res_op()
+            private$res_op()
         }
-        res
     },
 
     validate_deploy_parms=function(parms)
