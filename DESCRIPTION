@@ -3,8 +3,6 @@ Title: Interface to 'Azure Resource Manager'
 Version: 2.0.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
-    person("Scott", "Holden", , role = "ctb", comment = "Advice on AAD authentication"),
-    person("Chris", "Stone", , role = "ctb", comment = "Advice on AAD authentication"),
     person("Microsoft", role="cph")
     )
 Description: A lightweight but powerful R interface to the 'Azure Resource Manager' REST API. The package exposes classes and methods for 'OAuth' authentication and working with subscriptions and resource groups. It also provides functionality for creating and deleting 'Azure' resources and deploying templates. While 'AzureRMR' can be used to manage any 'Azure' service, it can also be extended by other packages to provide extra functionality for specific services.
