@@ -22,7 +22,7 @@ list_azure_logins()
 \arguments{
 \item{tenant}{The Azure Active Directory tenant for which to obtain a login client. Can be a name ("myaadtenant"), a fully qualified domain name ("myaadtenant.onmicrosoft.com" or "mycompanyname.com"), or a GUID. The default is to login via the "common" tenant, which will infer your actual tenant from your credentials.}
 
-\item{app}{The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.}
+\item{app}{The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but you can supply your own app credentials as well.}
 
 \item{password}{If \code{auth_type == "client_credentials"}, the app secret; if \code{auth_type == "resource_owner"}, your account password.}
 
@@ -63,7 +63,7 @@ One difference between \code{create_azure_login} and \code{get_azure_login} is t
 }
 \section{Linux DSVM note}{
 
-If you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may have problems running \code{create_azure_login()}. In this case, try \code{create_azure_login(auth_type="device_code")}.
+If you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may have problems running \code{create_azure_login()} (ie, without any arguments). In this case, try \code{create_azure_login(auth_type="device_code")}.
 }
 
 \examples{

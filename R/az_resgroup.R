@@ -37,6 +37,7 @@
 #'   3. A vector of strings containing unparsed JSON
 #'   4. A URL from which the template can be downloaded
 #' - `parameters`: The parameters for the template. This can be provided using any of the same methods as the `template` argument.
+#' - `wait`: Optionally, whether or not to wait until the deployment is complete before returning. Defaults to `FALSE`.
 #'
 #' Retrieving or deleting a deployed template requires only the name of the deployment.
 #'
@@ -50,7 +51,7 @@
 #'
 #' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `type` argument will fill in the values for `provider` and `path`. Unless you provide `id`, you must also provide `name`.
 #'
-#' To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to `create_resource()`.
+#' To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to `create_resource()`. Like `deploy_template()`, `create_resource()` also takes an optional `wait` argument that specifies whether to wait until resource creation is complete before returning.
 #'
 #' @seealso
 #' [az_subscription], [az_template], [az_resource],

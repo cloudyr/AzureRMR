@@ -55,6 +55,7 @@ To deploy a new template, pass the following arguments to \code{deploy_template(
 \item A URL from which the template can be downloaded
 }
 \item \code{parameters}: The parameters for the template. This can be provided using any of the same methods as the \code{template} argument.
+\item \code{wait}: Optionally, whether or not to wait until the deployment is complete before returning. Defaults to \code{FALSE}.
 }
 
 Retrieving or deleting a deployed template requires only the name of the deployment.
@@ -73,7 +74,7 @@ There are a number of arguments to \code{get_resource()}, \code{create_resource(
 
 Providing the \code{id} argument will fill in the values for all the other arguments. Similarly, providing the \code{type} argument will fill in the values for \code{provider} and \code{path}. Unless you provide \code{id}, you must also provide \code{name}.
 
-To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to \code{create_resource()}.
+To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to \code{create_resource()}. Like \code{deploy_template()}, \code{create_resource()} also takes an optional \code{wait} argument that specifies whether to wait until resource creation is complete before returning.
 }
 
 \examples{
