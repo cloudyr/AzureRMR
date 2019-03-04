@@ -7,6 +7,7 @@ NULL
 {
     azure_api_version <- "2018-05-01"
     azure_api_mgmt_version <- "2016-09-01"
+    graph_api_version <- "1.6"
 
     options(azure_api_version=azure_api_version)
     options(azure_api_mgmt_version=azure_api_mgmt_version)
