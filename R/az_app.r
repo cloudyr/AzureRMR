@@ -44,7 +44,8 @@ public=list(
     signInAudience=NULL,
     tokenEncryptionKeyId=NULL,
 
-    initialize=function()
+    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, ...,
+                        deployed_properties=list(), api_version=getOption("azure_graph_api_version"))
     {},
 
     delete=function(confirm=TRUE)

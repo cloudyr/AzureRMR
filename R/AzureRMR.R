@@ -7,10 +7,13 @@ NULL
 {
     azure_api_version <- "2018-05-01"
     azure_api_mgmt_version <- "2016-09-01"
-    graph_api_version <- "1.6"
+    azure_rbac_api_version <- "2017-09-01"
+    azure_graph_api_version <- "1.6"
 
     options(azure_api_version=azure_api_version)
     options(azure_api_mgmt_version=azure_api_mgmt_version)
+    options(azure_rbac_api_version=azure_rbac_api_version)
+    options(azure_graph_api_version=azure_graph_api_version)
 
     make_AzureR_dir()
 

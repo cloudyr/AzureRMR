@@ -18,7 +18,9 @@ Imports:
     httr (>= 1.3),
     openssl,
     jsonlite,
-    R6
+    R6,
+    xml2,
+    uuid
 Suggests:
     knitr,
     testthat,

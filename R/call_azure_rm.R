@@ -79,7 +79,7 @@ process_response <- function(response, handler)
     if(handler != "pass")
     {
         handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
-        handler(response, paste0("complete Resource Manager operation. Message:\n",
+        handler(response, paste0("complete operation. Message:\n",
                                  sub("\\.$", "", arm_error_message(response))))
         cont <- httr::content(response)
         if(is.null(cont))
@@ -99,6 +99,8 @@ arm_error_message <- function(response)
     # kiboze through possible message locations
     msg <- if(is.character(cont))
         cont
+    else if(inherits(cont, "xml_node"))
+        paste(xml2::xml_text(xml2::xml_children(cont)), collapse=": ")
     else if(is.list(cont) && is.character(cont$message))
         cont$message
     else if(is.list(cont) && is.list(cont$error) && is.character(cont$error$message))

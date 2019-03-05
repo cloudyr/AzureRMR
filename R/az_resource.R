@@ -317,24 +317,6 @@ public=list(
         lst
     },
 
-    add_role_assignment=function()
-    {},
-
-    delete_role_assignment=function(confirm=TRUE)
-    {},
-
-    get_role_assignment=function()
-    {},
-
-    list_role_assignments=function()
-    {},
-
-    get_role_definition=function()
-    {},
-
-    list_role_definitions=function()
-    {},
-
     print=function(...)
     {
         # generate label from id, since type and name are not guaranteed to be fixed for sub-resources
