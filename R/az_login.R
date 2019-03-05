@@ -74,6 +74,9 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NUL
         if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
     }
 
+    tenant <- normalize_tenant(tenant)
+    app <- normalize_guid(app)
+
     hash <- token_hash(
         resource=host,
         tenant=tenant,
@@ -89,9 +92,6 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NUL
         message("Deleting existing Azure Active Directory token for this set of credentials")
         file.remove(tokenfile)
     }
-
-    tenant <- normalize_tenant(tenant)
-    app <- normalize_guid(app)
 
     message("Creating Azure Resource Manager login for ", format_tenant(tenant))
     client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
@@ -239,7 +239,7 @@ save_arm_logins <- function(logins)
 
 format_tenant <- function(tenant)
 {
-    if(tenant == "common")
+    if(tenant %in% c("common", "myorganization"))
         "default tenant"
     else paste0("tenant '", tenant, "'")
 }

@@ -121,6 +121,12 @@ function()
 
 add_role_assignment <- function(principal, role, scope, new_id, api_func)
 {
+    # obtain object ID from a service principal or registered app
+    if(is_service_principal(principal))
+        principal <- principal$objectId
+    else if(is_app(principal))
+        principal <- principal$get_service_principal()$objectId
+
     role <- self$get_role_definition(role)
     op <- file.path("providers/Microsoft.Authorization/roleAssignments", new_id)
     api_func(op, api_version=getOption("azure_rbac_api_version"),
