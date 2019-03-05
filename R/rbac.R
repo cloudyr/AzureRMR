@@ -134,7 +134,7 @@ add_role_assignment <- function(principal, role, scope, new_id, api_func)
     )
 }
 
-get_role_assignment <- function(id)
+get_role_assignment <- function(id, api_func)
 {}
 
 remove_role_assignment <- function(id, confirm, api_func)
