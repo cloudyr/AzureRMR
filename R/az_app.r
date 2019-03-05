@@ -48,18 +48,17 @@ public=list(
     signInAudience=NULL,
     tokenEncryptionKeyId=NULL,
 
-    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, password=NULL, ...,
-                        deployed_properties=list(), api_version=getOption("azure_graph_api_version"))
+    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, password=NULL, password_duration=1, ...,
+                        deployed_properties=list())
     {
         self$token <- token
         self$tenant <- tenant
-        private$api_version <- api_version
 
         parms <- if(!is_empty(list(...)))
-            private$init_and_deploy(..., password=password)
+            private$init_and_deploy(..., password=password, password_duration=password_duration)
         else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
-        else private$init_from_host(tenant, object_id, app_id)
+        else private$init_from_host(object_id, app_id)
 
         # fill in values
         parm_names <- names(parms)
@@ -94,16 +93,47 @@ public=list(
 
 private=list(
     
-    api_version=NULL,
+    password=NULL,
 
-    init_and_deploy=function(...)
-    {},
+    init_and_deploy=function(..., password, password_duration)
+    {
+        properties <- list(...)
+        if(is.null(password) || password != FALSE)
+        {
+            key <- "awBlAHkAMQA=" # base64/UTF-16LE encoded "key1"
+            if(is.null(password))
+                password <- paste0(sample(c(letters, LETTERS, 0:9), 50, replace=TRUE), collapse="")
+
+            end_date <- if(is.finite(password_duration))
+            {
+                now <- as.POSIXlt(Sys.time())
+                now$year <- exp_date$year + password_duration
+                format(as.POSIXct(now), "%Y-%m-%dT%H:%M:%SZ", tz="GMT")
+            }
+            else "2299-12-30T13:00:00Z"
+
+            private$password <- password
+            properties <- modifyList(properties, list(passwordCredentials=list(
+                customKeyIdentifier=key,
+                endDate=end_date,
+                value=password
+            )))
+        }
+
+        call_azure_graph(token, self$tenant, "applications", body=properties, encode="json", http_verb="PUT")
+    },
 
     init_from_parms=function(parms)
     {
         parms
     },
 
-    init_from_host=function(tenant, object_id, app_id)
-    {}
+    init_from_host=function(object_id, app_id)
+    {
+        op <- if(is.null(object_id))
+            file.path("applicationsByAppId", app_id)
+        else file.path("applications", object_id)
+
+        call_azure_graph(token, self$tenant, op)
+    }
 ))

@@ -16,7 +16,6 @@ Imports:
     AzureAuth,
     utils,
     httr (>= 1.3),
-    openssl,
     jsonlite,
     R6,
     xml2,
