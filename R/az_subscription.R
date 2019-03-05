@@ -84,7 +84,7 @@ public=list(
 
     list_locations=function()
     {
-        cont <- call_azure_rm(self$token, self$id, "locations")
+        cont <- private$sub_op("locations")
         locs <- do.call(rbind, lapply(cont$value, data.frame, stringsAsFactors=FALSE))
         within(locs,
         {
@@ -99,7 +99,7 @@ public=list(
     {
         if(is_empty(provider))
         {
-            apis <- named_list(call_azure_rm(self$token, self$id, "providers")$value, "namespace")
+            apis <- named_list(private$sub_op("providers")$value, "namespace")
             lapply(apis, function(api)
             {
                 api <- named_list(api$resourceTypes, "resourceType")
@@ -110,7 +110,7 @@ public=list(
         else
         {
             op <- construct_path("providers", provider)
-            apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
+            apis <- named_list(private$sub_op(op)$resourceTypes, "resourceType")
             if(!is_empty(type))
             {
                 # case-insensitive matching
@@ -131,7 +131,7 @@ public=list(
 
     list_resource_groups=function()
     {
-        cont <- call_azure_rm(self$token, self$id, "resourcegroups")
+        cont <- private$sub_op("resourcegroups")
         lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
@@ -156,14 +156,14 @@ public=list(
 
     resource_group_exists=function(name)
     {
-        res <- call_azure_rm(self$token, self$id, construct_path("resourceGroups", name),
+        res <- private$sub_op(construct_path("resourceGroups", name),
             http_verb="HEAD", http_status_handler="pass")
         httr::status_code(res) < 300
     },
 
     list_resources=function()
     {
-        cont <- call_azure_rm(self$token, self$id, "resources")
+        cont <- private$sub_op("resources")
         lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
@@ -185,7 +185,7 @@ public=list(
         if(notes != "")
             body$notes <- notes
 
-        res <- call_azure_rm(self$token, self$id, op, body=body, encode="json", http_verb="PUT", api_version=api)
+        res <- private$sub_op(op, body=body, encode="json", http_verb="PUT", api_version=api)
         az_resource$new(self$token, self$id, deployed_properties=res, api_version=api)
     },
 
@@ -193,7 +193,7 @@ public=list(
     {
         api <- getOption("azure_api_mgmt_version")
         op <- file.path("providers/Microsoft.Authorization/locks", name)
-        res <- call_azure_rm(self$token, self$id, op, api_version=api)
+        res <- private$sub_op(op, api_version=api)
         az_resource$new(self$token, self$id, deployed_properties=res, api_version=api)
     },
 
@@ -201,7 +201,7 @@ public=list(
     {
         api <- getOption("azure_api_mgmt_version")
         op <- file.path("providers/Microsoft.Authorization/locks", name)
-        call_azure_rm(self$token, self$id, op, http_verb="DELETE", api_version=api)
+        private$sub_op(op, http_verb="DELETE", api_version=api)
         invisible(NULL)
     },
 
@@ -209,7 +209,7 @@ public=list(
     {
         api <- getOption("azure_api_mgmt_version")
         op <- "providers/Microsoft.Authorization/locks"
-        cont <- call_azure_rm(self$token, self$id, op, api_version=api)
+        cont <- private$sub_op(op, api_version=api)
 
         lst <- lapply(cont$value, function(parms)
             az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
