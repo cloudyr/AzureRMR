@@ -185,9 +185,9 @@ save_graph_logins <- function(logins)
 normalize_graph_tenant <- function(tenant)
 {
     tenant <- tolower(tenant)
-    if(is_guid(tenant) || tenant == "myorganization")
+    if(is_guid(tenant))
         return(normalize_guid(tenant))
-    if(!grepl("\\.", tenant))
-        stop("Graph API tenant must be a domain name, GUID or 'myorganization'")
+    if(tenant != "myorganization" && !grepl("\\.", tenant))
+        stop("Azure Active Directory Graph tenant must be a domain name, GUID or 'myorganization'", call.=FALSE)
     tenant
 }
