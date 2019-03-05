@@ -2,6 +2,10 @@ az_app <- R6::R6Class("az_app",
 
 public=list(
 
+    token=NULL,
+    tenant=NULL,
+
+    # app data from server
     odata.metadata=NULL,
     odata.type=NULL,
     objectType=NULL,
@@ -44,9 +48,30 @@ public=list(
     signInAudience=NULL,
     tokenEncryptionKeyId=NULL,
 
-    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, ...,
+    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, password=NULL, ...,
                         deployed_properties=list(), api_version=getOption("azure_graph_api_version"))
-    {},
+    {
+        self$token <- token
+        self$tenant <- tenant
+        private$api_version <- api_version
+
+        parms <- if(!is_empty(list(...)))
+            private$init_and_deploy(..., password=password)
+        else if(!is_empty(deployed_properties))
+            private$init_from_parms(deployed_properties)
+        else private$init_from_host(tenant, object_id, app_id)
+
+        # fill in values
+        parm_names <- names(parms)
+        obj_names <- names(self)
+        mapply(function(name, value)
+        {
+            if(name %in% obj_names)
+                self[[name]] <- value
+        }, parm_names, parms)
+
+        self
+    },
 
     delete=function(confirm=TRUE)
     {},
@@ -64,5 +89,21 @@ public=list(
     {},
 
     delete_service_principal=function()
+    {}
+),
+
+private=list(
+    
+    api_version=NULL,
+
+    init_and_deploy=function(...)
+    {},
+
+    init_from_parms=function(parms)
+    {
+        parms
+    },
+
+    init_from_host=function(tenant, object_id, app_id)
     {}
 ))

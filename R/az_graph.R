@@ -52,11 +52,15 @@ public=list(
         NULL
     },
 
-    create_app=function()
-    {},
+    create_app=function(name, ..., password=NULL)
+    {
+        az_app$new(self$token, self$tenant, displayName=name, password=password, ...)
+    },
 
-    get_app=function()
-    {},
+    get_app=function(object_id=NULL, app_id=NULL)
+    {
+        az_app$new(self$token, self$tenant, object_id, app_id)
+    },
 
     delete_app=function()
     {},
