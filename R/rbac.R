@@ -135,10 +135,24 @@ add_role_assignment <- function(principal, role, scope, new_id, api_func)
 }
 
 get_role_assignment <- function(id, api_func)
-{}
+{
+    op <- file.path("providers/Microsoft.Authorization/roleAssignments", id)
+    api_func(op, api_version=getOption("azure_rbac_api_version"))
+}
 
 remove_role_assignment <- function(id, confirm, api_func)
-{}
+{
+    if(confirm && interactive())
+    {
+        yn <- readline(paste0("Do you really want to delete role assignment '", id, "'? (y/N) "))
+        if(tolower(substr(yn, 1, 1)) != "y")
+            return(invisible(NULL))
+    }
+
+    op <- file.path("providers/Microsoft.Authorization/roleAssignments", id)
+    api_func(op, api_version=getOption("azure_rbac_api_version"), http_verb="DELETE")
+    invisible(NULL)
+}
 
 list_role_assignments <- function(api_func)
 {

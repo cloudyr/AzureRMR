@@ -91,7 +91,7 @@ process_response <- function(response, handler)
 }
 
 
-# provide complete error messages from Resource Manager
+# provide complete error messages from Resource Manager/AAD Graph/etc
 error_message <- function(response)
 {
     cont <- httr::content(response)
