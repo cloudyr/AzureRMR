@@ -231,4 +231,12 @@ public=list(
         cat(format_public_methods(self))
         invisible(self)
     }
+),
+
+private=list(
+
+    sub_op=function(op="", ...)
+    {
+        call_azure_rm(self$token, self$id, op, ...)
+    }
 ))
