@@ -80,7 +80,7 @@ process_response <- function(response, handler)
     {
         handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
         handler(response, paste0("complete operation. Message:\n",
-                                 sub("\\.$", "", arm_error_message(response))))
+                                 sub("\\.$", "", error_message(response))))
         cont <- httr::content(response)
         if(is.null(cont))
             cont <- list()
@@ -92,7 +92,7 @@ process_response <- function(response, handler)
 
 
 # provide complete error messages from Resource Manager
-arm_error_message <- function(response)
+error_message <- function(response)
 {
     cont <- httr::content(response)
 
