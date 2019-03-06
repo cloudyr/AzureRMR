@@ -34,17 +34,13 @@ public=list(
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
         }
 
-        aad_tenant <- if(missing(tenant) || tenant == "myorganization")
-            "common"
-        else tenant
-
         self$host <- host
         self$tenant <- normalize_graph_tenant(tenant)
-        aad_tenant <- normalize_tenant(aad_tenant)
+        tenant <- normalize_tenant(tenant)
         app <- normalize_guid(app)
 
         self$token <- get_azure_token(self$host, 
-            tenant=aad_tenant,
+            tenant=tenant,
             app=app,
             password=password,
             username=username,
@@ -91,3 +87,16 @@ public=list(
         invisible(self)
     }
 ))
+
+
+normalize_graph_tenant <- function(tenant)
+{
+    tenant <- tolower(tenant)
+    if(is_guid(tenant))
+        return(normalize_guid(tenant))
+    if(tenant == "common")
+        tenant <- "myorganization"
+    if(tenant != "myorganization" && !grepl("\\.", tenant))
+        stop("Azure Active Directory Graph tenant must be a domain name, GUID or 'myorganization'", call.=FALSE)
+    tenant
+}
