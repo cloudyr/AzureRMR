@@ -31,7 +31,7 @@ public=list(
                 return(invisible(NULL))
         }
 
-        op <- file.path("applications", self$properties$ObjectId)
+        op <- file.path("applications", self$properties$objectId)
         call_azure_graph(self$token, self$tenant, op, http_verb="DELETE")
         invisible(NULL)
     },

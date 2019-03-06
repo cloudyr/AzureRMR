@@ -78,10 +78,10 @@ process_response <- function(response, handler)
 {
     if(handler != "pass")
     {
+        cont <- httr::content(response)
         handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
         handler(response, paste0("complete operation. Message:\n",
-                                 sub("\\.$", "", error_message(response))))
-        cont <- httr::content(response)
+                                 sub("\\.$", "", error_message(cont))))
         if(is.null(cont))
             cont <- list()
         attr(cont, "status") <- httr::status_code(response)
@@ -92,19 +92,22 @@ process_response <- function(response, handler)
 
 
 # provide complete error messages from Resource Manager/AAD Graph/etc
-error_message <- function(response)
+error_message <- function(cont)
 {
-    cont <- httr::content(response)
-
     # kiboze through possible message locations
     msg <- if(is.character(cont))
         cont
-    else if(inherits(cont, "xml_node"))
+    else if(inherits(cont, "xml_node")) # Graph
         paste(xml2::xml_text(xml2::xml_children(cont)), collapse=": ")
-    else if(is.list(cont) && is.character(cont$message))
-        cont$message
-    else if(is.list(cont) && is.list(cont$error) && is.character(cont$error$message))
-        cont$error$message
+    else if(is.list(cont))
+    {
+        if(is.character(cont$message))
+            cont$message
+        else if(is.list(cont$error) && is.character(cont$error$message))
+            cont$error$message
+        else if(is.list(cont$odata.error)) # Graph OData
+            paste(cont$odata.error$code, cont$odata.error$message$value, sep=": ")
+    } 
     else ""
 
     paste0(strwrap(msg), collapse="\n")
