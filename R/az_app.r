@@ -6,47 +6,7 @@ public=list(
     tenant=NULL,
 
     # app data from server
-    odata.metadata=NULL,
-    odata.type=NULL,
-    objectType=NULL,
-    objectId=NULL,
-    deletionTimestamp=NULL,
-    acceptMappedClaims=NULL,
-    addIns=NULL,
-    appId=NULL,
-    appRoles=NULL,
-    availableToOtherTenants=NULL,
-    displayName=NULL,
-    errorUrl=NULL,
-    groupMembershipClaims=NULL,
-    homepage=NULL,
-    identifierUris=NULL,
-    informationalUrls=NULL,
-    isDeviceOnlyAuthSupported=NULL,
-    keyCredentials=NULL,
-    knownClientApplications=NULL,
-    logoutUrl=NULL,
-    `logo@odata.mediaEditLink`=NULL,
-    `logo@odata.mediaContentType`=NULL,
-    logoUrl=NULL,
-    `mainLogo@odata.mediaEditLink`=NULL,
-    oauth2AllowIdTokenImplicitFlow=NULL,
-    oauth2AllowImplicitFlow=NULL,
-    oauth2AllowUrlPathMatching=NULL,
-    oauth2Permissions=NULL,
-    oauth2RequirePostResponse=NULL,
-    optionalClaims=NULL,
-    orgRestrictions=NULL,
-    parentalControlSettings=NULL,
-    passwordCredentials=NULL,
-    publicClient=NULL,
-    publisherDomain=NULL,
-    recordConsentConditions=NULL,
-    replyUrls=NULL,
-    requiredResourceAccess=NULL,
-    samlMetadataUrl=NULL,
-    signInAudience=NULL,
-    tokenEncryptionKeyId=NULL,
+    properties=NULL,
 
     initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, password=NULL, password_duration=1, ...,
                         deployed_properties=list())
@@ -54,41 +14,50 @@ public=list(
         self$token <- token
         self$tenant <- tenant
 
-        parms <- if(!is_empty(list(...)))
+        self$properties <- if(!is_empty(list(...)))
             private$init_and_deploy(..., password=password, password_duration=password_duration)
         else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
         else private$init_from_host(object_id, app_id)
-
-        # fill in values
-        parm_names <- names(parms)
-        obj_names <- names(self)
-        mapply(function(name, value)
-        {
-            if(name %in% obj_names)
-                self[[name]] <- value
-        }, parm_names, parms)
-
-        self
     },
 
     delete=function(confirm=TRUE)
-    {},
+    {
+        if(confirm && interactive())
+        {
+            msg <- paste0("Do you really want to delete the '", self$properties$displayName, "' app? (y/N) ")
+            yn <- readline(msg)
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+        }
 
-    update=function()
+        op <- file.path("applications", self$properties$ObjectId)
+        call_azure_graph(self$token, self$tenant, op, http_verb="DELETE")
+        invisible(NULL)
+    },
+
+    update=function(...)
     {},
 
     sync_fields=function()
     {},
 
-    create_service_principal=function()
-    {},
+    create_service_principal=function(...)
+    {
+        az_service_principal$new(self$token, self$tenant, app_id=self$properties$appId, ..., mode="create")
+    },
 
     get_service_principal=function()
-    {},
+    {
+        az_service_principal$new(self$token, self$tenant, app_id=self$properties$appId, mode="get")
+    },
 
-    delete_service_principal=function()
-    {}
+    delete_service_principal=function(confirm=TRUE)
+    {
+        az_service_principal$new(self$token, self$tenant, app_id=self$properties$appId,
+            deployed_properties=list(NULL), mode="get")$
+            delete(confirm=confirm)
+    }
 ),
 
 private=list(
@@ -120,7 +89,7 @@ private=list(
             )))
         }
 
-        call_azure_graph(token, self$tenant, "applications", body=properties, encode="json", http_verb="PUT")
+        call_azure_graph(token, self$tenant, "applications", body=properties, encode="json", http_verb="POST")
     },
 
     init_from_parms=function(parms)

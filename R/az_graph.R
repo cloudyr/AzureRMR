@@ -1,3 +1,4 @@
+#' @export
 az_graph <- R6::R6Class("az_graph",
 
 public=list(
@@ -52,9 +53,12 @@ public=list(
         NULL
     },
 
-    create_app=function(name, ..., password=NULL)
+    create_app=function(name, ..., password=NULL, create_service_principal=TRUE)
     {
-        az_app$new(self$token, self$tenant, displayName=name, password=password, ...)
+        res <- az_app$new(self$token, self$tenant, displayName=name, password=password, ...)
+        if(create_service_principal)
+            res$create_service_principal()
+        res
     },
 
     get_app=function(object_id=NULL, app_id=NULL)
@@ -65,19 +69,15 @@ public=list(
     delete_app=function()
     {},
 
-    list_apps=function()
-    {},
+    create_service_principal=function(app_id, ...)
+    {
+        az_service_principal$new(self$token, self$tenant, app_id=app_id, ...)
+    },
 
-    create_service_principal=function()
-    {},
-
-    get_service_principal=function()
+    get_service_principal=function(object_id, app_id)
     {},
 
     delete_service_principal=function()
-    {},
-
-    list_service_principals=function()
     {},
 
     print=function(...)

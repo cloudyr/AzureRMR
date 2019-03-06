@@ -45,3 +45,18 @@ is_template <- function(object)
     R6::is.R6(object) && inherits(object, "az_template")
 }
 
+
+#' @rdname is
+#' @export
+is_app <- function(object)
+{
+    R6::is.R6(object) && inherits(object, "az_app")
+}
+
+
+#' @rdname is
+#' @export
+is_service_principal <- function(object)
+{
+    R6::is.R6(object) && inherits(object, "az_service_principal")
+}

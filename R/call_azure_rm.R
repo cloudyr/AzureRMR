@@ -1,7 +1,7 @@
 #' Call the Azure Resource Manager REST API
 #'
 #' @param token An Azure OAuth token, of class [AzureToken].
-#' @param subscription A subscription ID.
+#' @param subscription For `call_azure_rm`, a subscription ID.
 #' @param operation The operation to perform, which will form part of the URL path.
 #' @param options A named list giving the URL query parameters.
 #' @param api_version The API version to use, which will form part of the URL sent to the host.
@@ -12,7 +12,7 @@
 #' @param ... Other arguments passed to lower-level code, ultimately to the appropriate functions in httr.
 #'
 #' @details
-#' These functions form the low-level interface between AzureRMR and Resource Manager. `call_azure_rm` builds a URL from its arguments and passes it to `call_azure_url`. Authentication is handled automatically.
+#' These functions form the low-level interface between R and Azure. `call_azure_rm` is for calling the Resource Manager API, and `call_azure_graph` is for calling the Azure Active Directory Graph API. They build a URL from their arguments and pass it to `call_azure_url`. Authentication is handled automatically.
 #'
 #' @return
 #' If `http_status_handler` is one of `"stop"`, `"warn"` or `"message"`, the status code of the response is checked. If an error is not thrown, the parsed content of the response is returned with the status code attached as the "status" attribute.
