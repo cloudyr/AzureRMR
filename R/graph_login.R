@@ -63,8 +63,8 @@ get_graph_login <- function(tenant="myorganization", selection=NULL, refresh=TRU
 
     tenant <- normalize_graph_tenant(tenant)
 
-    arm_logins <- load_arm_logins()
-    this_login <- arm_logins[[tenant]]
+    graph_logins <- load_graph_logins()
+    this_login <- graph_logins[[tenant]]
     if(is_empty(this_login))
     {
         msg <- paste0("No Azure Active Directory Graph logins found for ", format_tenant(tenant),
@@ -104,7 +104,7 @@ get_graph_login <- function(tenant="myorganization", selection=NULL, refresh=TRU
     message("Loading Azure Active Directory Graph login for ", format_tenant(tenant))
 
     token <- readRDS(file)
-    client <- az_rm$new(token=token)
+    client <- az_graph$new(token=token)
 
     if(refresh)
         client$token$refresh()

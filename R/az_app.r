@@ -76,20 +76,20 @@ private=list(
             end_date <- if(is.finite(password_duration))
             {
                 now <- as.POSIXlt(Sys.time())
-                now$year <- exp_date$year + password_duration
+                now$year <- now$year + password_duration
                 format(as.POSIXct(now), "%Y-%m-%dT%H:%M:%SZ", tz="GMT")
             }
-            else "2299-12-30T13:00:00Z"
+            else "2299-12-30T12:00:00Z"
 
             private$password <- password
-            properties <- modifyList(properties, list(passwordCredentials=list(
+            properties <- modifyList(properties, list(passwordCredentials=list(list(
                 customKeyIdentifier=key,
                 endDate=end_date,
                 value=password
-            )))
+            ))))
         }
 
-        call_azure_graph(token, self$tenant, "applications", body=properties, encode="json", http_verb="POST")
+        call_azure_graph(self$token, self$tenant, "applications", body=properties, encode="json", http_verb="POST")
     },
 
     init_from_parms=function(parms)
@@ -103,6 +103,6 @@ private=list(
             file.path("applicationsByAppId", app_id)
         else file.path("applications", object_id)
 
-        call_azure_graph(token, self$tenant, op)
+        call_azure_graph(self$token, self$tenant, op)
     }
 ))
