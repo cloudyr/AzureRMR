@@ -21,9 +21,9 @@ function(id, confirm=TRUE)
 })
 
 az_subscription$set("public", "list_role_assignments", overwrite=TRUE,
-function()
+function(scope="atScope()")
 {
-    list_role_assignments(self$list_role_definitions(), private$sub_op)
+    list_role_assignments(scope, self$list_role_definitions(), private$sub_op)
 })
 
 az_subscription$set("public", "get_role_definition", overwrite=TRUE,
@@ -60,9 +60,9 @@ function(id, confirm=TRUE)
 })
 
 az_resource_group$set("public", "list_role_assignments", overwrite=TRUE,
-function()
+function(scope="atScope()")
 {
-    list_role_assignments(self$list_role_definitions(), private$rg_op)
+    list_role_assignments(scope, self$list_role_definitions(), private$rg_op)
 })
 
 az_resource_group$set("public", "get_role_definition", overwrite=TRUE,
@@ -99,9 +99,9 @@ function(id, confirm=TRUE)
 })
 
 az_resource$set("public", "list_role_assignments", overwrite=TRUE,
-function()
+function(scope="atScope()")
 {
-    list_role_assignments(self$list_role_definitions(), private$res_op)
+    list_role_assignments(scope, self$list_role_definitions(), private$res_op)
 })
 
 az_resource$set("public", "get_role_definition", overwrite=TRUE,
@@ -163,10 +163,10 @@ remove_role_assignment <- function(id, confirm, api_func)
     invisible(NULL)
 }
 
-list_role_assignments <- function(defs, api_func)
+list_role_assignments <- function(scope, defs, api_func)
 {
     op <- "providers/Microsoft.Authorization/roleAssignments"
-    res <- api_func(op, api_version=getOption("azure_rbac_api_version"))
+    res <- api_func(op, options=list(`$filter`=scope), api_version=getOption("azure_rbac_api_version"))
 
     roles <- lapply(res$value, function(x)
     {
