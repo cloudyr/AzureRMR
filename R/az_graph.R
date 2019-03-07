@@ -30,7 +30,7 @@ public=list(
             if(!is.null(conf$app)) app <- conf$app
             if(!is.null(conf$auth_type)) auth_type <- conf$auth_type
             if(!is.null(conf$password)) password <- conf$password
-            if(!is.null(conf$host)) host <- conf$host
+            if(!is.null(conf$graph_host)) host <- conf$graph_host
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
         }
 
@@ -92,11 +92,7 @@ public=list(
 normalize_graph_tenant <- function(tenant)
 {
     tenant <- tolower(tenant)
-    if(is_guid(tenant))
-        return(normalize_guid(tenant))
     if(tenant == "common")
-        tenant <- "myorganization"
-    if(tenant != "myorganization" && !grepl("\\.", tenant))
-        stop("Azure Active Directory Graph tenant must be a domain name, GUID or 'myorganization'", call.=FALSE)
-    tenant
+        "myorganization"
+    else normalize_tenant(tenant)
 }

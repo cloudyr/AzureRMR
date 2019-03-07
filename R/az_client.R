@@ -39,5 +39,15 @@ public=list(
     self$graph$get_service_principal(...),
 
     delete_service_principal=function(...)
-    self$graph$delete_service_principal(...)
+    self$graph$delete_service_principal(...),
+
+    print=function(...)
+    {
+        cat("<AzureRMR client>\n")
+        tenant <- if(self$tenant == "common")
+            "default"
+        else self$tenant
+        cat("  tenant:", tenant)
+
+    }
 ))
