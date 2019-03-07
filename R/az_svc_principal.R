@@ -34,8 +34,7 @@ public=list(
         op <- file.path("servicePrincipals", self$properties$objectId)
         call_azure_graph(self$token, self$tenant, op, http_verb="DELETE")
         invisible(NULL)
-    },
-
+    }
 ),
 
 private=list(

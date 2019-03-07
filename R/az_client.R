@@ -45,9 +45,12 @@ public=list(
     {
         cat("<AzureRMR client>\n")
         tenant <- if(self$tenant == "common")
-            "default"
+            "common/myorganization"
         else self$tenant
-        cat("  tenant:", tenant)
-
+        cat("  tenant:", tenant, "\n")
+        cat("  app:", self$arm$token$client$client_id, "\n")
+        cat("---\n")
+        cat(format_public_methods(self))
+        invisible(self)
     }
 ))
