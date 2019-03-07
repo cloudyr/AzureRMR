@@ -8,7 +8,7 @@ utils::globalVariables(c("self", "private"))
 {
     azure_api_version <- "2018-05-01"
     azure_api_mgmt_version <- "2016-09-01"
-    azure_rbac_api_version <- "2017-09-01"
+    azure_rbac_api_version <- "2015-07-01"
     azure_graph_api_version <- "1.6"
 
     options(azure_api_version=azure_api_version)

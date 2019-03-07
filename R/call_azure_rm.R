@@ -106,7 +106,7 @@ error_message <- function(cont)
         else if(is.list(cont$error) && is.character(cont$error$message))
             cont$error$message
         else if(is.list(cont$odata.error)) # Graph OData
-            paste(cont$odata.error$code, cont$odata.error$message$value, sep=": ")
+            cont$odata.error$message$value
     } 
     else ""
 

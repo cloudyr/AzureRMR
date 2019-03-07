@@ -71,7 +71,10 @@ private=list(
         {
             key <- "awBlAHkAMQA=" # base64/UTF-16LE encoded "key1"
             if(is.null(password))
-                password <- paste0(sample(c(letters, LETTERS, 0:9), 50, replace=TRUE), collapse="")
+            {
+                chars <- c(letters, LETTERS, 0:9, "~", "!", "@", "#", "$", "%", "&", "*", "(", ")", "-", "+")
+                password <- paste0(sample(chars, 50, replace=TRUE), collapse="")
+            }
 
             end_date <- if(is.finite(password_duration))
             {

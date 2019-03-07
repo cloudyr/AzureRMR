@@ -5,7 +5,7 @@
 az_subscription$set("public", "add_role_assignment", overwrite=TRUE,
 function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
 {
-    add_role_assignment(principal, role, scope, new_id, private$sub_op)
+    add_role_assignment(principal, self$get_role_definition(role), scope, new_id, private$sub_op)
 })
 
 az_subscription$set("public", "get_role_assignment", overwrite=TRUE,
@@ -23,13 +23,13 @@ function(id, confirm=TRUE)
 az_subscription$set("public", "list_role_assignments", overwrite=TRUE,
 function()
 {
-    list_role_assignments(private$sub_op)
+    list_role_assignments(self$list_role_definitions(), private$sub_op)
 })
 
 az_subscription$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, private$sub_op)
+    get_role_definition(id, self$list_role_definitions(), private$sub_op)
 })
 
 az_subscription$set("public", "list_role_definitions", overwrite=TRUE,
@@ -44,7 +44,7 @@ function()
 az_resource_group$set("public", "add_role_assignment", overwrite=TRUE,
 function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
 {
-    add_role_assignment(principal, role, scope, new_id, private$rg_op)
+    add_role_assignment(principal, self$get_role_definition(role), scope, new_id, private$rg_op)
 })
 
 az_resource_group$set("public", "get_role_assignment", overwrite=TRUE,
@@ -62,13 +62,13 @@ function(id, confirm=TRUE)
 az_resource_group$set("public", "list_role_assignments", overwrite=TRUE,
 function()
 {
-    list_role_assignments(private$rg_op)
+    list_role_assignments(self$list_role_definitions(), private$rg_op)
 })
 
 az_resource_group$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, private$rg_op)
+    get_role_definition(id, self$list_role_definitions(), private$rg_op)
 })
 
 az_resource_group$set("public", "list_role_definitions", overwrite=TRUE,
@@ -83,7 +83,7 @@ function()
 az_resource$set("public", "add_role_assignment", overwrite=TRUE,
 function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
 {
-    add_role_assignment(principal, role, scope, new_id, private$res_op)
+    add_role_assignment(principal, self$get_role_definition(role), scope, new_id, private$res_op)
 })
 
 az_resource$set("public", "get_role_assignment", overwrite=TRUE,
@@ -101,13 +101,13 @@ function(id, confirm=TRUE)
 az_resource$set("public", "list_role_assignments", overwrite=TRUE,
 function()
 {
-    list_role_assignments(private$res_op)
+    list_role_assignments(self$list_role_definitions(), private$res_op)
 })
 
 az_resource$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, private$res_op)
+    get_role_definition(id, self$list_role_definitions(), private$res_op)
 })
 
 az_resource$set("public", "list_role_definitions", overwrite=TRUE,
@@ -127,17 +127,18 @@ add_role_assignment <- function(principal, role, scope, new_id, api_func)
     else if(is_app(principal))
         principal <- principal$get_service_principal()$properties$objectId
 
-    role <- self$get_role_definition(role)
-    op <- file.path("providers/Microsoft.Authorization/roleAssignments", new_id)
-    api_func(op, api_version=getOption("azure_rbac_api_version"),
-        body=list(
+    op <- sprintf("providers/Microsoft.Authorization/roleAssignments/%s", new_id)
+    body <- list(
+        properties=list(
             roleDefinitionId=role$id,
-            principalId=principal,
-            scope=scope
-        ),
-        encoding="json",
-        http_verb="PUT"
+            principalId=principal
+        )
     )
+    if(!is.null(scope))
+        body$properties$scope <- scope
+
+    api_func(op, body=body, encode="json",
+        api_version=getOption("azure_rbac_api_version"), http_verb="PUT")
 }
 
 get_role_assignment <- function(id, api_func)
@@ -156,15 +157,16 @@ remove_role_assignment <- function(id, confirm, api_func)
     }
 
     op <- file.path("providers/Microsoft.Authorization/roleAssignments", id)
-    api_func(op, api_version=getOption("azure_rbac_api_version"), http_verb="DELETE")
+    res <- api_func(op, api_version=getOption("azure_rbac_api_version"), http_verb="DELETE")
+    if(attr(res, "status") == 204)
+        warning("Role assignment not found or could not be deleted")
     invisible(NULL)
 }
 
-list_role_assignments <- function(api_func)
+list_role_assignments <- function(defs, api_func)
 {
     op <- "providers/Microsoft.Authorization/roleAssignments"
     res <- api_func(op, api_version=getOption("azure_rbac_api_version"))
-    defs <- self$list_role_definitions()
 
     roles <- lapply(res$value, function(x)
     {
@@ -178,14 +180,12 @@ list_role_assignments <- function(api_func)
     do.call(rbind, roles)
 }
 
-get_role_definition <- function(id, api_func)
+get_role_definition <- function(id, defs, api_func)
 {
     # if text rolename supplied, get full list of roles and extract from there
     if(!is_guid(id))
-    {
-        defs <- self$list_role_definitions()
         id <- defs[tolower(defs$name) == tolower(id), "id"]
-    }
+
     if(is_empty(id))
         stop("Unknown role definition", call.=FALSE)
 
