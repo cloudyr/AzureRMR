@@ -15,9 +15,9 @@ function(id)
 })
 
 az_subscription$set("public", "remove_role_assignment", overwrite=TRUE,
-function(id, confirm=TRUE)
+function(role_id, app_id, confirm=TRUE)
 {
-    remove_role_assignment(id, confirm, private$sub_op)
+    remove_role_assignment(id, app_id, confirm, private$sub_op)
 })
 
 az_subscription$set("public", "list_role_assignments", overwrite=TRUE,
@@ -127,7 +127,7 @@ add_role_assignment <- function(principal, role, scope, new_id, api_func)
     else if(is_app(principal))
         principal <- principal$get_service_principal()$properties$objectId
 
-    op <- sprintf("providers/Microsoft.Authorization/roleAssignments/%s", new_id)
+    op <- file.path("providers/Microsoft.Authorization/roleAssignments", new_id)
     body <- list(
         properties=list(
             roleDefinitionId=role$id,
