@@ -13,34 +13,6 @@ public=list(
         self$graph <- graph_client
     },
 
-    # dispatcher methods
-    get_subscription=function(...)
-    self$arm$get_subscription(...),
-
-    get_subscription_by_name=function(...)
-    self$arm$get_subscription_by_name(...),
-
-    list_subscriptions=function()
-    self$arm$list_subscriptions(),
-
-    create_app=function(...)
-    self$graph$create_app(...),
-
-    get_app=function(...)
-    self$graph$get_app(...),
-
-    delete_app=function(...)
-    self$graph$delete_app(...),
-
-    create_service_principal=function(...)
-    self$graph$create_service_principal(...),
-
-    get_service_principal=function(...)
-    self$graph$get_service_principal(...),
-
-    delete_service_principal=function(...)
-    self$graph$delete_service_principal(...),
-
     print=function(...)
     {
         cat("<AzureRMR client>\n")
@@ -53,4 +25,35 @@ public=list(
         cat(format_public_methods(self))
         invisible(self)
     }
+),
+
+active=list(
+
+    # dispatch to real methods
+    get_subscription=function()
+    self$arm$get_subscription,
+
+    get_subscription_by_name=function()
+    self$arm$get_subscription_by_name,
+
+    list_subscriptions=function()
+    self$arm$list_subscriptions,
+
+    create_app=function()
+    self$graph$create_app,
+
+    get_app=function()
+    self$graph$get_app,
+
+    delete_app=function()
+    self$graph$delete_app,
+
+    create_service_principal=function()
+    self$graph$create_service_principal,
+
+    get_service_principal=function()
+    self$graph$get_service_principal,
+
+    delete_service_principal=function()
+    self$graph$delete_service_principal
 ))
