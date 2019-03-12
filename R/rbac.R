@@ -23,9 +23,9 @@ function(id)
 })
 
 az_subscription$set("public", "remove_role_assignment", overwrite=TRUE,
-function(role, confirm=TRUE)
+function(id, confirm=TRUE)
 {
-    remove_role_assignment(role, confirm)
+    remove_role_assignment(id, confirm, private$sub_op)
 })
 
 az_subscription$set("public", "list_role_assignments", overwrite=TRUE,
@@ -62,9 +62,9 @@ function(id)
 })
 
 az_resource_group$set("public", "remove_role_assignment", overwrite=TRUE,
-function(role, confirm=TRUE)
+function(id, confirm=TRUE)
 {
-    remove_role_assignment(role, confirm)
+    remove_role_assignment(id, confirm, private$rg_op)
 })
 
 az_resource_group$set("public", "list_role_assignments", overwrite=TRUE,
@@ -101,9 +101,9 @@ function(id)
 })
 
 az_resource$set("public", "remove_role_assignment", overwrite=TRUE,
-function(role, confirm=TRUE)
+function(id, confirm=TRUE)
 {
-    remove_role_assignment(role, confirm)
+    remove_role_assignment(id, confirm, private$res_op)
 })
 
 az_resource$set("public", "list_role_assignments", overwrite=TRUE,
@@ -164,9 +164,11 @@ get_role_assignment <- function(id, defs, api_func)
     az_role_assignment$new(token, res, role_name, api_func)
 }
 
-remove_role_assignment <- function(role, confirm)
+remove_role_assignment <- function(id, confirm, api_func)
 {
-    role$remove(confirm=confirm)
+    token <- environment(api_func)$self$token
+    res <- list(id=id)
+    az_role_assignment$new(token, res, api_func)$remove(confirm=confirm)
 }
 
 list_role_assignments <- function(filter, defs, api_func)
