@@ -33,9 +33,9 @@ function(id)
 })
 
 az_subscription$set("public", "list_role_definitions", overwrite=TRUE,
-function()
+function(scope="atScope()")
 {
-    list_role_definitions(private$sub_op)
+    list_role_definitions(scope, private$sub_op)
 })
 
 
@@ -72,9 +72,9 @@ function(id)
 })
 
 az_resource_group$set("public", "list_role_definitions", overwrite=TRUE,
-function()
+function(scope="atScope()")
 {
-    list_role_definitions(private$rg_op)
+    list_role_definitions(scope, private$rg_op)
 })
 
 
@@ -111,9 +111,9 @@ function(id)
 })
 
 az_resource$set("public", "list_role_definitions", overwrite=TRUE,
-function()
+function(scope="atScope()")
 {
-    list_role_definitions(private$res_op)
+    list_role_definitions(scope, private$res_op)
 })
 
 
@@ -193,10 +193,10 @@ get_role_definition <- function(id, defs, api_func)
     api_func(op, api_version=getOption("azure_rbac_api_version"))
 }
 
-list_role_definitions <- function(api_func)
+list_role_definitions <- function(scope, api_func)
 {
     op <- "providers/Microsoft.Authorization/roleDefinitions"
-    res <- api_func(op, api_version=getOption("azure_rbac_api_version"))
+    res <- api_func(op, options=list(`$filter`=scope), api_version=getOption("azure_rbac_api_version"))
     defs <- lapply(res$value, function(x)
     {
         name <- x$properties$roleName
