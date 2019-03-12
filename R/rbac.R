@@ -23,13 +23,13 @@ function(role_id, app_id, confirm=TRUE)
 az_subscription$set("public", "list_role_assignments", overwrite=TRUE,
 function(filter="atScope()")
 {
-    list_role_assignments(filter, self$list_role_definitions(), self$id, private$sub_op)
+    list_role_assignments(filter, self$list_role_definitions(), private$sub_op)
 })
 
 az_subscription$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, self$list_role_definitions(), self$id, private$sub_op)
+    get_role_definition(id, self$list_role_definitions(), private$sub_op)
 })
 
 az_subscription$set("public", "list_role_definitions", overwrite=TRUE,
@@ -62,19 +62,19 @@ function(id, confirm=TRUE)
 az_resource_group$set("public", "list_role_assignments", overwrite=TRUE,
 function(filter="atScope()")
 {
-    list_role_assignments(filter, self$list_role_definitions(), self$subscription, private$rg_op)
+    list_role_assignments(filter, self$list_role_definitions(), private$rg_op)
 })
 
 az_resource_group$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, self$list_role_definitions(), self$subscription, private$rg_op)
+    get_role_definition(id, self$list_role_definitions(), private$rg_op)
 })
 
 az_resource_group$set("public", "list_role_definitions", overwrite=TRUE,
 function(filter="atScope()")
 {
-    list_role_definitions(filter, self$subscription, private$rg_op)
+    list_role_definitions(filter, private$rg_op)
 })
 
 
@@ -101,19 +101,19 @@ function(id, confirm=TRUE)
 az_resource$set("public", "list_role_assignments", overwrite=TRUE,
 function(filter="atScope()")
 {
-    list_role_assignments(filter, self$list_role_definitions(), self$subscription, private$res_op)
+    list_role_assignments(filter, self$list_role_definitions(), private$res_op)
 })
 
 az_resource$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, self$list_role_definitions(), self$subscription, private$res_op)
+    get_role_definition(id, self$list_role_definitions(), private$res_op)
 })
 
 az_resource$set("public", "list_role_definitions", overwrite=TRUE,
 function(filter="atScope()")
 {
-    list_role_definitions(filter, self$subscription, private$res_op)
+    list_role_definitions(filter, private$res_op)
 })
 
 
@@ -163,13 +163,13 @@ remove_role_assignment <- function(id, confirm, api_func)
     invisible(NULL)
 }
 
-list_role_assignments <- function(filter, defs, subscription, api_func)
+list_role_assignments <- function(filter, defs, api_func)
 {
     op <- "providers/Microsoft.Authorization/roleAssignments"
     lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_rbac_api_version"))
 
+    role_def_names <- names(defs)
     role_def_ids <- sapply(defs, function(def) def$name)
-    role_def_names <- sapply(defs, function(def) def$properties$roleName)
     token <- environment(api_func)$self$token
     lapply(lst$value, function(res)
     {
@@ -178,23 +178,25 @@ list_role_assignments <- function(filter, defs, subscription, api_func)
     })
 }
 
-get_role_definition <- function(id, defs, subscription, api_func)
+get_role_definition <- function(id, defs, api_func)
 {
     # if text rolename supplied, get full list of roles and extract from there
     if(!is_guid(id))
-        id <- defs[tolower(defs$name) == tolower(id), "id"]
-
-    if(is_empty(id))
-        stop("Unknown role definition", call.=FALSE)
+    {
+        i <- which(tolower(names(defs)) == tolower(id))
+        if(is_empty(i))
+            stop("Unknown role definition", call.=FALSE)
+        id <- basename(defs[[i]]$id)
+    }
 
     op <- file.path("providers/Microsoft.Authorization/roleDefinitions", id)
     res <- api_func(op, api_version=getOption("azure_rbac_api_version"))
 
     token <- environment(api_func)$self$token
-    az_role_definition$new(token, subscription, deployed_properties=res)
+    az_role_definition$new(token, res)
 }
 
-list_role_definitions <- function(filter, subscription, api_func)
+list_role_definitions <- function(filter, api_func)
 {
     op <- "providers/Microsoft.Authorization/roleDefinitions"
     lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_rbac_api_version"))
