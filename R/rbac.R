@@ -168,7 +168,7 @@ remove_role_assignment <- function(id, confirm, api_func)
 {
     token <- environment(api_func)$self$token
     res <- list(id=id)
-    az_role_assignment$new(token, res, api_func)$remove(confirm=confirm)
+    az_role_assignment$new(token, res, api_func=api_func)$remove(confirm=confirm)
 }
 
 list_role_assignments <- function(filter, defs, api_func)
