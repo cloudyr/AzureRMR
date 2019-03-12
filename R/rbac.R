@@ -1,4 +1,12 @@
-# basic methods for RBAC: manage role assignments, retrieve role definitions
+#' Role-based access control
+#'
+#' Basic methods for RBAC: manage role assignments, retrieve role definitions.
+#'
+#' @aliases rbac
+#' @aliases add_role_assignment get_role_assignment remove_role_assignment list_role_assignments
+#' @aliases get_role_definition list_role_definitions
+#' @rdname rbac
+NULL
 
 ## subscription methods
 
@@ -137,8 +145,6 @@ add_role_assignment <- function(principal, role, scope, new_id, api_func)
     )
     if(!is.null(scope))
         body$properties$scope <- scope
-
-    print(body)
 
     res <- api_func(op, body=body, encode="json",
         api_version=getOption("azure_rbac_api_version"), http_verb="PUT")
