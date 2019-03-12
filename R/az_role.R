@@ -43,7 +43,7 @@ public=list(
     properties=NULL,
     token=NULL,
 
-    initialize=function(token, parameters, role_name=NULL)
+    initialize=function(token, parameters, role_name=NULL, api_func=NULL)
     {
         self$token <- token
         self$id <- parameters$id
@@ -51,6 +51,24 @@ public=list(
         self$type <- parameters$type
         self$properties <- parameters$properties
         self$role_name <- role_name
+
+        private$api_func <- api_func
+    },
+
+    remove=function(confirm=TRUE)
+    {
+        if(confirm && interactive())
+        {
+            yn <- readline(paste0("Do you really want to delete role assignment '", basename(self$id), "'? (y/N) "))
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+        }
+
+        op <- file.path("providers/Microsoft.Authorization/roleAssignments", basename(self$id))
+        res <- private$api_func(op, api_version=getOption("azure_rbac_api_version"), http_verb="DELETE")
+        if(attr(res, "status") == 204)
+            warning("Role assignment not found or could not be deleted")
+        invisible(NULL)
     },
 
     print=function(...)
@@ -66,4 +84,9 @@ public=list(
         cat("  role assignment ID:", self$name, "\n")
         invisible(self)
     }
+),
+
+private=list(
+
+    api_func=NULL
 ))
