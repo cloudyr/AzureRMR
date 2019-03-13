@@ -57,24 +57,30 @@ public=list(
         res
     },
 
-    get_app=function(object_id=NULL, app_id=NULL)
+    get_app=function(app_id=NULL, object_id=NULL)
     {
-        az_app$new(self$token, self$tenant, object_id, app_id)
+        az_app$new(self$token, self$tenant, app_id, object_id)
     },
 
-    delete_app=function()
-    {},
+    delete_app=function(app_id=NULL, object_id=NULL, confirm=TRUE)
+    {
+        self$get_app(app_id, object_id)$delete(confirm=confirm)
+    },
 
     create_service_principal=function(app_id, ...)
     {
-        az_service_principal$new(self$token, self$tenant, app_id=app_id, ...)
+        az_service_principal$new(self$token, self$tenant, app_id=app_id, ..., mode="create")
     },
 
-    get_service_principal=function(object_id, app_id)
-    {},
+    get_service_principal=function(app_id=NULL, object_id=NULL)
+    {
+        az_service_principal$new(self$token, self$tenant, app_id, object_id, mode="get")
+    },
 
-    delete_service_principal=function()
-    {},
+    delete_service_principal=function(app_id=NULL, object_id=NULL, confirm=TRUE)
+    {
+        self$get_service_principal(app_id, object_id)$delete(confirm=confirm)
+    },
 
     print=function(...)
     {

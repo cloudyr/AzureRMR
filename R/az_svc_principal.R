@@ -8,16 +8,17 @@ public=list(
     # app data from server
     properties=NULL,
 
-    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, ..., deployed_properties=list(), mode="get")
+    # need explicit mode arg because initialize(app_id) can either create a new SP or get an existing one
+    initialize=function(token, tenant=NULL, app_id=NULL, object_id=NULL, ..., deployed_properties=list(), mode="get")
     {
         self$token <- token
         self$tenant <- tenant
 
         self$properties <- if(!is_empty(list(...)) || mode == "create")
-            private$init_and_deploy(..., password=password, password_duration=password_duration)
+            private$init_and_deploy(appId=app_id, ...)
         else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
-        else private$init_from_host(object_id, app_id)
+        else private$init_from_host(app_id, object_id)
     },
 
     delete=function(confirm=TRUE)
@@ -51,7 +52,7 @@ private=list(
         parms
     },
 
-    init_from_host=function(object_id, app_id)
+    init_from_host=function(app_id, object_id)
     {
         op <- if(is.null(object_id))
             file.path("servicePrincipalsByAppId", app_id)

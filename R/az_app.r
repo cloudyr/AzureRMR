@@ -8,7 +8,7 @@ public=list(
     # app data from server
     properties=NULL,
 
-    initialize=function(token, tenant=NULL, object_id=NULL, app_id=NULL, password=NULL, password_duration=1, ...,
+    initialize=function(token, tenant=NULL, app_id=NULL, object_id=NULL, password=NULL, password_duration=1, ...,
                         deployed_properties=list())
     {
         self$token <- token
@@ -18,7 +18,7 @@ public=list(
             private$init_and_deploy(..., password=password, password_duration=password_duration)
         else if(!is_empty(deployed_properties))
             private$init_from_parms(deployed_properties)
-        else private$init_from_host(object_id, app_id)
+        else private$init_from_host(app_id, object_id)
     },
 
     delete=function(confirm=TRUE)
@@ -40,7 +40,10 @@ public=list(
     {},
 
     sync_fields=function()
-    {},
+    {
+        self$properties <- private$init_from_host(app_id=NULL, object_id=self$properties$objectId)
+        invisible(self)
+    },
 
     create_service_principal=function(...)
     {
@@ -100,7 +103,7 @@ private=list(
         parms
     },
 
-    init_from_host=function(object_id, app_id)
+    init_from_host=function(app_id, object_id)
     {
         op <- if(is.null(object_id))
             file.path("applicationsByAppId", app_id)
