@@ -7,11 +7,9 @@ public=list(
     name=NULL,
     type=NULL,
     properties=NULL,
-    token=NULL,
 
-    initialize=function(token, parameters)
+    initialize=function(parameters)
     {
-        self$token <- token
         self$id <- parameters$id
         self$name <- parameters$name
         self$type <- parameters$type
