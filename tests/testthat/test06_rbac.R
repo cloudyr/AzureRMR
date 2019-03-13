@@ -1,13 +1,13 @@
 context("Graph/RBAC")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
-app <- Sys.getenv("AZ_TEST_NATIVE_APP_ID")
+appnative <- Sys.getenv("AZ_TEST_NATIVE_APP_ID")
 subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 
-if(tenant == "" || app == "" || subscription == "")
+if(tenant == "" || appnative == "" || subscription == "")
     skip("Resource group method tests skipped: ARM credentials not set")
 
-az <- get_azure_login(tenant=tenant, selection=app)
+az <- create_azure_login(tenant=tenant, app=appnative)
 sub <- az$get_subscription(subscription)
 
 test_that("App creation works",
