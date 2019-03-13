@@ -119,5 +119,7 @@ stor$delete()
 \seealso{
 \link{az_resource_group}, \link{call_azure_rm}, \link{call_azure_url},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}
+
+For role-based access control methods, see \link{rbac}
 }
 \keyword{datasets}

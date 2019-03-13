@@ -6,6 +6,10 @@
 \alias{is_resource_group}
 \alias{is_resource}
 \alias{is_template}
+\alias{is_app}
+\alias{is_service_principal}
+\alias{is_role_definition}
+\alias{is_role_assignment}
 \title{Informational functions}
 \usage{
 is_azure_login(object)
@@ -17,6 +21,14 @@ is_resource_group(object)
 is_resource(object)
 
 is_template(object)
+
+is_app(object)
+
+is_service_principal(object)
+
+is_role_definition(object)
+
+is_role_assignment(object)
 }
 \arguments{
 \item{object}{An R object.}

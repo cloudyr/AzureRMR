@@ -5,19 +5,19 @@
 #' @param password If `auth_type == "client_credentials"`, the app secret; if `auth_type == "resource_owner"`, your account password.
 #' @param username If `auth_type == "resource_owner"`, your username.
 #' @param auth_type The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If `NULL`, this is chosen based on the presence of the `username` and `password` arguments.
-#' @param arm_host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
+#' @param arm_host Your Azure Resource Manager host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' @param graph_host Your Azure Active Directory Graph host. Defaults to `https://graph.windows.net/`. Change this if you are using a government or private cloud.
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication tokens on loading the client.
 #' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. This can be a number, or the ID of the AAD app used to authenticate. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
-#' @param ... Other arguments passed to `az_rm$new()`.
+#' @param ... Other arguments passed to `az_rm$new()` and `az_graph$new()`.
 #'
 #' @details
-#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
+#' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM) and Azure Active Directory (AAD) Graph, using the supplied arguments. The authentication tokens are obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 #'
-#' `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`.
+#' `create_azure_login()` without any arguments is roughly equivalent to the Azure CLI command `az login`. Note that if you are doing an interactive login, you will see _two_ authentication screens, as a separate token needs to be obtained for ARM and for AAD Graph.
 #'
 #' `get_azure_login` returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 #'
@@ -32,10 +32,12 @@
 #' If the AzureR data directory for saving credentials does not exist, `get_azure_login` will throw an error.
 #'
 #' @seealso
-#' [az_rm], [AzureAuth::get_azure_token] for more details on authentication methods
+#' [az_rm], [az_graph], [AzureAuth::get_azure_token] for more details on authentication methods
 #'
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
 #' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
+#'
+#' [Azure AD Graph API](https://docs.microsoft.com/en-au/azure/active-directory/develop/active-directory-graph-api)
 #'
 #' [Authentication in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios)
 #'

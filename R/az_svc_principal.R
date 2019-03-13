@@ -1,3 +1,4 @@
+#' @export
 az_service_principal <- R6::R6Class("az_service_principal",
 
 public=list(

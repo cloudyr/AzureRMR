@@ -5,15 +5,16 @@
 \alias{get_azure_login}
 \alias{delete_azure_login}
 \alias{list_azure_logins}
-\title{Login to Azure Resource Manager}
+\title{Login to Azure Resource Manager and Active Directory Graph}
 \usage{
 create_azure_login(tenant = "common", app = .az_cli_app_id,
   password = NULL, username = NULL, auth_type = NULL,
-  host = "https://management.azure.com/",
+  arm_host = "https://management.azure.com/",
+  graph_host = "https://graph.windows.net/",
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
-get_azure_login(tenant = "common", selection = NULL, refresh = TRUE)
+get_azure_login(tenant = "common", selection = NULL, refresh = FALSE)
 
 delete_azure_login(tenant = "common", confirm = TRUE)
 
@@ -30,32 +31,34 @@ list_azure_logins()
 
 \item{auth_type}{The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If \code{NULL}, this is chosen based on the presence of the \code{username} and \code{password} arguments.}
 
-\item{host}{Your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
+\item{arm_host}{Your Azure Resource Manager host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
+
+\item{graph_host}{Your Azure Active Directory Graph host. Defaults to \code{https://graph.windows.net/}. Change this if you are using a government or private cloud.}
 
 \item{aad_host}{Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.}
 
 \item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.}
 
-\item{...}{Other arguments passed to \code{az_rm$new()}.}
+\item{...}{Other arguments passed to \code{az_rm$new()} and \code{az_graph$new()}.}
 
-\item{selection}{For \code{get_azure_login}, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, \code{get_azure_login} will print a menu and ask you to choose a login.}
+\item{selection}{For \code{get_azure_login}, if you have multiple logins for a given tenant, which one to use. This can be a number, or the ID of the AAD app used to authenticate. If not supplied, \code{get_azure_login} will print a menu and ask you to choose a login.}
 
-\item{refresh}{For \code{get_azure_login}, whether to refresh the authentication token on loading the client.}
+\item{refresh}{For \code{get_azure_login}, whether to refresh the authentication tokens on loading the client.}
 
 \item{confirm}{For \code{delete_azure_login}, whether to ask for confirmation before deleting.}
 }
 \value{
-For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_rm}, representing the ARM login client. For \code{list_azure_logins}, a (possibly nested) list of such objects.
+For \code{get_azure_login} and \code{create_azure_login}, an object of class \code{az_client}, representing the login client. This encapsulates functionality for interacting with both ARM and AAD Graph. For \code{list_azure_logins}, a (possibly nested) list of such objects.
 
-If the AzureRMR data directory for saving credentials does not exist, \code{get_azure_login} will throw an error.
+If the AzureR data directory for saving credentials does not exist, \code{get_azure_login} will throw an error.
 }
 \description{
-Login to Azure Resource Manager
+Login to Azure Resource Manager and Active Directory Graph
 }
 \details{
-\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
+\code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM) and Azure Active Directory (AAD) Graph, using the supplied arguments. The authentication tokens are obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 
-\code{create_azure_login()} without any arguments is roughly equivalent to the Azure CLI command \code{az login}.
+\code{create_azure_login()} without any arguments is roughly equivalent to the Azure CLI command \code{az login}. Note that if you are doing an interactive login, you will see \emph{two} authentication screens, as a separate token needs to be obtained for ARM and for AAD Graph.
 
 \code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 
@@ -85,10 +88,12 @@ az <- create_azure_login(config_file="~/creds.json")
 }
 }
 \seealso{
-\link{az_rm}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for more details on authentication methods
+\link{az_rm}, \link{az_graph}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for more details on authentication methods
 
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
+
+\href{https://docs.microsoft.com/en-au/azure/active-directory/develop/active-directory-graph-api}{Azure AD Graph API}
 
 \href{https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios}{Authentication in Azure Active Directory}
 

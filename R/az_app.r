@@ -1,3 +1,4 @@
+#' @export
 az_app <- R6::R6Class("az_app",
 
 public=list(
