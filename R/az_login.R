@@ -123,7 +123,7 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NUL
 
 #' @rdname azure_login
 #' @export
-get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
+get_azure_login <- function(tenant="common", selection=NULL, refresh=FALSE)
 {
     if(!dir.exists(AzureR_dir()))
         stop("AzureR data directory does not exist; cannot load saved logins")
@@ -167,10 +167,7 @@ get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
     client <- az_client$new(tenant, az_rm$new(token=readRDS(files[1])), az_graph$new(token=readRDS(files[2])))
 
     if(refresh)
-    {
-        client$arm$token$refresh()
-        client$graph$token$refresh()
-    }
+        client$refresh()
 
     client
 }

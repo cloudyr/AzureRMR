@@ -1,3 +1,4 @@
+#' @export
 az_client <- R6::R6Class("az_client",
 
 public=list(
@@ -55,5 +56,11 @@ active=list(
     self$graph$get_service_principal,
 
     delete_service_principal=function()
-    self$graph$delete_service_principal
+    self$graph$delete_service_principal,
+
+    refresh=function()
+    {
+        self$graph$token$refresh()
+        self$arm$token$refresh()
+    }
 ))
