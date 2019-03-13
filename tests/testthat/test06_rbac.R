@@ -28,6 +28,7 @@ test_that("App creation works",
 
 test_that("Subscription RBAC works",
 {
+    Sys.sleep(5)
     newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
 
     defs <- sub$list_role_definitions()
@@ -84,7 +85,7 @@ test_that("Resource group RBAC works",
 
 test_that("App deletion works",
 {
-    newapp_id <- Sys.getenv("NEWAPP_ID")
+    newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
 
     expect_silent(az$delete_service_principal(app_id=newapp_id, confirm=FALSE))
     expect_silent(az$delete_app(app_id=newapp_id, confirm=FALSE))
