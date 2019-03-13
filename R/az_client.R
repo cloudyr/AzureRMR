@@ -14,6 +14,12 @@ public=list(
         self$graph <- graph_client
     },
 
+    refresh=function()
+    {
+        self$graph$token$refresh()
+        self$arm$token$refresh()
+    },
+
     print=function(...)
     {
         cat("<AzureRMR client>\n")
@@ -56,11 +62,5 @@ active=list(
     self$graph$get_service_principal,
 
     delete_service_principal=function()
-    self$graph$delete_service_principal,
-
-    refresh=function()
-    {
-        self$graph$token$refresh()
-        self$arm$token$refresh()
-    }
+    self$graph$delete_service_principal
 ))
