@@ -10,7 +10,7 @@
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication tokens on loading the client.
-#' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
+#' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. This can be a number, or the ID of the AAD app used to authenticate. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
 #' @param ... Other arguments passed to `az_rm$new()`.
 #'

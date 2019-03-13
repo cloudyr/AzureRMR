@@ -13,7 +13,9 @@ NULL
 az_subscription$set("public", "add_role_assignment", overwrite=TRUE,
 function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
 {
-    add_role_assignment(principal, self$get_role_definition(role), scope, new_id, private$sub_op)
+    if(!is_role_definition(role))
+        role <- self$get_role_definition(role)
+    add_role_assignment(principal, role, scope, new_id, private$sub_op)
 })
 
 az_subscription$set("public", "get_role_assignment", overwrite=TRUE,
@@ -52,7 +54,9 @@ function(filter="atScope()", as_data_frame=TRUE)
 az_resource_group$set("public", "add_role_assignment", overwrite=TRUE,
 function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
 {
-    add_role_assignment(principal, self$get_role_definition(role), scope, new_id, private$rg_op)
+    if(!is_role_definition(role))
+        role <- self$get_role_definition(role)
+    add_role_assignment(principal, role, scope, new_id, private$rg_op)
 })
 
 az_resource_group$set("public", "get_role_assignment", overwrite=TRUE,
@@ -91,7 +95,9 @@ function(filter="atScope()", as_data_frame=TRUE)
 az_resource$set("public", "add_role_assignment", overwrite=TRUE,
 function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
 {
-    add_role_assignment(principal, self$get_role_definition(role), scope, new_id, private$res_op)
+    if(!is_role_definition(role))
+        role <- self$get_role_definition(role)
+    add_role_assignment(principal, role, scope, new_id, private$res_op)
 })
 
 az_resource$set("public", "get_role_assignment", overwrite=TRUE,
