@@ -28,7 +28,8 @@ test_that("App creation works",
 
 test_that("Subscription RBAC works",
 {
-    Sys.sleep(5)
+    # let AAD catch up
+    Sys.sleep(10)
     newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
 
     defs <- sub$list_role_definitions()
@@ -80,6 +81,37 @@ test_that("Resource group RBAC works",
 
     newapp <- az$get_app(app_id=newapp_id)
     asn <- rg$add_role_assignment(newapp, "contributor")
+    expect_true(is_role_assignment(asn))
+})
+
+test_that("Resource RBAC works",
+{
+    newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
+    rgname <- Sys.getenv("AZ_TEST_NEWRG")
+    restype <- "Microsoft.Storage/storageAccounts"
+    resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
+
+    rg <- sub$get_resource_group(rgname)
+    res <- rg$create_resource(type=restype, name=resname,
+        kind="Storage",
+        sku=list(name="Standard_LRS", tier="Standard"))
+
+    defs <- res$list_role_definitions()
+    expect_is(defs, "data.frame")
+
+    defs_lst <- res$list_role_definitions(as_data_frame=FALSE)
+    expect_is(defs_lst, "list")
+    expect_true(all(sapply(defs_lst, is_role_definition)))
+
+    asns <- sub$list_role_assignments()
+    expect_is(asns, "data.frame")
+
+    asns_lst <- res$list_role_assignments(as_data_frame=FALSE)
+    expect_is(asns_lst, "list")
+    expect_true(all(sapply(asns_lst, is_role_assignment)))
+
+    newapp <- az$get_app(app_id=newapp_id)
+    asn <- res$add_role_assignment(newapp, "owner")
     expect_true(is_role_assignment(asn))
 })
 
