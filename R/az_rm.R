@@ -81,7 +81,7 @@ public=list(
             if(!is.null(conf$app)) app <- conf$app
             if(!is.null(conf$auth_type)) auth_type <- conf$auth_type
             if(!is.null(conf$password)) password <- conf$password
-            if(!is.null(conf$arm_host)) host <- conf$arm_host
+            if(!is.null(conf$host)) host <- conf$host
             if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
         }
         self$host <- host
