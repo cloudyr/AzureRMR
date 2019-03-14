@@ -1,39 +1,22 @@
-context("Graph/RBAC")
+context("RBAC")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
-appnative <- Sys.getenv("AZ_TEST_NATIVE_APP_ID")
+app <- Sys.getenv("AZ_TEST_APP_ID")
+password <- Sys.getenv("AZ_TEST_PASSWORD")
 subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
+newsvc_id <- Sys.getenv("AZ_TEST_SVC_PRINCIPAL_ID")
 
-if(tenant == "" || appnative == "" || subscription == "")
-    skip("Graph/RBAC method tests skipped: ARM credentials not set")
+if(tenant == "" || app == "" || password == "" || subscription == "" || newsvc_id == "")
+    skip("RBAC method tests skipped: ARM credentials not set")
 
-if(!interactive())
-    skip("Graph/RBAC method tests skipped: must be in interactive session")
-
-az <- create_azure_login(tenant=tenant, app=appnative)
+az <- az_rm$new(tenant, app, password)
 sub <- az$get_subscription(subscription)
-
-test_that("App creation works",
-{
-    newapp_name <- paste0("AzureRtest_", paste0(sample(letters, 5, TRUE), collapse=""))
-    newapp <- az$create_app(name=newapp_name, create_service_principal=FALSE)
-    newsvc <- newapp$create_service_principal()
-    expect_true(is_app(newapp))
-    expect_true(is_service_principal(newsvc))
-
-    newapp_id <- newapp$properties$appId
-    expect_true(is_app(az$get_app(app_id=newapp_id)))
-    expect_true(is_service_principal(az$get_service_principal(app_id=newapp_id)))
-    expect_true(is_service_principal(newapp$get_service_principal()))
-
-    Sys.setenv(AZ_TEST_NEWAPP_ID=newapp_id)
-})
+rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 
 test_that("Subscription RBAC works",
 {
     # let AAD catch up
     Sys.sleep(10)
-    newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
 
     defs <- sub$list_role_definitions()
     expect_is(defs, "data.frame")
@@ -49,23 +32,17 @@ test_that("Subscription RBAC works",
     expect_is(asns_lst, "list")
     expect_true(all(sapply(asns_lst, is_role_assignment)))
 
-    newapp <- az$get_app(newapp_id)
-    asn <- sub$add_role_assignment(newapp, "reader")
+    asn <- sub$add_role_assignment(newsvc_id, "reader")
     expect_true(is_role_assignment(asn))
 
-    newsvc <- az$get_service_principal(newapp_id)
     newasns <- sub$list_role_assignments()
-    expect_true(newsvc$properties$objectId %in% newasns$principal)
+    expect_true(newsvc_id %in% newasns$principal)
 
     expect_silent(sub$remove_role_assignment(asn$name, confirm=FALSE))
 })
 
 test_that("Resource group RBAC works",
 {
-    newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
-    rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    Sys.setenv(AZ_TEST_NEWRG=rgname)
-
     expect_false(sub$resource_group_exists(rgname))
 
     rg <- sub$create_resource_group(rgname, location="westus")
@@ -84,8 +61,7 @@ test_that("Resource group RBAC works",
     expect_is(asns_lst, "list")
     expect_true(all(sapply(asns_lst, is_role_assignment)))
 
-    newapp <- az$get_app(app_id=newapp_id)
-    asn <- rg$add_role_assignment(newapp, "contributor")
+    asn <- rg$add_role_assignment(newsvc_id, "contributor")
     expect_true(is_role_assignment(asn))
 
     expect_silent(rg$remove_role_assignment(asn$name, confirm=FALSE))
@@ -93,8 +69,6 @@ test_that("Resource group RBAC works",
 
 test_that("Resource RBAC works",
 {
-    newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
-    rgname <- Sys.getenv("AZ_TEST_NEWRG")
     restype <- "Microsoft.Storage/storageAccounts"
     resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 
@@ -117,24 +91,11 @@ test_that("Resource RBAC works",
     expect_is(asns_lst, "list")
     expect_true(all(sapply(asns_lst, is_role_assignment)))
 
-    newapp <- az$get_app(app_id=newapp_id)
-    asn <- res$add_role_assignment(newapp, "owner")
+    asn <- res$add_role_assignment(newsvc_id, "owner")
     expect_true(is_role_assignment(asn))
 
     expect_silent(res$remove_role_assignment(asn$name, confirm=FALSE))
 })
 
-test_that("App deletion works",
-{
-    newapp_id <- Sys.getenv("AZ_TEST_NEWAPP_ID")
+sub$delete_resource_group(rgname, confirm=FALSE)
 
-    expect_silent(az$delete_service_principal(app_id=newapp_id, confirm=FALSE))
-    expect_silent(az$delete_app(app_id=newapp_id, confirm=FALSE))
-
-    Sys.sleep(2)
-    expect_error(az$get_app(app_id=newapp_id))
-})
-
-sub$get_resource_group(Sys.getenv("AZ_TEST_NEWRG"))$delete(confirm=FALSE)
-Sys.unsetenv("AZ_TEST_NEWAPP_ID")
-Sys.unsetenv("AZ_TEST_NEWRG")
