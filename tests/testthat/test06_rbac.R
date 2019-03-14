@@ -15,9 +15,6 @@ rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 
 test_that("Subscription RBAC works",
 {
-    # let AAD catch up
-    Sys.sleep(10)
-
     defs <- sub$list_role_definitions()
     expect_is(defs, "data.frame")
 
