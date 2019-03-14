@@ -109,7 +109,7 @@ function(filter="atScope()", as_data_frame=TRUE)
 az_subscription$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, self$list_role_definitions(), private$sub_op)
+    get_role_definition(id, private$sub_op)
 })
 
 az_subscription$set("public", "list_role_definitions", overwrite=TRUE,
@@ -150,7 +150,7 @@ function(filter="atScope()", as_data_frame=TRUE)
 az_resource_group$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, self$list_role_definitions(), private$rg_op)
+    get_role_definition(id, private$rg_op)
 })
 
 az_resource_group$set("public", "list_role_definitions", overwrite=TRUE,
@@ -191,7 +191,7 @@ function(filter="atScope()", as_data_frame=TRUE)
 az_resource$set("public", "get_role_definition", overwrite=TRUE,
 function(id)
 {
-    get_role_definition(id, self$list_role_definitions(), private$res_op)
+    get_role_definition(id, private$res_op)
 })
 
 az_resource$set("public", "list_role_definitions", overwrite=TRUE,
@@ -263,20 +263,24 @@ list_role_assignments <- function(filter, as_data_frame, defs, api_func)
     }
     else lapply(lst$value, function(res)
     {
-        role_name <- defs$name[defs$id == basename(res$properties$roleDefinitionId)]
+        role_name <- defs$name[defs$definition_id == basename(res$properties$roleDefinitionId)]
         az_role_assignment$new(token, res, role_name, api_func)
     })
 }
 
-get_role_definition <- function(id, defs, api_func)
+get_role_definition <- function(id, api_func)
 {
-    # if text rolename supplied, get full list of roles and extract from there
+    # if text rolename supplied, use it to filter the list of roles
     if(!is_guid(id))
     {
-        i <- which(tolower(defs$name) == tolower(id))
-        if(is_empty(i))
-            stop("Unknown role definition", call.=FALSE)
-        id <- defs$definition_id[i]
+        op <- "providers/Microsoft.Authorization/roleDefinitions"
+        filter <- sprintf("roleName eq '%s'", id)
+        lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_roledef_api_version"))
+
+        if(is_empty(lst$value))
+            stop("Role definition not found", call.=FALSE)
+
+        return(az_role_definition$new(lst$value[[1]]))
     }
 
     op <- file.path("providers/Microsoft.Authorization/roleDefinitions", id)
