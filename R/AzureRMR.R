@@ -8,7 +8,8 @@ utils::globalVariables(c("self", "private"))
 {
     options(azure_api_version="2018-05-01")
     options(azure_api_mgmt_version="2016-09-01")
-    options(azure_rbac_api_version="2015-07-01")
+    options(azure_roledef_api_version="2018-01-01-preview")
+    options(azure_roleasn_api_version="2018-12-01-preview")
 
     make_AzureR_dir()
 

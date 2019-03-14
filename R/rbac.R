@@ -14,7 +14,7 @@
 #'
 #' get_role_definition(id)
 #'
-#' list_role_definitions(filter="atScope()", as_data_frame = TRUE)
+#' list_role_definitions(filter=NULL, as_data_frame = TRUE)
 #' ```
 #' @section Arguments:
 #' - `principal`: For `add_role_assignment`, the principal for which to assign a role. This can be a GUID, or an object of class `az_app` or `az_storage_principal` (from the AzureGraph package).
@@ -113,7 +113,7 @@ function(id)
 })
 
 az_subscription$set("public", "list_role_definitions", overwrite=TRUE,
-function(filter="atScope()", as_data_frame=TRUE)
+function(filter=NULL, as_data_frame=TRUE)
 {
     list_role_definitions(filter, as_data_frame, private$sub_op)
 })
@@ -154,7 +154,7 @@ function(id)
 })
 
 az_resource_group$set("public", "list_role_definitions", overwrite=TRUE,
-function(filter="atScope()", as_data_frame=TRUE)
+function(filter=NULL, as_data_frame=TRUE)
 {
     list_role_definitions(filter, as_data_frame, private$rg_op)
 })
@@ -195,7 +195,7 @@ function(id)
 })
 
 az_resource$set("public", "list_role_definitions", overwrite=TRUE,
-function(filter="atScope()", as_data_frame=TRUE)
+function(filter=NULL, as_data_frame=TRUE)
 {
     list_role_definitions(filter, as_data_frame, private$res_op)
 })
@@ -223,7 +223,7 @@ add_role_assignment <- function(principal, role, scope, api_func)
         body$properties$scope <- scope
 
     res <- api_func(op, body=body, encode="json",
-        api_version=getOption("azure_rbac_api_version"), http_verb="PUT")
+        api_version=getOption("azure_roleasn_api_version"), http_verb="PUT")
     az_role_assignment$new(token, res, role$properties$roleName, api_func)
 }
 
@@ -231,7 +231,7 @@ get_role_assignment <- function(id, defs, api_func)
 {
     token <- environment(api_func)$self$token
     op <- file.path("providers/Microsoft.Authorization/roleAssignments", id)
-    res <- api_func(op, api_version=getOption("azure_rbac_api_version"))
+    res <- api_func(op, api_version=getOption("azure_roleasn_api_version"))
 
     role_name <- defs$name[defs$definition_id == basename(res$properties$roleDefinitionId)]
     az_role_assignment$new(token, res, role_name, api_func)
@@ -249,7 +249,7 @@ list_role_assignments <- function(filter, as_data_frame, defs, api_func)
 {
     token <- environment(api_func)$self$token
     op <- "providers/Microsoft.Authorization/roleAssignments"
-    lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_rbac_api_version"))
+    lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_roleasn_api_version"))
 
     if(as_data_frame)
     {
@@ -280,14 +280,14 @@ get_role_definition <- function(id, defs, api_func)
     }
 
     op <- file.path("providers/Microsoft.Authorization/roleDefinitions", id)
-    res <- api_func(op, api_version=getOption("azure_rbac_api_version"))
+    res <- api_func(op, api_version=getOption("azure_roledef_api_version"))
     az_role_definition$new(res)
 }
 
 list_role_definitions <- function(filter, as_data_frame, api_func)
 {
     op <- "providers/Microsoft.Authorization/roleDefinitions"
-    lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_rbac_api_version"))
+    lst <- api_func(op, options=list(`$filter`=filter), api_version=getOption("azure_roledef_api_version"))
 
     if(as_data_frame)
     {

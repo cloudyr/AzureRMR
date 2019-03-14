@@ -23,7 +23,7 @@ list_role_assignments(filter = "atScope()", as_data_frame = TRUE)
 
 get_role_definition(id)
 
-list_role_definitions(filter="atScope()", as_data_frame = TRUE)
+list_role_definitions(filter=NULL, as_data_frame = TRUE)
 }
 }
 
