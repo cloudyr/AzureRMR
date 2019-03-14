@@ -1,21 +1,92 @@
-#' Role-based access control
+#' Role-based access control (RBAC)
 #'
-#' Basic methods for RBAC: manage role assignments, retrieve role definitions.
+#' Basic methods for RBAC: manage role assignments, retrieve role definitions. These are methods for the `az_subscription`, `az_resource_group` and `az_resource` classes.
+#'
+#' @section Usage:
+#' ```
+#' add_role_assignment(principal, role, scope = NULL)
+#'
+#' get_role_assignment(id)
+#'
+#' remove_role_assignment(id, confirm = TRUE)
+#'
+#' list_role_assignments(filter = "atScope()", as_data_frame = TRUE) 
+#'
+#' get_role_definition(id)
+#'
+#' list_role_definitions(filter="atScope()", as_data_frame = TRUE)
+#' ```
+#' @section Arguments:
+#' - `principal`: For `add_role_assignment`, the principal for which to assign a role. This can be a GUID, or an object of class `[az_app]` or `[az_storage_principal]`.
+#' - `role`: For `add_role_assignment`, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class `[az_role_definition]`.
+#' - `scope`: For `add_role_assignment`, an optional scope for the assignment.
+#' - `id`: A role ID. For `get_role_assignment` and `remove_role_assignment`, this is a role assignment GUID. For `get_role_definition`, this can be a role definition GUID or a role name.
+#' - `confirm`: For `remove_role_assignment`, whether to ask for confirmation before removing the role assignment.
+#' - `filter`: For `list_role_assignments` and `list_role_definitions`, an optional filter condition to limit the returned roles.
+#' - `as_data_frame`: For `list_role_assignments` and `list_role_definitions`, whether to return a data frame or a list of objects. See 'Value' below.
+#'
+#' @section Details:
+#' AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels.
+#'
+#' @section Value:
+#' The `add_role_assignment` and `get_role_assignment` methods return an object of class `az_role_assignment`. This is a simple R6 class, with one method: `remove` to remove the assignment.
+#'
+#' The `list_role_assignments` method returns a list of `az_role_assignment` objects if the `as_data_frame` argument is FALSE. If this is TRUE, it instead returns a data frame containing the most broadly useful fields for each assigned role: the role assignment ID, the principal, and the role name.
+#'
+#' The `get_role_definition` method returns an object of class `az_role_definition`. This is a plain-old-data R6 class (no methods), which can be used as input for creating role assignments (see the examples below).
+#'
+#' The `list_role_definitions` method returns a list of `az_role_definition` if the `as_data_frame` argument is FALSE. If this is TRUE, it instead returns a data frame containing the most broadly useful fields for each role definition: the definition ID and role name.
+#'
+#' Technically role assignments and role definitions are Azure _resources_, and could be treated as subclasses of `az_resource`. AzureRMR implements them as distinct, due to limited functionality currently supported.
+#'
+#' @seealso
+#' [az_rm], [az_graph], [az_app], [az_service_principal]
+#'
+#' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' az <- get_azure_login()
+#' sub <- az$get_subscription("subscription_id")
+#' rg <- sub$get_resource_group("rgname")
+#' res <- rg$get_resource(type="provider_type", name="resname")
+#'
+#' sub$list_role_definitions()
+#' sub$list_role_assignments()
+#' sub$get_role_definition("Contributor")
+#'
+#' # subscription level
+#' app <- az$get_app("app_id")
+#' asn1 <- sub$add_role_assignment(app, "Reader")
+#'
+#' # resource group level
+#' asn2 <- rg$add_role_assignment(app, "Contributor")
+#'
+#' # resource level
+#' asn3 <- res$add_role_assignment(app, "Owner")
+#'
+#' res$remove_role_assignment(asn3$id)
+#' rg$remove_role_assignment(asn2$id)
+#' sub$remove_role_assignment(asn1$id)
+#' 
+#' }
 #'
 #' @aliases rbac
 #' @aliases add_role_assignment get_role_assignment remove_role_assignment list_role_assignments
 #' @aliases get_role_definition list_role_definitions
 #' @rdname rbac
+#' @name rbac
 NULL
 
 ## subscription methods
 
 az_subscription$set("public", "add_role_assignment", overwrite=TRUE,
-function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
+function(principal, role, scope=NULL)
 {
     if(!is_role_definition(role))
         role <- self$get_role_definition(role)
-    add_role_assignment(principal, role, scope, new_id, private$sub_op)
+    add_role_assignment(principal, role, scope, private$sub_op)
 })
 
 az_subscription$set("public", "get_role_assignment", overwrite=TRUE,
@@ -52,11 +123,11 @@ function(filter="atScope()", as_data_frame=TRUE)
 ## resource group methods
 
 az_resource_group$set("public", "add_role_assignment", overwrite=TRUE,
-function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
+function(principal, role, scope=NULL)
 {
     if(!is_role_definition(role))
         role <- self$get_role_definition(role)
-    add_role_assignment(principal, role, scope, new_id, private$rg_op)
+    add_role_assignment(principal, role, scope, private$rg_op)
 })
 
 az_resource_group$set("public", "get_role_assignment", overwrite=TRUE,
@@ -93,11 +164,11 @@ function(filter="atScope()", as_data_frame=TRUE)
 ## resource methods
 
 az_resource$set("public", "add_role_assignment", overwrite=TRUE,
-function(principal, role, scope=NULL, new_id=uuid::UUIDgenerate())
+function(principal, role, scope=NULL)
 {
     if(!is_role_definition(role))
         role <- self$get_role_definition(role)
-    add_role_assignment(principal, role, scope, new_id, private$res_op)
+    add_role_assignment(principal, role, scope, private$res_op)
 })
 
 az_resource$set("public", "get_role_assignment", overwrite=TRUE,
@@ -133,7 +204,7 @@ function(filter="atScope()", as_data_frame=TRUE)
 
 ## implementations
 
-add_role_assignment <- function(principal, role, scope, new_id, api_func)
+add_role_assignment <- function(principal, role, scope, api_func)
 {
     # obtain object ID from a service principal or registered app
     if(is_service_principal(principal))
@@ -142,7 +213,7 @@ add_role_assignment <- function(principal, role, scope, new_id, api_func)
         principal <- principal$get_service_principal()$properties$objectId
 
     token <- environment(api_func)$self$token
-    op <- file.path("providers/Microsoft.Authorization/roleAssignments", new_id)
+    op <- file.path("providers/Microsoft.Authorization/roleAssignments", uuid::UUIDgenerate())
     body <- list(
         properties=list(
             roleDefinitionId=role$id,
@@ -171,7 +242,7 @@ remove_role_assignment <- function(id, confirm, api_func)
 {
     token <- environment(api_func)$self$token
     # pass minimal list of parameters to init, rather than making useless API calls
-    res <- list(id=id)
+    res <- list(name=basename(id))
     az_role_assignment$new(token, res, api_func=api_func)$remove(confirm=confirm)
 }
 

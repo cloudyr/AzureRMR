@@ -1,3 +1,26 @@
+#' AzureRMR client class
+#'
+#' Container class for interacting with Azure Resource Manager and Azure AD Graph.
+#'
+#' @docType class
+#' @section Methods:
+#' This class exposes the methods of the underlying `az_rm` and `az_graph` classes, via active bindings. See the documentation for those classes. It includes one additional method:
+#'
+#' `refresh()`: Refreshes the tokens for the `az_rm` and `az_graph` component objects.
+#'
+#' @section Initialization:
+#' The recommended way to create new instances of this class is via the [create_azure_login] and [get_azure_login] functions.
+#'
+#' @seealso
+#' [create_azure_login], [get_azure_login], [az_graph], [az_rm]
+#'
+#' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
+#' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
+#'
+#' [Azure AD Graph overview](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-graph-api),
+#' [REST API reference](https://docs.microsoft.com/en-au/previous-versions/azure/ad/graph/api/api-catalog)
+#'
+#' @format An R6 object of class `az_rm`.
 #' @export
 az_client <- R6::R6Class("az_client",
 

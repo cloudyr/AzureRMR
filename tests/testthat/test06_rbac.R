@@ -5,7 +5,10 @@ appnative <- Sys.getenv("AZ_TEST_NATIVE_APP_ID")
 subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 
 if(tenant == "" || appnative == "" || subscription == "")
-    skip("Resource group method tests skipped: ARM credentials not set")
+    skip("Graph/RBAC method tests skipped: ARM credentials not set")
+
+if(!interactive())
+    skip("Graph/RBAC method tests skipped: must be in interactive session")
 
 az <- create_azure_login(tenant=tenant, app=appnative)
 sub <- az$get_subscription(subscription)
@@ -53,6 +56,8 @@ test_that("Subscription RBAC works",
     newsvc <- az$get_service_principal(newapp_id)
     newasns <- sub$list_role_assignments()
     expect_true(newsvc$properties$objectId %in% newasns$principal)
+
+    expect_silent(sub$remove_role_assignment(asn$name, confirm=FALSE))
 })
 
 test_that("Resource group RBAC works",
@@ -82,6 +87,8 @@ test_that("Resource group RBAC works",
     newapp <- az$get_app(app_id=newapp_id)
     asn <- rg$add_role_assignment(newapp, "contributor")
     expect_true(is_role_assignment(asn))
+
+    expect_silent(rg$remove_role_assignment(asn$name, confirm=FALSE))
 })
 
 test_that("Resource RBAC works",
@@ -113,6 +120,8 @@ test_that("Resource RBAC works",
     newapp <- az$get_app(app_id=newapp_id)
     asn <- res$add_role_assignment(newapp, "owner")
     expect_true(is_role_assignment(asn))
+
+    expect_silent(res$remove_role_assignment(asn$name, confirm=FALSE))
 })
 
 test_that("App deletion works",
