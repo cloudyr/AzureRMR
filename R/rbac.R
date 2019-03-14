@@ -17,7 +17,7 @@
 #' list_role_definitions(filter="atScope()", as_data_frame = TRUE)
 #' ```
 #' @section Arguments:
-#' - `principal`: For `add_role_assignment`, the principal for which to assign a role. This can be a GUID, or an object of class `[az_app]` or `[az_storage_principal]`.
+#' - `principal`: For `add_role_assignment`, the principal for which to assign a role. This can be a GUID, or an object of class `az_app` or `az_storage_principal` (from the AzureGraph package).
 #' - `role`: For `add_role_assignment`, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class `[az_role_definition]`.
 #' - `scope`: For `add_role_assignment`, an optional scope for the assignment.
 #' - `id`: A role ID. For `get_role_assignment` and `remove_role_assignment`, this is a role assignment GUID. For `get_role_definition`, this can be a role definition GUID or a role name.
@@ -38,7 +38,7 @@
 #' The `list_role_definitions` method returns a list of `az_role_definition` if the `as_data_frame` argument is FALSE. If this is TRUE, it instead returns a data frame containing the most broadly useful fields for each role definition: the definition ID and role name.
 #'
 #' @seealso
-#' [az_rm], [az_graph], [az_app], [az_service_principal], [az_role_definition], [az_role_assignment]
+#' [az_rm], [az_role_definition], [az_role_assignment]
 #'
 #' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
 #'
@@ -70,9 +70,8 @@
 #' 
 #' }
 #'
-#' @aliases rbac
-#' @aliases add_role_assignment get_role_assignment remove_role_assignment list_role_assignments
-#' @aliases get_role_definition list_role_definitions
+#' @aliases rbac add_role_assignment get_role_assignment remove_role_assignment list_role_assignments
+#'   get_role_definition list_role_definitions
 #' @rdname rbac
 #' @name rbac
 NULL

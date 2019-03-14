@@ -26,7 +26,7 @@
 #' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @seealso
-#' [create_azure_login], [get_azure_login], [az_graph]
+#' [create_azure_login], [get_azure_login]
 #'
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
 #' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)

@@ -32,13 +32,13 @@ Azure role assignment class
 
 \section{Initialization}{
 
-The recommended way to create new instances of this class is via the \link{create_role_assignment} and \link{get_role_assignment} methods for subscription, resource group and resource objects.
+The recommended way to create new instances of this class is via the \link{add_role_assignment} and \link{get_role_assignment} methods for subscription, resource group and resource objects.
 
 Technically role assignments and role definitions are Azure \emph{resources}, and could be implemented as subclasses of \code{az_resource}. AzureRMR treats them as distinct, due to limited RBAC functionality currently supported.
 }
 
 \seealso{
-\link{create_role_assignment}, \link{get_role_assignment}, \link{get_role_definition}, \link{az_role_definition}
+\link{add_role_assignment}, \link{get_role_assignment}, \link{get_role_definition}, \link{az_role_definition}
 
 \href{https://docs.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
 }

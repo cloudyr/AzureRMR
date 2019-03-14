@@ -2,6 +2,12 @@
 % Please edit documentation in R/rbac.R
 \name{rbac}
 \alias{rbac}
+\alias{add_role_assignment}
+\alias{get_role_assignment}
+\alias{remove_role_assignment}
+\alias{list_role_assignments}
+\alias{get_role_definition}
+\alias{list_role_definitions}
 \title{Role-based access control (RBAC)}
 \description{
 Basic methods for RBAC: manage role assignments, retrieve role definitions. These are methods for the \code{az_subscription}, \code{az_resource_group} and \code{az_resource} classes.
@@ -24,7 +30,7 @@ list_role_definitions(filter="atScope()", as_data_frame = TRUE)
 \section{Arguments}{
 
 \itemize{
-\item \code{principal}: For \code{add_role_assignment}, the principal for which to assign a role. This can be a GUID, or an object of class \code{[az_app]} or \code{[az_storage_principal]}.
+\item \code{principal}: For \code{add_role_assignment}, the principal for which to assign a role. This can be a GUID, or an object of class \code{az_app} or \code{az_storage_principal} (from the AzureGraph package).
 \item \code{role}: For \code{add_role_assignment}, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class \code{[az_role_definition]}.
 \item \code{scope}: For \code{add_role_assignment}, an optional scope for the assignment.
 \item \code{id}: A role ID. For \code{get_role_assignment} and \code{remove_role_assignment}, this is a role assignment GUID. For \code{get_role_definition}, this can be a role definition GUID or a role name.
@@ -80,7 +86,7 @@ sub$remove_role_assignment(asn1$id)
 
 }
 \seealso{
-\link{az_rm}, \link{az_graph}, \link{az_app}, \link{az_service_principal}, \link{az_role_definition}, \link{az_role_assignment}
+\link{az_rm}, \link{az_role_definition}, \link{az_role_assignment}
 
 \href{https://docs.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
 }
