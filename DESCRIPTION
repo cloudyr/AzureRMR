@@ -20,12 +20,8 @@ Imports:
     R6,
     uuid
 Suggests:
-    AzureGraph,
     knitr,
     testthat,
     httpuv
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1
-Remotes:
-    cloudyr/AzureGraph
-    
