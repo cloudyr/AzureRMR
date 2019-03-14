@@ -14,17 +14,28 @@
 #' - `resource_group_exists(name)`: Check if a resource group exists.
 #' - `list_resources()`: List all resources deployed under this subscription.
 #' - `list_locations()`: List locations available.
+#' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
 #' - `create_lock(name, level)`: Create a management lock on this subscription (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that exist in this subscription.
-#' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
+#' - `add_role_assignment(name, ...)`: Adds a new role assignment. See 'Role-based access control' below.
+#' - `get_role_assignment(id)`: Retrieves an existing role assignment.
+#' - `remove_role_assignment(id)`: Removes an existing role assignment.
+#' - `list_role_assignments()`: Lists role assignments.
+#' - `get_role_definition(id)`: Retrieves an existing role definition.
+#' - `list_role_definitions()` Lists role definitions.
 #'
 #' @section Details:
 #' Generally, the easiest way to create a subscription object is via the `get_subscription` or `list_subscriptions` methods of the [az_rm] class. To create a subscription object in isolation, call the `new()` method and supply an Oauth 2.0 token of class [AzureToken], along with the ID of the subscription.
 #'
+#' @section Role-based access control:
+#' AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See [rbac] for more information.
+#'
 #' @seealso
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview)
+#'
+#' For role-based access control methods, see [rbac]
 #'
 #' @examples
 #' \dontrun{

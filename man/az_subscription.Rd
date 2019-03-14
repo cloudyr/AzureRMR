@@ -22,17 +22,28 @@ Class representing an Azure subscription.
 \item \code{resource_group_exists(name)}: Check if a resource group exists.
 \item \code{list_resources()}: List all resources deployed under this subscription.
 \item \code{list_locations()}: List locations available.
+\item \code{get_provider_api_version(provider, type)}: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
 \item \code{create_lock(name, level)}: Create a management lock on this subscription (which will propagate to all resources within it). The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 \item \code{list_locks()}: List all locks that exist in this subscription.
-\item \code{get_provider_api_version(provider, type)}: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
+\item \code{add_role_assignment(name, ...)}: Adds a new role assignment. See 'Role-based access control' below.
+\item \code{get_role_assignment(id)}: Retrieves an existing role assignment.
+\item \code{remove_role_assignment(id)}: Removes an existing role assignment.
+\item \code{list_role_assignments()}: Lists role assignments.
+\item \code{get_role_definition(id)}: Retrieves an existing role definition.
+\item \code{list_role_definitions()} Lists role definitions.
 }
 }
 
 \section{Details}{
 
 Generally, the easiest way to create a subscription object is via the \code{get_subscription} or \code{list_subscriptions} methods of the \link{az_rm} class. To create a subscription object in isolation, call the \code{new()} method and supply an Oauth 2.0 token of class \link{AzureToken}, along with the ID of the subscription.
+}
+
+\section{Role-based access control}{
+
+AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See \link{rbac} for more information.
 }
 
 \examples{
@@ -64,5 +75,7 @@ sub$get_provider_api_version("Microsoft.Storage", "storageAccounts")
 }
 \seealso{
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview}
+
+For role-based access control methods, see \link{rbac}
 }
 \keyword{datasets}

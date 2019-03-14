@@ -17,6 +17,12 @@
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
+#' - `add_role_assignment(name, ...)`: Adds a new role assignment. See 'Role-based access control' below.
+#' - `get_role_assignment(id)`: Retrieves an existing role assignment.
+#' - `remove_role_assignment(id)`: Removes an existing role assignment.
+#' - `list_role_assignments()`: Lists role assignments.
+#' - `get_role_definition(id)`: Retrieves an existing role definition.
+#' - `list_role_definitions()` Lists role definitions.
 #'
 #' @section Initialization:
 #' There are multiple ways to initialize a new resource object. The `new()` method can retrieve an existing resource, deploy/create a new resource, or create an empty/null object (without communicating with the host), based on the arguments you supply.
@@ -47,6 +53,9 @@
 #' - `http_verb`: The HTTP verb as a string, one of `GET`, `PUT`, `POST`, `DELETE`, `HEAD` or `PATCH`.
 #'
 #' Consult the Azure documentation for your resource to find out what operations are supported.
+#'
+#' @section Role-based access control:
+#' AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See [rbac] for more information.
 #'
 #' @seealso
 #' [az_resource_group], [call_azure_rm], [call_azure_url],

@@ -39,6 +39,5 @@ test_that("Login interface works",
 
     az5 <- get_azure_login(tenant)
     expect_is(az5, "az_rm")
-
 })
 

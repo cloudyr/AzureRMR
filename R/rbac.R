@@ -1,6 +1,6 @@
 #' Role-based access control (RBAC)
 #'
-#' Basic methods for RBAC: manage role assignments, retrieve role definitions. These are methods for the `az_subscription`, `az_resource_group` and `az_resource` classes.
+#' Basic methods for RBAC: manage role assignments and retrieve role definitions. These are methods for the `az_subscription`, `az_resource_group` and `az_resource` classes.
 #'
 #' @section Usage:
 #' ```
@@ -45,7 +45,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' az <- get_azure_login()
+#' az <- get_azure_login("myaadtenant")
 #' sub <- az$get_subscription("subscription_id")
 #' rg <- sub$get_resource_group("rgname")
 #' res <- rg$get_resource(type="provider_type", name="resname")
@@ -54,8 +54,10 @@
 #' sub$list_role_assignments()
 #' sub$get_role_definition("Contributor")
 #'
+#' # get an app using the AzureGraph package
+#' app <- az_graph$new("myaadtenant")$get_app("app_id")
+#'
 #' # subscription level
-#' app <- az$get_app("app_id")
 #' asn1 <- sub$add_role_assignment(app, "Reader")
 #'
 #' # resource group level

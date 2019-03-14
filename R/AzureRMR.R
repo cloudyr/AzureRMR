@@ -9,7 +9,6 @@ utils::globalVariables(c("self", "private"))
     options(azure_api_version="2018-05-01")
     options(azure_api_mgmt_version="2016-09-01")
     options(azure_rbac_api_version="2015-07-01")
-    options(azure_graph_api_version="1.6")
 
     make_AzureR_dir()
 
