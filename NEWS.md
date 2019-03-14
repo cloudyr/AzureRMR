@@ -1,3 +1,7 @@
+# AzureRMR 2.0.9000
+
+* This version adds basic support for role-based access control (RBAC) at subscription, resource group and resource level. Add and remove role assignments, and retrieve role definitions. See `?rbac` for more information.
+
 # AzureRMR 2.0.0
 
 ## Significant interface changes
