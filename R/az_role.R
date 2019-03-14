@@ -1,3 +1,26 @@
+#' Azure role definition class
+#'
+#' @docType class
+#' @section Fields:
+#' - `id`: The full resource ID for this role definition.
+#' - `type`: The resource type for a role definition. Always `Microsoft.Authorization/roleDefinitions`.
+#' - `name`: A GUID that identifies this role definition.
+#' - `properties`: Properties for the role definition.
+#'
+#' @section Methods:
+#' This class has no methods.
+#'
+#' @section Initialization:
+#' The recommended way to create new instances of this class is via the [get_role_definition] method for subscription, resource group and resource objects.
+#'
+#' Technically role assignments and role definitions are Azure _resources_, and could be implemented as subclasses of `az_resource`. AzureRMR treats them as distinct, due to limited RBAC functionality currently supported. In particular, role definitions are read-only: you can retrieve a definition, but not modify it, nor create new definitions.
+#'
+#' @seealso
+#' [get_role_definition], [get_role_assignment], [az_role_assignment]
+#'
+#' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
+#'
+#' @format An R6 object of class `az_role_definition`.
 #' @export
 az_role_definition <- R6::R6Class("az_role_definition",
 
@@ -27,6 +50,31 @@ public=list(
 ))
 
 
+#' Azure role assignment class
+#'
+#' @docType class
+#' @section Fields:
+#' - `id`: The full resource ID for this role assignment.
+#' - `type`: The resource type for a role assignment. Always `Microsoft.Authorization/roleAssignments`.
+#' - `name`: A GUID that identifies this role assignment.
+#' - `role_name`: The role definition name (in text), eg "Contributor".
+#' - `properties`: Properties for the role definition.
+#' - `token`: An OAuth token, obtained via [get_azure_token].
+#'
+#' @section Methods:
+#' - `remove(confirm=TRUE)`: Removes this role assignment.
+#'
+#' @section Initialization:
+#' The recommended way to create new instances of this class is via the [create_role_assignment] and [get_role_assignment] methods for subscription, resource group and resource objects.
+#'
+#' Technically role assignments and role definitions are Azure _resources_, and could be implemented as subclasses of `az_resource`. AzureRMR treats them as distinct, due to limited RBAC functionality currently supported.
+#'
+#' @seealso
+#' [create_role_assignment], [get_role_assignment], [get_role_definition], [az_role_definition]
+#'
+#' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
+#'
+#' @format An R6 object of class `az_role_assignment`.
 #' @export
 az_role_assignment <- R6::R6Class("az_role_assignment",
 

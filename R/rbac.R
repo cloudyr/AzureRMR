@@ -37,10 +37,8 @@
 #'
 #' The `list_role_definitions` method returns a list of `az_role_definition` if the `as_data_frame` argument is FALSE. If this is TRUE, it instead returns a data frame containing the most broadly useful fields for each role definition: the definition ID and role name.
 #'
-#' Technically role assignments and role definitions are Azure _resources_, and could be treated as subclasses of `az_resource`. AzureRMR implements them as distinct, due to limited functionality currently supported.
-#'
 #' @seealso
-#' [az_rm], [az_graph], [az_app], [az_service_principal]
+#' [az_rm], [az_graph], [az_app], [az_service_principal], [az_role_definition], [az_role_assignment]
 #'
 #' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
 #'
@@ -207,9 +205,9 @@ function(filter="atScope()", as_data_frame=TRUE)
 add_role_assignment <- function(principal, role, scope, api_func)
 {
     # obtain object ID from a service principal or registered app
-    if(is_service_principal(principal))
+    if(inherits(principal, "az_service_principal"))
         principal <- principal$properties$objectId
-    else if(is_app(principal))
+    else if(inherits(principal, "az_app"))
         principal <- principal$get_service_principal()$properties$objectId
 
     token <- environment(api_func)$self$token

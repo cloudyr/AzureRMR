@@ -4,7 +4,7 @@
 \name{az_client}
 \alias{az_client}
 \title{AzureRMR client class}
-\format{An R6 object of class \code{az_rm}.}
+\format{An R6 object of class \code{az_client}.}
 \usage{
 az_client
 }

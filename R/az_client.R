@@ -20,7 +20,7 @@
 #' [Azure AD Graph overview](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-graph-api),
 #' [REST API reference](https://docs.microsoft.com/en-au/previous-versions/azure/ad/graph/api/api-catalog)
 #'
-#' @format An R6 object of class `az_rm`.
+#' @format An R6 object of class `az_client`.
 #' @export
 az_client <- R6::R6Class("az_client",
 

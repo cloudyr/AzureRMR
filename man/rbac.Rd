@@ -48,8 +48,6 @@ The \code{list_role_assignments} method returns a list of \code{az_role_assignme
 The \code{get_role_definition} method returns an object of class \code{az_role_definition}. This is a plain-old-data R6 class (no methods), which can be used as input for creating role assignments (see the examples below).
 
 The \code{list_role_definitions} method returns a list of \code{az_role_definition} if the \code{as_data_frame} argument is FALSE. If this is TRUE, it instead returns a data frame containing the most broadly useful fields for each role definition: the definition ID and role name.
-
-Technically role assignments and role definitions are Azure \emph{resources}, and could be treated as subclasses of \code{az_resource}. AzureRMR implements them as distinct, due to limited functionality currently supported.
 }
 
 \examples{
@@ -82,7 +80,7 @@ sub$remove_role_assignment(asn1$id)
 
 }
 \seealso{
-\link{az_rm}, \link{az_graph}, \link{az_app}, \link{az_service_principal}
+\link{az_rm}, \link{az_graph}, \link{az_app}, \link{az_service_principal}, \link{az_role_definition}, \link{az_role_assignment}
 
 \href{https://docs.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
 }
