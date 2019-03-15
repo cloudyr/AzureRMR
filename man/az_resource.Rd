@@ -27,6 +27,12 @@ Class representing a generic Azure resource.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 \item \code{list_locks()}: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
+\item \code{add_role_assignment(name, ...)}: Adds a new role assignment. See 'Role-based access control' below.
+\item \code{get_role_assignment(id)}: Retrieves an existing role assignment.
+\item \code{remove_role_assignment(id)}: Removes an existing role assignment.
+\item \code{list_role_assignments()}: Lists role assignments.
+\item \code{get_role_definition(id)}: Retrieves an existing role definition.
+\item \code{list_role_definitions()} Lists role definitions.
 }
 }
 
@@ -68,6 +74,11 @@ The \code{do_operation()} method allows you to carry out arbitrary operations on
 }
 
 Consult the Azure documentation for your resource to find out what operations are supported.
+}
+
+\section{Role-based access control}{
+
+AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See \link{rbac} for more information.
 }
 
 \examples{
@@ -119,5 +130,7 @@ stor$delete()
 \seealso{
 \link{az_resource_group}, \link{call_azure_rm}, \link{call_azure_url},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}
+
+For role-based access control methods, see \link{rbac}
 }
 \keyword{datasets}

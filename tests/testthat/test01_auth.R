@@ -9,7 +9,7 @@ if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Authentication tests skipped: ARM credentials not set")
 
 
-test_that("Authentication works",
+test_that("ARM authentication works",
 {
     az <- az_rm$new(tenant=tenant, app=app, password=password)
     expect_is(az, "az_rm")
@@ -23,9 +23,11 @@ test_that("Authentication works",
     expect_true(is_azure_token(az2$token))
 })
 
-
 test_that("Login interface works",
 {
+    lst <- list_azure_logins()
+    expect_true(is.list(lst))
+
     az3 <- create_azure_login(tenant=tenant, app=app, password=password)
     expect_is(az3, "az_rm")
 

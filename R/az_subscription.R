@@ -14,17 +14,28 @@
 #' - `resource_group_exists(name)`: Check if a resource group exists.
 #' - `list_resources()`: List all resources deployed under this subscription.
 #' - `list_locations()`: List locations available.
+#' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
 #' - `create_lock(name, level)`: Create a management lock on this subscription (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that exist in this subscription.
-#' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
+#' - `add_role_assignment(name, ...)`: Adds a new role assignment. See 'Role-based access control' below.
+#' - `get_role_assignment(id)`: Retrieves an existing role assignment.
+#' - `remove_role_assignment(id)`: Removes an existing role assignment.
+#' - `list_role_assignments()`: Lists role assignments.
+#' - `get_role_definition(id)`: Retrieves an existing role definition.
+#' - `list_role_definitions()` Lists role definitions.
 #'
 #' @section Details:
 #' Generally, the easiest way to create a subscription object is via the `get_subscription` or `list_subscriptions` methods of the [az_rm] class. To create a subscription object in isolation, call the `new()` method and supply an Oauth 2.0 token of class [AzureToken], along with the ID of the subscription.
 #'
+#' @section Role-based access control:
+#' AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See [rbac] for more information.
+#'
 #' @seealso
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview)
+#'
+#' For role-based access control methods, see [rbac]
 #'
 #' @examples
 #' \dontrun{
@@ -84,7 +95,7 @@ public=list(
 
     list_locations=function()
     {
-        cont <- call_azure_rm(self$token, self$id, "locations")
+        cont <- private$sub_op("locations")
         locs <- do.call(rbind, lapply(cont$value, data.frame, stringsAsFactors=FALSE))
         within(locs,
         {
@@ -99,7 +110,7 @@ public=list(
     {
         if(is_empty(provider))
         {
-            apis <- named_list(call_azure_rm(self$token, self$id, "providers")$value, "namespace")
+            apis <- named_list(private$sub_op("providers")$value, "namespace")
             lapply(apis, function(api)
             {
                 api <- named_list(api$resourceTypes, "resourceType")
@@ -110,7 +121,7 @@ public=list(
         else
         {
             op <- construct_path("providers", provider)
-            apis <- named_list(call_azure_rm(self$token, self$id, op)$resourceTypes, "resourceType")
+            apis <- named_list(private$sub_op(op)$resourceTypes, "resourceType")
             if(!is_empty(type))
             {
                 # case-insensitive matching
@@ -131,7 +142,7 @@ public=list(
 
     list_resource_groups=function()
     {
-        cont <- call_azure_rm(self$token, self$id, "resourcegroups")
+        cont <- private$sub_op("resourcegroups")
         lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
@@ -156,14 +167,14 @@ public=list(
 
     resource_group_exists=function(name)
     {
-        res <- call_azure_rm(self$token, self$id, construct_path("resourceGroups", name),
+        res <- private$sub_op(construct_path("resourceGroups", name),
             http_verb="HEAD", http_status_handler="pass")
         httr::status_code(res) < 300
     },
 
     list_resources=function()
     {
-        cont <- call_azure_rm(self$token, self$id, "resources")
+        cont <- private$sub_op("resources")
         lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
@@ -185,7 +196,7 @@ public=list(
         if(notes != "")
             body$notes <- notes
 
-        res <- call_azure_rm(self$token, self$id, op, body=body, encode="json", http_verb="PUT", api_version=api)
+        res <- private$sub_op(op, body=body, encode="json", http_verb="PUT", api_version=api)
         az_resource$new(self$token, self$id, deployed_properties=res, api_version=api)
     },
 
@@ -193,7 +204,7 @@ public=list(
     {
         api <- getOption("azure_api_mgmt_version")
         op <- file.path("providers/Microsoft.Authorization/locks", name)
-        res <- call_azure_rm(self$token, self$id, op, api_version=api)
+        res <- private$sub_op(op, api_version=api)
         az_resource$new(self$token, self$id, deployed_properties=res, api_version=api)
     },
 
@@ -201,7 +212,7 @@ public=list(
     {
         api <- getOption("azure_api_mgmt_version")
         op <- file.path("providers/Microsoft.Authorization/locks", name)
-        call_azure_rm(self$token, self$id, op, http_verb="DELETE", api_version=api)
+        private$sub_op(op, http_verb="DELETE", api_version=api)
         invisible(NULL)
     },
 
@@ -209,7 +220,7 @@ public=list(
     {
         api <- getOption("azure_api_mgmt_version")
         op <- "providers/Microsoft.Authorization/locks"
-        cont <- call_azure_rm(self$token, self$id, op, api_version=api)
+        cont <- private$sub_op(op, api_version=api)
 
         lst <- lapply(cont$value, function(parms)
             az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
@@ -230,5 +241,13 @@ public=list(
         cat(format_public_fields(self, exclude="id"))
         cat(format_public_methods(self))
         invisible(self)
+    }
+),
+
+private=list(
+
+    sub_op=function(op="", ...)
+    {
+        call_azure_rm(self$token, self$id, op, ...)
     }
 ))

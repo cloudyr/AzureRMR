@@ -49,6 +49,7 @@ test_that("Template methods work",
     expect_false(is_empty(rg$list_resources()))
 
     tpl2$delete(confirm=FALSE, free_resources=TRUE)
+    Sys.sleep(2)
     expect_true(is_empty(rg$list_resources()))
 
     # leave out parameters arg, modify template to incorporate parameters

@@ -15,7 +15,7 @@ call_azure_url(token, url, ..., http_verb = c("GET", "DELETE", "PUT",
 \arguments{
 \item{token}{An Azure OAuth token, of class \link{AzureToken}.}
 
-\item{subscription}{A subscription ID.}
+\item{subscription}{For \code{call_azure_rm}, a subscription ID.}
 
 \item{operation}{The operation to perform, which will form part of the URL path.}
 
@@ -42,7 +42,7 @@ If \code{http_status_handler} is \code{"pass"}, the entire response is returned 
 Call the Azure Resource Manager REST API
 }
 \details{
-These functions form the low-level interface between AzureRMR and Resource Manager. \code{call_azure_rm} builds a URL from its arguments and passes it to \code{call_azure_url}. Authentication is handled automatically.
+These functions form the low-level interface between R and Azure. \code{call_azure_rm} is for calling the Resource Manager API, and \code{call_azure_graph} is for calling the Azure Active Directory Graph API. They build a URL from their arguments and pass it to \code{call_azure_url}. Authentication is handled automatically.
 }
 \seealso{
 \link[httr:GET]{httr::GET}, \link[httr:PUT]{httr::PUT}, \link[httr:POST]{httr::POST}, \link[httr:DELETE]{httr::DELETE}, \link[httr:stop_for_status]{httr::stop_for_status}, \link[httr:content]{httr::content}

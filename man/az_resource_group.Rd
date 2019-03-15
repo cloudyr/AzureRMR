@@ -32,6 +32,12 @@ Class representing an Azure resource group.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 \item \code{list_locks()}: List all locks that apply to this resource group. Note this includes locks created at the subscription level, and for any resources within the resource group.
+\item \code{add_role_assignment(name, ...)}: Adds a new role assignment. See 'Role-based access control' below.
+\item \code{get_role_assignment(id)}: Retrieves an existing role assignment.
+\item \code{remove_role_assignment(id)}: Removes an existing role assignment.
+\item \code{list_role_assignments()}: Lists role assignments.
+\item \code{get_role_definition(id)}: Retrieves an existing role definition.
+\item \code{list_role_definitions()} Lists role definitions.
 }
 }
 
@@ -75,6 +81,11 @@ There are a number of arguments to \code{get_resource()}, \code{create_resource(
 Providing the \code{id} argument will fill in the values for all the other arguments. Similarly, providing the \code{type} argument will fill in the values for \code{provider} and \code{path}. Unless you provide \code{id}, you must also provide \code{name}.
 
 To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to \code{create_resource()}. Like \code{deploy_template()}, \code{create_resource()} also takes an optional \code{wait} argument that specifies whether to wait until resource creation is complete before returning.
+}
+
+\section{Role-based access control}{
+
+AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See \link{rbac} for more information.
 }
 
 \examples{
@@ -123,5 +134,7 @@ rg$delete()
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups}{Azure resource group overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/deployments}{Template API reference}
+
+For role-based access control methods, see \link{rbac}
 }
 \keyword{datasets}
