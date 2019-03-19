@@ -207,9 +207,9 @@ add_role_assignment <- function(principal, role, scope, api_func)
 {
     # obtain object ID from a service principal or registered app
     if(inherits(principal, "az_service_principal"))
-        principal <- principal$properties$objectId
+        principal <- principal$properties$id
     else if(inherits(principal, "az_app"))
-        principal <- principal$get_service_principal()$properties$objectId
+        principal <- principal$get_service_principal()$properties$id
 
     token <- environment(api_func)$self$token
     op <- file.path("providers/Microsoft.Authorization/roleAssignments", uuid::UUIDgenerate())
