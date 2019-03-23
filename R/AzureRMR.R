@@ -11,8 +11,6 @@ utils::globalVariables(c("self", "private"))
     options(azure_roledef_api_version="2018-01-01-preview")
     options(azure_roleasn_api_version="2018-12-01-preview")
 
-    make_AzureR_dir()
-
     invisible(NULL)
 }
 
