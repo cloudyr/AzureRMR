@@ -123,7 +123,7 @@ get_azure_login <- function(tenant="common", selection=NULL, refresh=TRUE)
         stop(msg, call.=FALSE)
     }
 
-    if(length(this_login) == 1)
+    if(length(this_login) == 1 && is.null(selection))
         selection <- 1
     else if(is.null(selection))
     {
