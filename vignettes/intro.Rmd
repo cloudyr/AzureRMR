@@ -24,13 +24,13 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 
 Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()`, which will log you into Azure. AzureRMR will prompt you for permission to create a special data directory in which to cache your credentials. Once this information is saved on your machine, it can be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
 
-Unless you have a good reason otherwise, you should allow AzureRMR to create this caching directory. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself. You can see what directory AzureRMR has created with the function `AzureR_dir()`.
+Unless you have a good reason otherwise, you should allow this caching directory to be created. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself. You can see the location of the caching directory with the function `AzureR_dir()`.
 
-```{r, eval=FALSE}
+```r
 library(AzureRMR)
-#> AzureRMR can cache Azure Active Directory tokens and Resource Manager logins in the directory:
+#> The AzureR packages can save your authentication credentials in the directory:
 #>
-#> C:\Users\hongooi\AppData\Local\AzureR\AzureRMR
+#> C:\Users\hongooi\AppData\Local\AzureR
 #>
 #> This saves you having to reauthenticate with Azure in future sessions. Create this directory? (Y/n) y
 
@@ -77,7 +77,7 @@ If you want to allow access at something other than subscription level, you can 
 
 Once you have created your own service principal, you can supply the app ID and password as arguments to `create_azure_login`. You'll also have to supply your Azure Active Directory tenant, as AAD does not have access to your personal credentials.
 
-```{r, eval=FALSE}
+```r
 # authenticating with a custom service principal
 create_azure_login(tenant="myaadtenant", app="app_id", password="password")
 ```
@@ -87,7 +87,7 @@ create_azure_login(tenant="myaadtenant", app="app_id", password="password")
 
 AzureRMR allows you to work with your subscriptions and resource groups. Note that if you created your service principal via the cloud shell, as described in this vignette, you probably only have access to one subscription. Regardless, you can list all subscriptions that you can work with:
 
-```{r, eval=FALSE}
+```r
 # all subscriptions
 az$list_subscriptions()
 #> $`5710aa44-281f-49fe-bfa6-69e66bb55b11`
@@ -119,7 +119,7 @@ Notice that AzureRMR is based on R6 classes, where methods are part of the objec
 
 The `list_subscriptions()` call returns a list of subscription objects. You can retrieve the details for a single subscription with `get_subscription`:
 
-```{r, eval=FALSE}
+```r
 # get a subscription
 (sub1 <- az$get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11"))
 #> <Azure subscription 5710aa44-281f-49fe-bfa6-69e66bb55b11>
@@ -135,7 +135,7 @@ The `list_subscriptions()` call returns a list of subscription objects. You can 
 
 A subscription object in turn has methods to get, create and delete resource groups (and also list all resource groups):
 
-```{r, eval=FALSE}
+```r
 (rg <- sub1$get_resource_group("rdev1"))
 #> <Azure resource group rdev1>
 #>   id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1
@@ -155,7 +155,7 @@ test$delete(confirm=FALSE)
 
 Methods for working with resources and templates are exposed as part of the `az_resource_group` class. You can retrieve an existing resource/template, create a new one, or delete an existing one.
 
-```{r, eval=FALSE}
+```r
 (stor <- rg$get_resource(type="Microsoft.Storage/storageServices", name="rdevstor1"))
 #> <Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
 #>   id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft.Sto ...
@@ -173,7 +173,7 @@ Methods for working with resources and templates are exposed as part of the `az_
 
 One benefit of the syntax that AzureRMR uses is that _method chaining_ works. This is the OOP version of pipelines, which most R users will recognise from the tidyverse.
 
-```{r, eval=FALSE}
+```r
 # use method chaining to get a resource without creating a bunch of intermediaries
 # same result as above
 stor <- az$
@@ -184,7 +184,7 @@ stor <- az$
 
 Once we have a resource, we can do _things_ with it, via the `do_operation()` method. In this case, we have a storage account. One of the things we can do with a storage account is retrieve its access keys:
 
-```{r, eval=FALSE}
+```r
 stor$do_operation("listKeys", http_verb="POST")
 #>  $`keys`
 #>  $`keys`[[1]]
@@ -201,7 +201,7 @@ stor$do_operation("listKeys", http_verb="POST")
 
 Here is another example. If we have a virtual machine, we can start it, execute shell commands, and then shut it down again:
 
-```{r, eval=FALSE}
+```r
 vm <- rg$get_resource(type="Microsoft.Compute/virtualMachines",
     name="myVirtualMachine")
 
@@ -220,7 +220,7 @@ For the types of operations you can carry out on a resource, consult the [Azure 
 
 You can also interrogate the fields of a resource object; in particular the `properties` field can contain arbitrary information about an Azure resource. For example, a storage account's properties includes the endpoint URIs, and a virtual machine's properties includes its admin login details.
 
-```{r, eval=FALSE}
+```r
 # file and blob storage endpoint
 stor$properties$primaryEndpoints$file
 stor$properties$primaryEndpoints$blob
@@ -232,7 +232,7 @@ vm$properties$osProfile
 
 In a manner similar to resources, deploying a [template](https://www.red-gate.com/simple-talk/cloud/infrastructure-as-a-service/azure-resource-manager-arm-templates/) is just a matter of calling the resource group object's `deploy_template` method. This takes two arguments, `template` and `parameters`. Both arguments should be in JSON format: either the name of a JSON file, a character vector containing the JSON data, or a list containing the parsed JSON (via `jsonlite::toJSON`).
 
-```{r, eval=FALSE}
+```r
 vm_tpl <- rg$deploy_template("myNewVirtualMachine",
     template="vm_template.json",
     parameters=list(
@@ -245,9 +245,96 @@ vm_tpl <- rg$deploy_template("myNewVirtualMachine",
 
 Normally, deleting a template doesn't touch the resources it creates: it only deletes the template itself. However, AzureRMR optionally allows you to free any resources created when you delete a template. This is useful when managing complex objects like VMs, which actually consist of multiple individual resources in Azure (storage account, disk, network interface, etc). When you are done with the VM, deleting the template lets you free all these resources with a single command.
 
-```{r, eval=FALSE}
+```r
 vm_tpl$delete(free_resources=TRUE)
 ```
+
+
+## Common methods
+
+Some types of functionality apply at multiple levels.
+
+### Tagging
+
+Resources and resource groups can be assigned _tags_. Tags are labels that help admins to organise and categorise Azure resources. To set and unset tags, use the `set_tags` method, and to view them, use `get_tags`.
+
+```r
+rg$set_tags(comment1="hello world!", created_by="AzureRMR")
+
+# a name-only comment
+rg$set_tags(comment2)
+
+# to unset a tag, set it to NULL
+rg$set_tags(created_by=NULL)
+
+# see the tags
+rg$get_tags()
+#> $comment1
+#> [1] "hello world!"
+#> 
+#> $comment2
+#> [1] ""
+
+# specify keep_existing=FALSE to unset all existing tags
+rg$set_tags(newcomment="my new comment", keep_existing=FALSE)
+```
+
+### Locking
+
+As of version 2.0.0, AzureRMR includes the ability to lock and unlock subscriptions, resource groups and resources. The methods involved are:
+
+* `create_lock(name, level)`: Create a management lock on this object. The `level` argument can be either "cannotdelete" or "readonly".
+* `get_lock(name`): Returns a management lock object.
+* `delete_lock(name)`: Deletes a management lock object.
+* `list_locks()`: List all locks that apply to this object.
+
+Locks applied to a resource group also apply to all its resources, and similarly locks applied to a subscription also apply to all its resource groups (and resources). If you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+
+```r
+# protect this resource group and its resources against deletion
+rg$create_lock("mylock", "cannotdelete")
+
+rg$list_locks()
+
+rg$delete_lock("mylock")
+```
+
+### Role-based access control
+
+As of version 2.1.0, AzureRMR includes limited support for [role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview) (RBAC). You can read role definitions, and read, add and remove role assignments. This applies to subscription, resource group and resource objects.
+
+```r
+rg$list_role_definitions()
+#>                          definition_id                                                name
+#> 1 a7b1b19a-0e83-4fe5-935c-faaefbfd18c3                                Avere Cluster Create
+#> 2 e078ab98-ef3a-4c9a-aba7-12f5172b45d0                      Avere Cluster Runtime Operator
+#> 3 21d96096-b162-414a-8302-d8354f9d91b2 Azure Service Deploy Release Management Contributor
+#> 4 7b266cd7-0bba-4ae2-8423-90ede5e1e898                                     CAL-Custom-Role
+#> 5 b91f4c0b-46e3-47bb-a242-eecfe23b3b5b                              Dsms Role (deprecated)
+#> ...
+
+rg$get_role_definition("Reader")
+#> <Azure role definition>
+#>   role: Reader
+#>   description: Lets you view everything, but not make any changes.
+#>   role definition ID: acdd72a7-3385-48ef-bd42-f606fba81ae7
+
+# assign Reader role to the principal with the given ID
+rg$add_role_assignment("041ff2be-4eb0-11e9-8f38-394fbcd0b29d", "Reader")
+```
+
+You can assign roles to either a user or a service principal, although note that the ID of a service principal is _not_ the app ID of its corresponding registered app. The AzureGraph package can help you in specifying the ID to which to assign a role.
+
+```r
+gr <- AzureGraph::get_graph_login()
+usr <- gr$get_user("username@aadtenant.com")
+svc <- gr$get_service_principal(app_id="b9ed4812-4eba-11e9-9a1e-1fda262d9c77")
+
+rg$add_role_assignment(usr, "Reader")
+rg$add_role_assignment(svc, "Contributor")
+```
+
+Technically role definitions and assignments are _resources_ and could be manipulated as such, but AzureRMR currently treats them as independent classes.
 
 
 ## Conclusion

@@ -58,6 +58,9 @@ stor2$set_tags(comment="hello world!", created_by="AzureRMR")
 gr <- AzureGraph::get_graph_login()
 usr <- gr$get_user("username@aadtenant.com")
 stor2$add_role_assignment(usr, "Storage blob data contributor")
+
+# pass the GUID of the principal if you don't have AzureGraph installed
+stor2$add_role_assignment("041ff2be-4eb0-11e9-8f38-394fbcd0b29d", "Storage blob data contributor")
 ```
 
 ## Extending

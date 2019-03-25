@@ -1,4 +1,4 @@
-# AzureRMR 2.0.9000
+# AzureRMR 2.1.0
 
 * This version adds basic support for role-based access control (RBAC) at subscription, resource group and resource level. Add and remove role assignments, and retrieve role definitions. See `?rbac` for more information.
 * Fix a bug where if the user decides not to create a caching dir when prompted by AzureAuth, AzureRMR would pop up a second prompt
