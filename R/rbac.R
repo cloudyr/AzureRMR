@@ -17,7 +17,7 @@
 #' list_role_definitions(filter=NULL, as_data_frame = TRUE)
 #' ```
 #' @section Arguments:
-#' - `principal`: For `add_role_assignment`, the principal for which to assign a role. This can be a GUID, or an object of class `az_app` or `az_storage_principal` (from the AzureGraph package).
+#' - `principal`: For `add_role_assignment`, the principal for which to assign a role. This can be a GUID, or an object of class `az_user`, `az_app` or `az_storage_principal` (from the AzureGraph package).
 #' - `role`: For `add_role_assignment`, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class `[az_role_definition]`.
 #' - `scope`: For `add_role_assignment`, an optional scope for the assignment.
 #' - `id`: A role ID. For `get_role_assignment` and `remove_role_assignment`, this is a role assignment GUID. For `get_role_definition`, this can be a role definition GUID or a role name.
@@ -55,7 +55,7 @@
 #' sub$get_role_definition("Contributor")
 #'
 #' # get an app using the AzureGraph package
-#' app <- az_graph$new("myaadtenant")$get_app("app_id")
+#' app <- get_graph_login("myaadtenant")$get_app("app_id")
 #'
 #' # subscription level
 #' asn1 <- sub$add_role_assignment(app, "Reader")
@@ -206,7 +206,7 @@ function(filter=NULL, as_data_frame=TRUE)
 add_role_assignment <- function(principal, role, scope, api_func)
 {
     # obtain object ID from a service principal or registered app
-    if(inherits(principal, "az_service_principal"))
+    if(inherits(principal, c("az_service_principal", "az_user")))
         principal <- principal$properties$id
     else if(inherits(principal, "az_app"))
         principal <- principal$get_service_principal()$properties$id

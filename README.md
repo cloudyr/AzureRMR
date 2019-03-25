@@ -50,9 +50,14 @@ rg2 <- sub$create_resource_group("newrgname", location="westus")
 stor2 <- rg2$create_resource(type="Microsoft.Storage/storageAccounts", name="mystorage2",
     kind="Storage", sku=list(name="Standard_LRS"))
 
-# delete them
-stor2$delete(confirm=FALSE)
-rg2$delete(confirm=FALSE)
+# tagging
+stor2$set_tags(comment="hello world!", created_by="AzureRMR")
+
+# role-based access control (RBAC)
+# this uses the AzureGraph package to retrieve the user ID
+gr <- AzureGraph::get_graph_login()
+usr <- gr$get_user("username@aadtenant.com")
+stor2$add_role_assignment(usr, "Storage blob data contributor")
 ```
 
 ## Extending
