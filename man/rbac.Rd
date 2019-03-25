@@ -30,7 +30,7 @@ list_role_definitions(filter=NULL, as_data_frame = TRUE)
 \section{Arguments}{
 
 \itemize{
-\item \code{principal}: For \code{add_role_assignment}, the principal for which to assign a role. This can be a GUID, or an object of class \code{az_app} or \code{az_storage_principal} (from the AzureGraph package).
+\item \code{principal}: For \code{add_role_assignment}, the principal for which to assign a role. This can be a GUID, or an object of class \code{az_user}, \code{az_app} or \code{az_storage_principal} (from the AzureGraph package).
 \item \code{role}: For \code{add_role_assignment}, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class \code{[az_role_definition]}.
 \item \code{scope}: For \code{add_role_assignment}, an optional scope for the assignment.
 \item \code{id}: A role ID. For \code{get_role_assignment} and \code{remove_role_assignment}, this is a role assignment GUID. For \code{get_role_definition}, this can be a role definition GUID or a role name.
@@ -69,7 +69,7 @@ sub$list_role_assignments()
 sub$get_role_definition("Contributor")
 
 # get an app using the AzureGraph package
-app <- az_graph$new("myaadtenant")$get_app("app_id")
+app <- get_graph_login("myaadtenant")$get_app("app_id")
 
 # subscription level
 asn1 <- sub$add_role_assignment(app, "Reader")
