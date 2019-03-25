@@ -22,7 +22,7 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 
 ## Authentication
 
-Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()`, which will log you into Azure. AzureRMR will prompt you for permission to create a special data directory in which to cache your credentials. Once this information is saved on your machine, it can be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()`, which will log you into Azure. R will prompt you for permission to create a special data directory in which to save your credentials. Once this information is saved on your machine, it can be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
 
 Unless you have a good reason otherwise, you should allow this caching directory to be created. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself. You can see the location of the caching directory with the function `AzureR_dir()`.
 
@@ -252,7 +252,7 @@ vm_tpl$delete(free_resources=TRUE)
 
 ## Common methods
 
-Some types of functionality apply at multiple levels.
+The following types of functionality apply at multiple levels: resource, resource group and/or subscription.
 
 ### Tagging
 
@@ -323,11 +323,15 @@ rg$get_role_definition("Reader")
 rg$add_role_assignment("041ff2be-4eb0-11e9-8f38-394fbcd0b29d", "Reader")
 ```
 
-You can assign roles to either a user or a service principal, although note that the ID of a service principal is _not_ the app ID of its corresponding registered app. The AzureGraph package can help you in specifying the ID to which to assign a role.
+You can assign roles to either a user or a service principal, although note that the ID of a service principal is _not_ the app ID of its corresponding registered app. The AzureGraph package can help you in specifying the principal to which to assign a role.
 
 ```r
 gr <- AzureGraph::get_graph_login()
+
+# can get a user by their email address
 usr <- gr$get_user("username@aadtenant.com")
+
+# get the service principal for an app by its app ID
 svc <- gr$get_service_principal(app_id="b9ed4812-4eba-11e9-9a1e-1fda262d9c77")
 
 rg$add_role_assignment(usr, "Reader")
