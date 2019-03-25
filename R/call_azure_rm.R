@@ -43,10 +43,9 @@ call_azure_url <- function(token, url, ...,
                            auto_refresh=TRUE)
 {
     headers <- process_headers(token, ..., auto_refresh=auto_refresh)
-    verb <- get(match.arg(http_verb), getNamespace("httr"))
 
     # do actual API call
-    res <- verb(url, headers, ...)
+    res <- httr::VERB(match.arg(http_verb), url, headers, ...)
 
     process_response(res, match.arg(http_status_handler))
 }
