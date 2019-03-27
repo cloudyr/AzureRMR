@@ -276,48 +276,6 @@ public=list(
         self$tags
     },
 
-    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
-    {
-        level <- match.arg(level)
-        api <- getOption("azure_api_mgmt_version")
-        op <- file.path("providers/Microsoft.Authorization/locks", name)
-        body <- list(properties=list(level=level))
-        if(notes != "")
-            body$notes <- notes
-
-        res <- self$do_operation(op, body=body, encode="json", http_verb="PUT", api_version=api)
-        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
-    },
-
-    get_lock=function(name)
-    {
-        api <- getOption("azure_api_mgmt_version")
-        op <- file.path("providers/Microsoft.Authorization/locks", name)
-        res <- self$do_operation(op, api_version=api)
-        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
-    },
-
-    delete_lock=function(name)
-    {
-        api <- getOption("azure_api_mgmt_version")
-        op <- file.path("providers/Microsoft.Authorization/locks", name)
-        self$do_operation(op, http_verb="DELETE", api_version=api)
-        invisible(NULL)
-    },
-
-    list_locks=function()
-    {
-        api <- getOption("azure_api_mgmt_version")
-        op <- "providers/Microsoft.Authorization/locks"
-        cont <- self$do_operation(op, api_version=api)
-        lst <- get_paged_list(cont, self$token)
-        lst <- lapply(lst, function(parms)
-            az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
-
-        names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
-        lst
-    },
-
     print=function(...)
     {
         # generate label from id, since type and name are not guaranteed to be fixed for sub-resources

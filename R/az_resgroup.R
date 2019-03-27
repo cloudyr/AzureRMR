@@ -263,47 +263,6 @@ public=list(
         else self$tags
     },
 
-    create_lock=function(name, level=c("cannotdelete", "readonly"), notes="")
-    {
-        level <- match.arg(level)
-        api <- getOption("azure_api_mgmt_version")
-        op <- file.path("providers/Microsoft.Authorization/locks", name)
-        body <- list(properties=list(level=level))
-        if(notes != "")
-            body$notes <- notes
-
-        res <- private$rg_op(op, body=body, encode="json", http_verb="PUT", api_version=api)
-        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
-    },
-
-    get_lock=function(name)
-    {
-        api <- getOption("azure_api_mgmt_version")
-        op <- file.path("providers/Microsoft.Authorization/locks", name)
-        res <- private$rg_op(op, api_version=api)
-        az_resource$new(self$token, self$subscription, deployed_properties=res, api_version=api)
-    },
-
-    delete_lock=function(name)
-    {
-        api <- getOption("azure_api_mgmt_version")
-        op <- file.path("providers/Microsoft.Authorization/locks", name)
-        private$rg_op(op, http_verb="DELETE", api_version=api)
-        invisible(NULL)
-    },
-
-    list_locks=function()
-    {
-        api <- getOption("azure_api_mgmt_version")
-        op <- "providers/Microsoft.Authorization/locks"
-        cont <- private$rg_op(op, api_version=api)
-        lst <- lapply(get_paged_list(cont, self$token), function(parms)
-            az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
-
-        names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
-        lst
-    },
-
     print=function(...)
     {
         cat("<Azure resource group ", self$name, ">\n", sep="")
