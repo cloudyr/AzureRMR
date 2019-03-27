@@ -58,8 +58,7 @@
 #' res$delete()
 #' 
 #' }
-#' @aliases rbac add_role_assignment get_role_assignment remove_role_assignment list_role_assignments
-#'   get_role_definition list_role_definitions
+#' @aliases lock create_lock get_lock delete_lock list_locks
 #' @rdname lock
 #' @name lock
 NULL

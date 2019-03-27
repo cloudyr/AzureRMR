@@ -2,13 +2,10 @@
 % Please edit documentation in R/locks.R
 \name{lock}
 \alias{lock}
-\alias{rbac}
-\alias{add_role_assignment}
-\alias{get_role_assignment}
-\alias{remove_role_assignment}
-\alias{list_role_assignments}
-\alias{get_role_definition}
-\alias{list_role_definitions}
+\alias{create_lock}
+\alias{get_lock}
+\alias{delete_lock}
+\alias{list_locks}
 \title{Management locks}
 \description{
 Create, retrieve and delete locks. These are methods for the \code{az_subscription}, \code{az_resource_group} and \code{az_resource} classes.
