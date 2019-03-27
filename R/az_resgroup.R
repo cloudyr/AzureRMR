@@ -18,7 +18,7 @@
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
 #' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource.
-#' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it). The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+#' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it).
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that apply to this resource group. Note this includes locks created at the subscription level, and for any resources within the resource group.
@@ -69,6 +69,8 @@
 #' [Template API reference](https://docs.microsoft.com/en-us/rest/api/resources/deployments)
 #'
 #' For role-based access control methods, see [rbac]
+#'
+#' For management locks, see [lock]
 #'
 #' @examples
 #' \dontrun{

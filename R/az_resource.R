@@ -13,7 +13,7 @@
 #' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
 #' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource.
-#' - `create_lock(name, level)`: Create a management lock on this resource. The `level` argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+#' - `create_lock(name, level)`: Create a management lock on this resource.
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
@@ -62,6 +62,8 @@
 #' [Resources API reference](https://docs.microsoft.com/en-us/rest/api/resources/resources)
 #'
 #' For role-based access control methods, see [rbac]
+#'
+#' For management locks, see [lock]
 #'
 #' @examples
 #' \dontrun{

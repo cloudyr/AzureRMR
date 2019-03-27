@@ -23,7 +23,7 @@ Class representing a generic Azure resource.
 \item \code{do_operation(...)}: Carry out an operation. See 'Operations' for more details.
 \item \code{set_tags(..., keep_existing=TRUE)}: Set the tags on this resource. The tags can be either names or name-value pairs. To delete a tag, set it to \code{NULL}.
 \item \code{get_tags()}: Get the tags on this resource.
-\item \code{create_lock(name, level)}: Create a management lock on this resource. The \code{level} argument can be either "cannotdelete" or "readonly". Note if you logged in via a custom service principal, it must have "Owner" or "User Access Administrator" access to manage locks.
+\item \code{create_lock(name, level)}: Create a management lock on this resource.
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 \item \code{list_locks()}: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
@@ -132,5 +132,7 @@ stor$delete()
 \href{https://docs.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}
 
 For role-based access control methods, see \link{rbac}
+
+For management locks, see \link{lock}
 }
 \keyword{datasets}
