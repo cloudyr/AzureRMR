@@ -176,15 +176,8 @@ delete_azure_login <- function(tenant="common", confirm=TRUE)
 
     tenant <- normalize_tenant(tenant)
 
-    if(confirm && interactive())
-    {
-        msg <- paste0("Do you really want to delete the Azure Resource Manager login(s) for ",
-                      format_tenant(tenant), "? (y/N) ")
-
-        yn <- readline(msg)
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
+    if(!delete_confirmed(confirm, format_tenant(tenant), "Azure Resource Manager login(s) for", FALSE))
+        return(invisible(NULL))
 
     arm_logins <- load_arm_logins()
     arm_logins[[tenant]] <- NULL

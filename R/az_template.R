@@ -111,19 +111,15 @@ public=list(
             "rg"
         else "res"
 
-        if(confirm && interactive())
-        {
-            msg <- if(del == "tpl")
-                paste0("template '", self$name, "'")
-            else if(del == "rg")
-                paste0("resource group '", self$resource_group, "'")
-            else paste0("template '", self$name, "' and associated resources")
-            msg <- paste0("Do you really want to delete ", msg, "? (y/N) ")
+        type <- if(del %in% c("tpl", "res")) "template" else "resource group"
+        name <- if(del == "tpl")
+            sprintf("'%s'", self$name)
+        else if(del == "rg")
+            sprintf("'%s'", self$resource_group)
+        else sprintf("'%s' and associated resources", self$name)
 
-            yn <- readline(msg)
-            if(tolower(substr(yn, 1, 1)) != "y")
-                return(invisible(NULL))
-        }
+        if(!(delete_confirmed(confirm, name, type, FALSE)))
+            return(invisible(NULL))
 
         if(del == "rg")
             return(az_resource_group$new(self$token, self$subscription, self$resource_group)$delete(confirm=FALSE))

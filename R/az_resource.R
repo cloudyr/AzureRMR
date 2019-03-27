@@ -208,12 +208,8 @@ public=list(
 
     delete=function(confirm=TRUE, wait=FALSE)
     {
-        if(confirm && interactive())
-        {
-            yn <- readline(paste0("Do you really want to delete resource '", self$type, "/", self$name, "'? (y/N) "))
-            if(tolower(substr(yn, 1, 1)) != "y")
-                return(invisible(NULL))
-        }
+        if(!delete_confirmed(confirm, file.path(self$type, self$name), "resource"))
+            return(invisible(NULL))
 
         message("Deleting resource '", construct_path(self$type, self$name), "'")
         private$res_op(http_verb="DELETE")

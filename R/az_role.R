@@ -103,12 +103,8 @@ public=list(
 
     remove=function(confirm=TRUE)
     {
-        if(confirm && interactive())
-        {
-            yn <- readline(paste0("Do you really want to delete role assignment '", self$name, "'? (y/N) "))
-            if(tolower(substr(yn, 1, 1)) != "y")
-                return(invisible(NULL))
-        }
+        if(!delete_confirmed(confirm, self$name, "role assignment"))
+            return(invisible(NULL))
 
         op <- file.path("providers/Microsoft.Authorization/roleAssignments", self$name)
         res <- private$api_func(op, api_version=getOption("azure_roleasn_api_version"), http_verb="DELETE")
