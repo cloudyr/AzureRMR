@@ -119,13 +119,8 @@ public=list(
     list_subscriptions=function()
     {
         cont <- call_azure_rm(self$token, subscription="", operation="")
-        lst <- lapply(cont$value, function(parms) az_subscription$new(self$token, parms=parms))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value, function(parms) az_subscription$new(self$token, parms=parms)))
-        }
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
+            az_subscription$new(self$token, parms=parms))
         named_list(lst, "id")
     },
 

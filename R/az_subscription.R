@@ -143,13 +143,9 @@ public=list(
     list_resource_groups=function()
     {
         cont <- private$sub_op("resourcegroups")
-        lst <- lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value, function(parms) az_resource_group$new(self$token, self$id, parms=parms)))
-        }
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
+            az_resource_group$new(self$token, self$id, parms=parms))
+
         named_list(lst)
     },
 
@@ -175,14 +171,9 @@ public=list(
     list_resources=function()
     {
         cont <- private$sub_op("resources")
-        lst <- lapply(cont$value, function(parms) az_resource$new(self$token, self$id, deployed_properties=parms))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value,
-                function(parms) az_resource$new(self$token, self$id, deployed_properties=parms)))
-        }
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
+            az_resource$new(self$token, self$id, deployed_properties=parms))
+
         names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
         lst
     },
@@ -222,15 +213,9 @@ public=list(
         op <- "providers/Microsoft.Authorization/locks"
         cont <- private$sub_op(op, api_version=api)
 
-        lst <- lapply(cont$value, function(parms)
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
             az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value, function(parms)
-                az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api)))
-        }
+
         names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
         lst
     },

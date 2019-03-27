@@ -159,15 +159,9 @@ public=list(
     list_templates=function()
     {
         cont <- private$rg_op("providers/Microsoft.Resources/deployments")
-        lst <- lapply(cont$value,
-            function(parms) az_template$new(self$token, self$subscription, self$name, deployed_properties=parms))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value,
-                function(parms) az_template$new(self$token, self$subscription, self$name, deployed_properties=parms)))
-        }
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
+            az_template$new(self$token, self$subscription, self$name, deployed_properties=parms))
+
         named_list(lst)
     },
 
@@ -190,15 +184,9 @@ public=list(
     list_resources=function()
     {
         cont <- private$rg_op("resources")
-        lst <- lapply(cont$value, function(parms)
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
             az_resource$new(self$token, self$subscription, deployed_properties=parms))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value,
-                function(parms) az_resource$new(self$token, self$subscription, deployed_properties=parms)))
-        }
+
         names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
         lst
     },
@@ -309,16 +297,9 @@ public=list(
         api <- getOption("azure_api_mgmt_version")
         op <- "providers/Microsoft.Authorization/locks"
         cont <- private$rg_op(op, api_version=api)
-
-        lst <- lapply(cont$value, function(parms)
+        lst <- lapply(get_paged_list(cont, self$token), function(parms)
             az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value, function(parms)
-                az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api)))
-        }
+
         names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
         lst
     },

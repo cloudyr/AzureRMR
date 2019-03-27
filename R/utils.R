@@ -73,7 +73,7 @@ construct_path <- function(...)
 
 
 # combine several pages of objects into a single list
-get_paged_list <- function(token, lst, next_link_name="nextLink", value_name="value")
+get_paged_list <- function(lst, token, next_link_name="nextLink", value_name="value")
 {
     res <- lst[[value_name]]
     while(!is_empty(lst[[next_link_name]]))

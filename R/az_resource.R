@@ -310,16 +310,10 @@ public=list(
         api <- getOption("azure_api_mgmt_version")
         op <- "providers/Microsoft.Authorization/locks"
         cont <- self$do_operation(op, api_version=api)
-
-        lst <- lapply(cont$value, function(parms)
+        lst <- get_paged_list(cont, self$token)
+        lst <- lapply(lst, function(parms)
             az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- c(lst, lapply(cont$value, function(parms)
-                az_resource$new(self$token, self$subscription, deployed_properties=parms, api_version=api)))
-        }
+
         names(lst) <- sapply(lst, function(x) sub("^.+providers/(.+$)", "\\1", x$id))
         lst
     },
