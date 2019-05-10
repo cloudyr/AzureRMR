@@ -4,6 +4,7 @@
 #' @param app The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but you can supply your own app credentials as well.
 #' @param password If `auth_type == "client_credentials"`, the app secret; if `auth_type == "resource_owner"`, your account password.
 #' @param username If `auth_type == "resource_owner"`, your username.
+#' @param certificate If `auth_type == "client_credentials", a certificate to authenticate with. This is a more secure alternative to using an app secret.
 #' @param auth_type The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If `NULL`, this is chosen based on the presence of the `username` and `password` arguments.
 #' @param host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
@@ -11,7 +12,7 @@
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
 #' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
-#' @param ... Other arguments passed to `az_rm$new()`.
+#' @param ... Other arguments passed to `get_azure_token`.
 #'
 #' @details
 #' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
@@ -49,9 +50,9 @@
 #' # retrieve the login in subsequent sessions
 #' az <- get_azure_login()
 #'
-#' # this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
+#' # this will create a Resource Manager client for the AAD tenant 'myaadtenant.onmicrosoft.com',
 #' # using the client_credentials method
-#' az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
+#' az <- create_azure_login("myaadtenant", app="app_id", password="password")
 #'
 #' # you can also login using credentials in a json file
 #' az <- create_azure_login(config_file="~/creds.json")
@@ -59,31 +60,31 @@
 #' }
 #' @rdname azure_login
 #' @export
-create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NULL, username=NULL, auth_type=NULL,
+create_azure_login <- function(tenant="common", app=.az_cli_app_id,
+                               password=NULL, username=NULL, certificate=NULL, auth_type=NULL,
                                host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                                config_file=NULL, ...)
 {
+    tenant <- normalize_tenant(tenant)
+    app <- normalize_guid(app)
+
+    token_args <- list(resource=host, 
+        tenant=tenant, 
+        app=app, 
+        password=password, 
+        username=username,
+        certificate=certificate,
+        auth_type=auth_type, 
+        aad_host=aad_host,
+        ...)
+
     if(!is.null(config_file))
     {
         conf <- jsonlite::fromJSON(config_file)
-        if(!is.null(conf$tenant)) tenant <- conf$tenant
-        if(!is.null(conf$app)) app <- conf$app
-        if(!is.null(conf$auth_type)) auth_type <- conf$auth_type
-        if(!is.null(conf$password)) password <- conf$password
-        if(!is.null(conf$username)) username <- conf$username
-        if(!is.null(conf$host)) host <- conf$host
-        if(!is.null(conf$aad_host)) aad_host <- conf$aad_host
+        token_args <- modifyList(token_args, conf)
     }
 
-    hash <- token_hash(
-        resource=host,
-        tenant=tenant,
-        app=app,
-        password=password,
-        username=username,
-        auth_type=auth_type,
-        aad_host=aad_host
-    )
+    hash <- do.call(token_hash, token_args)
     tokenfile <- file.path(AzureR_dir(), hash)
     if(file.exists(tokenfile))
     {
@@ -91,11 +92,9 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id, password=NUL
         file.remove(tokenfile)
     }
 
-    tenant <- normalize_tenant(tenant)
-    app <- normalize_guid(app)
-
     message("Creating Azure Resource Manager login for ", format_tenant(tenant))
-    client <- az_rm$new(tenant, app, password, username, auth_type, host, aad_host, config_file, ...)
+    token <- do.call(get_azure_token, token_args)
+    client <- az_rm$new(token=token)
 
     # save login info for future sessions
     arm_logins <- load_arm_logins()

@@ -8,8 +8,8 @@
 \title{Login to Azure Resource Manager}
 \usage{
 create_azure_login(tenant = "common", app = .az_cli_app_id,
-  password = NULL, username = NULL, auth_type = NULL,
-  host = "https://management.azure.com/",
+  password = NULL, username = NULL, certificate = NULL,
+  auth_type = NULL, host = "https://management.azure.com/",
   aad_host = "https://login.microsoftonline.com/", config_file = NULL,
   ...)
 
@@ -28,6 +28,8 @@ list_azure_logins()
 
 \item{username}{If \code{auth_type == "resource_owner"}, your username.}
 
+\item{certificate}{If `auth_type == "client_credentials", a certificate to authenticate with. This is a more secure alternative to using an app secret.}
+
 \item{auth_type}{The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If \code{NULL}, this is chosen based on the presence of the \code{username} and \code{password} arguments.}
 
 \item{host}{Your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
@@ -36,7 +38,7 @@ list_azure_logins()
 
 \item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.}
 
-\item{...}{Other arguments passed to \code{az_rm$new()}.}
+\item{...}{Other arguments passed to \code{get_azure_token}.}
 
 \item{selection}{For \code{get_azure_login}, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, \code{get_azure_login} will print a menu and ask you to choose a login.}
 

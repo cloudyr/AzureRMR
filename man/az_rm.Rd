@@ -31,9 +31,11 @@ To authenticate with the \code{az_rm} class directly, provide the following argu
 \item \code{app}: The client/app ID to use to authenticate with Azure Active Directory. The default is to login interactively using the Azure CLI cross-platform app, but it's recommended to supply your own app credentials if possible.
 \item \code{password}: if \code{auth_type == "client_credentials"}, the app secret; if \code{auth_type == "resource_owner"}, your account password.
 \item \code{username}: if \code{auth_type == "resource_owner"}, your username.
+\item \code{certificate}: If `auth_type == "client_credentials", a certificate to authenticate with. This is a more secure alternative to using an app secret.
 \item \code{auth_type}: The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See \link{get_azure_token} for how the default method is chosen, along with some caveats.
 \item \code{host}: your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.
 \item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
+\item \code{...}: Further arguments to pass to \code{get_azure_token}.
 \item \code{config_file}: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.
 \item \code{token}: Optionally, an OAuth 2.0 token, of class \link{AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 }
