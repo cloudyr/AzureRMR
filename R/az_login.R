@@ -71,7 +71,7 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
         call <- as.list(match.call())[-1]
         call$config_file <- NULL
         call <- modifyList(call, conf)
-        return(do.call(create_azure_login, lapply(call, evalq)))
+        return(do.call(create_azure_login, lapply(call, eval)))
     }
 
     tenant <- normalize_tenant(tenant)

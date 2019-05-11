@@ -73,7 +73,7 @@ public=list(
             call <- as.list(match.call())[-1]
             call$config_file <- NULL
             call <- modifyList(call, conf)
-            return(do.call(self$initialize, lapply(call, evalq)))
+            return(do.call(self$initialize, lapply(call, eval)))
         }
 
         if(is_azure_token(token))
