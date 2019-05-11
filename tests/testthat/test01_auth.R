@@ -16,6 +16,10 @@ test_that("ARM authentication works",
     az <- az_rm$new(tenant=tenant, app=app, password=password)
     expect_is(az, "az_rm")
     expect_true(is_azure_token(az$token))
+
+    tok <- get_azure_token("https://management.azure.com/", tenant, app, password)
+    az2 <- az_rm$new(token=tok)
+    expect_is(az2, "az_rm")
 })
 
 test_that("Login interface works",
@@ -30,10 +34,14 @@ test_that("Login interface works",
     writeLines(jsonlite::toJSON(list(tenant=tenant, app=app, password=password)), creds)
 
     az4 <- create_azure_login(config_file=creds)
-    expect_identical(AzureAuth::normalize_tenant(tenant), az4$tenant)
+    expect_identical(normalize_tenant(tenant), az4$tenant)
     expect_is(az4, "az_rm")
 
     az5 <- get_azure_login(tenant)
     expect_is(az5, "az_rm")
+
+    tok <- get_azure_token("https://management.azure.com/", tenant, app, password)
+    az6 <- create_azure_login(token=tok)
+    expect_is(az6, "az_rm")
 })
 
