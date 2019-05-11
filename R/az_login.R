@@ -12,7 +12,7 @@
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
 #' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
-#' @param ... Other arguments passed to `get_azure_token`.
+#' @param ... For `create_azure_login, other arguments passed to `get_azure_token`.
 #'
 #' @details
 #' `create_azure_login` creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using [get_azure_token], which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
@@ -65,6 +65,15 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
                                host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
                                config_file=NULL, ...)
 {
+    if(!is.null(config_file))
+    {
+        conf <- jsonlite::fromJSON(config_file)
+        call <- as.list(match.call())[-1]
+        call$config_file <- NULL
+        call <- modifyList(call, conf)
+        return(do.call(create_azure_login, lapply(call, evalq)))
+    }
+
     tenant <- normalize_tenant(tenant)
     app <- normalize_guid(app)
 
@@ -77,12 +86,6 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
         auth_type=auth_type, 
         aad_host=aad_host,
         ...)
-
-    if(!is.null(config_file))
-    {
-        conf <- jsonlite::fromJSON(config_file)
-        token_args <- modifyList(token_args, conf)
-    }
 
     hash <- do.call(token_hash, token_args)
     tokenfile <- file.path(AzureR_dir(), hash)

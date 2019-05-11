@@ -38,7 +38,7 @@ list_azure_logins()
 
 \item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.}
 
-\item{...}{Other arguments passed to \code{get_azure_token}.}
+\item{...}{For \code{create_azure_login, other arguments passed to }get_azure_token`.}
 
 \item{selection}{For \code{get_azure_login}, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, \code{get_azure_login} will print a menu and ask you to choose a login.}
 

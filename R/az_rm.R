@@ -65,8 +65,17 @@ public=list(
     initialize=function(tenant="common", app=.az_cli_app_id,
                         password=NULL, username=NULL, certificate=NULL, auth_type=NULL,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                        ..., config_file=NULL, token=NULL)
+                        config_file=NULL, token=NULL, ...)
     {
+        if(!is.null(config_file))
+        {
+            conf <- jsonlite::fromJSON(config_file)
+            call <- as.list(match.call())[-1]
+            call$config_file <- NULL
+            call <- modifyList(call, conf)
+            return(do.call(self$initialize, lapply(call, evalq)))
+        }
+
         if(is_azure_token(token))
         {
             self$host <- if(token$version == 1)
@@ -95,12 +104,6 @@ public=list(
             auth_type=auth_type,
             aad_host=aad_host,
             ...)
-
-        if(!is.null(config_file))
-        {
-            conf <- jsonlite::fromJSON(config_file)
-            token_args <- modifyList(token_args, conf)
-        }
 
         self$token <- do.call(get_azure_token, token_args)
         NULL
