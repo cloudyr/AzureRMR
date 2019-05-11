@@ -1,6 +1,7 @@
 # AzureRMR 2.1.0.9000
 
 * Some refactoring of login code to better handle AzureAuth options.
+* `az_subscription$get_provider_api_version` now returns only stable APIs by default. Set the argument `stable_only=FALSE` to allow returning preview APIs.
 
 # AzureRMR 2.1.0
 
