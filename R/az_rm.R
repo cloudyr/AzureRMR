@@ -24,7 +24,6 @@
 #' - `host`: your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' - `...`: Further arguments to pass to `get_azure_token`.
-#' - `config_file`: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @seealso
@@ -65,17 +64,8 @@ public=list(
     initialize=function(tenant="common", app=.az_cli_app_id,
                         password=NULL, username=NULL, certificate=NULL, auth_type=NULL,
                         host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                        config_file=NULL, token=NULL, ...)
+                        token=NULL, ...)
     {
-        if(!is.null(config_file))
-        {
-            conf <- jsonlite::fromJSON(config_file)
-            call <- as.list(match.call())[-1]
-            call$config_file <- NULL
-            call <- modifyList(call, conf)
-            return(do.call(self$initialize, lapply(call, eval)))
-        }
-
         if(is_azure_token(token))
         {
             self$host <- if(token$version == 1)

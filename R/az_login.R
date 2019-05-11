@@ -70,8 +70,8 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
         conf <- jsonlite::fromJSON(config_file)
         call <- as.list(match.call())[-1]
         call$config_file <- NULL
-        call <- modifyList(call, conf)
-        return(do.call(create_azure_login, lapply(call, eval)))
+        call <- lapply(modifyList(call, conf), function(x) eval.parent(x))
+        return(do.call(create_azure_login, call))
     }
 
     tenant <- normalize_tenant(tenant)
