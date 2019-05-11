@@ -77,9 +77,9 @@ az <- create_azure_login()
 # retrieve the login in subsequent sessions
 az <- get_azure_login()
 
-# this will create a Resource Manager client for the AAD tenant 'microsoft.onmicrosoft.com',
+# this will create a Resource Manager client for the AAD tenant 'myaadtenant.onmicrosoft.com',
 # using the client_credentials method
-az <- create_azure_login("microsoft", app="{app_id}", password="{password}")
+az <- create_azure_login("myaadtenant", app="app_id", password="password")
 
 # you can also login using credentials in a json file
 az <- create_azure_login(config_file="~/creds.json")

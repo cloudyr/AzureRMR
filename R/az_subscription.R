@@ -14,7 +14,7 @@
 #' - `resource_group_exists(name)`: Check if a resource group exists.
 #' - `list_resources()`: List all resources deployed under this subscription.
 #' - `list_locations()`: List locations available.
-#' - `get_provider_api_version(provider, type)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers.
+#' - `get_provider_api_version(provider, type, which=1, stable_only=TRUE)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers. Set `stable_only=FALSE` to allow preview APIs to be returned. Set `which` to a number > 1 to return an API other than the most recent.
 #' - `create_lock(name, level)`: Create a management lock on this subscription (which will propagate to all resources within it).
 #' - `get_lock(name`): Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
@@ -108,16 +108,24 @@ public=list(
     },
 
     # API versions vary across different providers; find the latest
-    get_provider_api_version=function(provider=NULL, type=NULL, which=1)
+    get_provider_api_version=function(provider=NULL, type=NULL, which=1, stable_only=TRUE)
     {
+        select_version <- function(api)
+        {
+            versions <- unlist(api$apiVersions)
+            if(stable_only)
+                versions <- grep("preview", versions, value=TRUE, invert=TRUE)
+
+            if(length(versions) >= which) versions[which] else ""
+        }
+
         if(is_empty(provider))
         {
             apis <- named_list(private$sub_op("providers")$value, "namespace")
             lapply(apis, function(api)
             {
                 api <- named_list(api$resourceTypes, "resourceType")
-                sapply(api, function(x)
-                    if(!is_empty(x$apiVersions)) x$apiVersions[[which]] else "")
+                sapply(api, select_version)
             })
         }
         else
@@ -128,12 +136,9 @@ public=list(
             {
                 # case-insensitive matching
                 names(apis) <- tolower(names(apis))
-                this_api <- apis[[tolower(type)]]
-                if(!is_empty(this_api$apiVersions))
-                    this_api$apiVersions[[which]]
-                else ""
+                select_version(apis[[tolower(type)]])
             }
-            else sapply(apis, function(x) x$apiVersions[[which]])
+            else sapply(apis, select_version)
         }
     },
 
