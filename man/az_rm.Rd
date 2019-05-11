@@ -36,7 +36,6 @@ To authenticate with the \code{az_rm} class directly, provide the following argu
 \item \code{host}: your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.
 \item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
 \item \code{...}: Further arguments to pass to \code{get_azure_token}.
-\item \code{config_file}: Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.
 \item \code{token}: Optionally, an OAuth 2.0 token, of class \link{AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 }
 }
