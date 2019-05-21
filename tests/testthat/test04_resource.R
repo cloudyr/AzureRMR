@@ -71,7 +71,7 @@ test_that("Resource methods work",
     # wait arg
     resname2 <- paste(sample(letters, 20, replace=TRUE), collapse="")
     res2 <- rg$create_resource(type=restype, name=resname2,
-        kind="Storage",
+        kind="StorageV2",
         sku=list(name="Standard_LRS", tier="Standard"),
         properties=list(isHnsEnabled=TRUE),
         wait=TRUE)
