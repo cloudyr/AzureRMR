@@ -1,3 +1,7 @@
+# AzureRMR 2.1.1.9000
+
+- Fix a bug in template deployment where null fields were not handled correctly.
+
 # AzureRMR 2.1.1
 
 * Some refactoring of login code to better handle AzureAuth options. As part of this, the `config_file` argument for `az_rm$new` has been removed; to use a configuration file, call the (recommended) `create_azure_login` function.
