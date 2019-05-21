@@ -193,30 +193,34 @@ private=list(
         properties <- modifyList(default_properties, list(...))
         private$validate_deploy_parms(properties)
 
+        # rather than working with R objects, convert to JSON and do text munging
+        # this allows adding template/params that are already JSON text without conversion roundtrip
+        properties <- generate_json(properties)
+
+        # fold template data into properties
+        properties <- if(is.list(template))
+            append_json(properties, template=generate_json(template))
+        else if(is_url(template))
+            append_json(properties, templateLink=generate_json(list(uri=template)))
+        else append_json(properties, template=template)
+
         # handle case of missing or empty parameters arg
         # must be a _named_ list for jsonlite to turn into an object, not an array
         if(missing(parameters) || is_empty(parameters))
             parameters <- structure(list(), names=character(0))
 
-        # fold template data into list of properties
-        properties <- if(is.list(template))
-            modifyList(properties, list(template=template))
-        else if(is_url(template))
-            modifyList(properties, list(templateLink=list(uri=template)))
-        else modifyList(properties, list(template=jsonlite::fromJSON(template, simplifyVector=FALSE)))
-
-        # fold parameter data into list of properties
+        # fold parameter data into properties
         properties <- if(is_empty(parameters))
-            modifyList(properties, list(parameters=parameters))
+            append_json(properties, parameters=generate_json(parameters))
         else if(is.list(parameters))
-            modifyList(properties, list(parameters=private$make_param_list(parameters)))
+            append_json(properties, parameters=generate_json(private$make_param_list(parameters)))
         else if(is_url(parameters))
-            modifyList(properties, list(parametersLink=list(uri=parameters)))
-        else modifyList(properties, list(parameters=jsonlite::fromJSON(parameters, simplifyVector=FALSE)))
+            append_json(properties, parametersLink=generate_json(list(uri=parameters)))
+        else append_json(properties, parameters=parameters)
 
         self$name <- name
         parms <- private$tpl_op(
-            body=jsonlite::toJSON(list(properties=properties), pretty=TRUE, auto_unbox=TRUE, null="null", digits=22),
+            body=jsonlite::prettify(sprintf('{"properties": %s}', properties)),
             encode="raw",
             http_verb="PUT"
         )
@@ -289,3 +293,29 @@ private=list(
     }
 ))
 
+
+generate_json <- function(object)
+{
+    jsonlite::toJSON(object, pretty=TRUE, auto_unbox=TRUE, null="null", digits=22)
+}
+
+
+append_json <- function(props, ...)
+{
+    lst <- list(...)
+    lst_names <- names(lst)
+    if(is.null(lst_names) || any(lst_names == ""))
+        stop("Deployment properties must be named", call.=FALSE)
+
+    for(i in seq_along(lst))
+    {
+        lst_i <- lst[[i]]
+        if(inherits(lst_i, "connection") || (length(lst_i) == 1 && file.exists(lst_i)))
+            lst_i <- readLines(lst_i)
+
+        newprop <- sprintf(', "%s": %s}', lst_names[i], paste0(lst_i, collapse="\n"))
+        props <- sub("\\}$", newprop, props)
+    }
+
+    props
+}
