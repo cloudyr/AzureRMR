@@ -2,11 +2,11 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureRMR)](https://cran.r-project.org/package=AzureRMR)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureRMR)
-[![Travis Build Status](https://travis-ci.org/cloudyr/AzureRMR.png?branch=master)](https://travis-ci.org/cloudyr/AzureRMR)
+[![Travis Build Status](https://travis-ci.org/Azure/AzureRMR.png?branch=master)](https://travis-ci.org/Azure/AzureRMR)
 
-AzureRMR is a package for interacting with Azure Resource Manager: list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed. Azure Active Directory OAuth tokens are obtained using the [AzureAuth](https://github.com/cloudyr/AzureAuth) package.
+AzureRMR is a package for interacting with Azure Resource Manager: list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed. Azure Active Directory OAuth tokens are obtained using the [AzureAuth](https://github.com/Azure/AzureAuth) package.
 
-You can install the development version from GitHub, via `devtools::install_github("cloudyr/AzureRMR")`.
+You can install the development version from GitHub, via `devtools::install_github("Azure/AzureRMR")`.
 
 
 ## Authentication
@@ -65,7 +65,7 @@ stor2$add_role_assignment("041ff2be-4eb0-11e9-8f38-394fbcd0b29d", "Storage blob 
 
 ## Extending
 
-AzureRMR is meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/cloudyr/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/cloudyr/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/services/storage/). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).
+AzureRMR is meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/Azure/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/Azure/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/services/storage/). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).
 
 ## Acknowledgements
 
