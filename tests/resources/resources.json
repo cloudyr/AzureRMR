@@ -1,0 +1,16 @@
+[
+    {
+        "name": "[parameters('name')]",
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2018-07-01",
+        "location": "[parameters('location')]",
+        "properties": {
+            "supportsHttpsTrafficOnly": true
+        },
+        "dependsOn": [],
+        "sku": {
+            "name": "Standard_LRS"
+        },
+        "kind": "Storage"
+    }
+]

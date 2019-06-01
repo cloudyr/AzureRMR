@@ -28,8 +28,10 @@
 #' - `parameters`: The parameters for the template. This can be provided using any of the same methods as the `template` argument.
 #' - `wait`: Optionally, whether to wait until the deployment is complete. Defaults to FALSE, in which case the method will return immediately.
 #'
+#' You can use the `build_template_definition` and `build_template_parameters` helper functions to construct the inputs for deploying a template. These can take as inputs R lists, JSON text strings, or file connections, and can also be extended by other packages.
+#'
 #' @seealso
-#' [az_resource_group], [az_resource],
+#' [az_resource_group], [az_resource], [build_template_definition], [build_template_parameters]
 #' [Template overview](https://docs.microsoft.com/en-us/azure/templates/),
 #' [Template API reference](https://docs.microsoft.com/en-us/rest/api/resources/deployments)
 #'
@@ -200,6 +202,8 @@ private=list(
         # fold template data into properties
         properties <- if(is.list(template))
             append_json(properties, template=generate_json(template))
+        else if(is_file_spec(template))
+            append_json(properties, template=readLines(template))
         else if(is_url(template))
             append_json(properties, templateLink=generate_json(list(uri=template)))
         else append_json(properties, template=template)
@@ -207,13 +211,15 @@ private=list(
         # handle case of missing or empty parameters arg
         # must be a _named_ list for jsonlite to turn into an object, not an array
         if(missing(parameters) || is_empty(parameters))
-            parameters <- structure(list(), names=character(0))
+            parameters <- named_list()
 
         # fold parameter data into properties
         properties <- if(is_empty(parameters))
             append_json(properties, parameters=generate_json(parameters))
         else if(is.list(parameters))
-            append_json(properties, parameters=generate_json(private$make_param_list(parameters)))
+            append_json(properties, parameters=do.call(build_template_parameters, parameters))
+        else if(is_file_spec(parameters))
+            append_json(properties, parameters=readLines(parameters))
         else if(is_url(parameters))
             append_json(properties, parametersLink=generate_json(list(uri=parameters)))
         else append_json(properties, parameters=parameters)
@@ -279,12 +285,6 @@ private=list(
         }
     },
 
-    # params for templates require lists of (value=x) rather than vectors as inputs
-    make_param_list=function(params)
-    {
-        lapply(params, function(x) if(is.list(x)) x else list(value=x))
-    },
-
     tpl_op=function(op="", ...)
     {
         op <- construct_path("resourcegroups", self$resource_group,
@@ -293,29 +293,3 @@ private=list(
     }
 ))
 
-
-generate_json <- function(object)
-{
-    jsonlite::toJSON(object, pretty=TRUE, auto_unbox=TRUE, null="null", digits=22)
-}
-
-
-append_json <- function(props, ...)
-{
-    lst <- list(...)
-    lst_names <- names(lst)
-    if(is.null(lst_names) || any(lst_names == ""))
-        stop("Deployment properties must be named", call.=FALSE)
-
-    for(i in seq_along(lst))
-    {
-        lst_i <- lst[[i]]
-        if(inherits(lst_i, "connection") || (length(lst_i) == 1 && file.exists(lst_i)))
-            lst_i <- readLines(lst_i)
-
-        newprop <- sprintf(', "%s": %s}', lst_names[i], paste0(lst_i, collapse="\n"))
-        props <- sub("\\}$", newprop, props)
-    }
-
-    props
-}

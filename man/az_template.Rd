@@ -46,6 +46,8 @@ If you also supply the following arguments to \code{new()}, a new template will 
 \item \code{parameters}: The parameters for the template. This can be provided using any of the same methods as the \code{template} argument.
 \item \code{wait}: Optionally, whether to wait until the deployment is complete. Defaults to FALSE, in which case the method will return immediately.
 }
+
+You can use the \code{build_template_definition} and \code{build_template_parameters} helper functions to construct the inputs for deploying a template. These can take as inputs R lists, JSON text strings, or file connections, and can also be extended by other packages.
 }
 
 \examples{
@@ -69,7 +71,7 @@ tpl$delete(free_resources=TRUE)
 }
 }
 \seealso{
-\link{az_resource_group}, \link{az_resource},
+\link{az_resource_group}, \link{az_resource}, \link{build_template_definition}, \link{build_template_parameters}
 \href{https://docs.microsoft.com/en-us/azure/templates/}{Template overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/deployments}{Template API reference}
 }

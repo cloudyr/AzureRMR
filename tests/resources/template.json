@@ -9,7 +9,9 @@
             "type": "string"
         }
     },
-    "variables": {},
+    "variables": {
+
+    },
     "resources": [
         {
             "name": "[parameters('name')]",
@@ -19,12 +21,17 @@
             "properties": {
                 "supportsHttpsTrafficOnly": true
             },
-            "dependsOn": [],
+            "dependsOn": [
+
+            ],
             "sku": {
                 "name": "Standard_LRS"
             },
             "kind": "Storage"
         }
     ],
-    "outputs": {}
+    "outputs": {
+
+    }
 }
+

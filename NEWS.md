@@ -1,6 +1,7 @@
-# AzureRMR 2.1.1.9000
+# AzureRMR 2.1.2
 
 - Fix a bug in template deployment where null fields were not handled correctly.
+- New `build_template_definition` and `build_parameters_parameters` generics to help in template deployment. These can take as inputs R lists, JSON text strings, or file connections, and can also be extended by other packages.
 
 # AzureRMR 2.1.1
 

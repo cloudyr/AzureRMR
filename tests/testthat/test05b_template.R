@@ -61,6 +61,17 @@ test_that("Template methods work",
     tpl3$check()
     expect_is(tpl3, "az_template")
     expect_false(is_empty(rg$list_resources()))
+
+    # from template and parameter builder
+    tplname4 <- paste(sample(letters, 10, replace=TRUE), collapse="")
+    tpl_def <- build_template_definition(
+        parameters=file("../resources/parameters.json"),
+        resources=file("../resources/resources.json")
+    )
+    par_def <- build_template_parameters(location="australiaeast", name=tplname4)
+    tpl4 <- rg$deploy_template(tplname4, template=tpl_def,  parameters=par_def, wait=TRUE)
+    tpl4$check()
+    expect_is(tpl4, "az_template")
 })
 
 rg$delete(confirm=FALSE)

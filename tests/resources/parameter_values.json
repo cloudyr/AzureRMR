@@ -1,0 +1,14 @@
+{
+    "name": "Allow-HTTP",
+    "properties": {
+        "protocol": "Tcp",
+        "access": "Allow",
+        "direction": "Inbound",
+        "destinationPortRange": "80",
+        "destinationAddressPrefix": "*",
+        "destinationApplicationSecurityGroups": [],
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "sourceApplicationSecurityGroups": []
+    }
+}
