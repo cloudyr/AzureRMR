@@ -94,13 +94,13 @@
 #' build_template_parameters(param=textConnection(param_json))
 #'
 #' \dontrun{
-#' # reading JSON definitions from a file
+#' # reading JSON definitions from files
 #' build_template_definition(
 #'     parameters=file("parameter_def.json"),
 #'     resources=file("resource_def.json")
+#' )
 #'
 #' build_template_parameters(name="myres_name", complex_type=file("myres_params.json"))
-#' )
 #' }
 #'
 #' @rdname build_template
