@@ -74,7 +74,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' 
+#'
 #' # recommended way to retrieve a resource group object
 #' rg <- get_azure_login("myaadtenant")$
 #'     get_subscription("subscription_id")$

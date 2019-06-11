@@ -10,7 +10,7 @@
 #'
 #' delete_lock(name)
 #'
-#' list_locks() 
+#' list_locks()
 #' ```
 #' @section Arguments:
 #' - `name`: The name of a lock.
@@ -56,7 +56,7 @@
 #'
 #' # now it works
 #' res$delete()
-#' 
+#'
 #' }
 #' @aliases lock create_lock get_lock delete_lock list_locks
 #' @rdname lock

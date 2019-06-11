@@ -10,7 +10,7 @@
 #'
 #' remove_role_assignment(id, confirm = TRUE)
 #'
-#' list_role_assignments(filter = "atScope()", as_data_frame = TRUE) 
+#' list_role_assignments(filter = "atScope()", as_data_frame = TRUE)
 #'
 #' get_role_definition(id)
 #'
@@ -69,7 +69,7 @@
 #' res$remove_role_assignment(asn3$id)
 #' rg$remove_role_assignment(asn2$id)
 #' sub$remove_role_assignment(asn1$id)
-#' 
+#'
 #' }
 #'
 #' @aliases rbac add_role_assignment get_role_assignment remove_role_assignment list_role_assignments
@@ -303,7 +303,7 @@ list_role_definitions <- function(filter, as_data_frame, api_func)
     {
         lst <- lapply(lst$value, function(res)
             az_role_definition$new(res))
-        
+
         names(lst) <- sapply(lst, function(res) res$properties$roleName)
         lst
     }

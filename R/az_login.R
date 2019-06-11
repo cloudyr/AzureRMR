@@ -41,12 +41,12 @@
 #' [Authentication in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios)
 #'
 #' [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'
 #' # without any arguments, this will create a client using your AAD credentials
-#' az <- create_azure_login() 
+#' az <- create_azure_login()
 #'
 #' # retrieve the login in subsequent sessions
 #' az <- get_azure_login()
@@ -80,13 +80,13 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
         tenant <- normalize_tenant(tenant)
         app <- normalize_guid(app)
 
-        token_args <- list(resource=host, 
-            tenant=tenant, 
-            app=app, 
-            password=password, 
+        token_args <- list(resource=host,
+            tenant=tenant,
+            app=app,
+            password=password,
             username=username,
             certificate=certificate,
-            auth_type=auth_type, 
+            auth_type=auth_type,
             aad_host=aad_host,
             ...)
 

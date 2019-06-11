@@ -43,7 +43,7 @@
 #' tpl <- resgroup$deploy_template("mydeployment",
 #'     template="template.json",
 #'     parameters="parameters.json")
-#' 
+#'
 #' # retrieve list of created resource objects
 #' tpl$list_resources()
 #'

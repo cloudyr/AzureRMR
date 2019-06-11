@@ -173,7 +173,7 @@ build_template_parameters.default <- function(...)
             generate_json(list(value=jsonlite::fromJSON(value, simplifyVector=FALSE)))
         else generate_json(list(value=value))
     })
-    
+
     jsonlite::prettify(do.call(append_json, c(list("{}"), parms)))
 }
 

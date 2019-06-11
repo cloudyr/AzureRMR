@@ -268,7 +268,7 @@ public=list(
 
         # delete tags specified to be null
         values <- values[!sapply(values, is_empty)]
- 
+
         self$update(tags=values)
         invisible(NULL)
     },

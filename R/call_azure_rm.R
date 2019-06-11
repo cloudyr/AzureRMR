@@ -104,7 +104,7 @@ error_message <- function(cont)
             cont$error$message
         else if(is.list(cont$odata.error)) # OData
             cont$odata.error$message$value
-    } 
+    }
     else ""
 
     paste0(strwrap(msg), collapse="\n")

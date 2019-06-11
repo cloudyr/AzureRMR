@@ -81,7 +81,7 @@ get_paged_list <- function(lst, token, next_link_name="nextLink", value_name="va
         lst <- call_azure_url(token, lst[[next_link_name]])
         res <- c(res, lst[[value_name]])
     }
-    res    
+    res
 }
 
 
@@ -90,7 +90,7 @@ delete_confirmed <- function(confirm, name, type, quote_name=TRUE)
 {
     if(!interactive() || !confirm)
         return(TRUE)
-    
+
     msg <- if(quote_name)
         sprintf("Do you really want to delete the %s '%s'? (y/N) ", type, name)
     else sprintf("Do you really want to delete the %s %s? (y/N) ", type, name)

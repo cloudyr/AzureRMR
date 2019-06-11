@@ -17,7 +17,7 @@ format_public_fields <- function(env, exclude=character(0))
     objnames <- setdiff(objnames, c(exclude, std_fields))
 
     maxwidth <- as.integer(0.8 * getOption("width"))
- 
+
     objconts <- sapply(objnames, function(n)
     {
         x <- get(n, env)
@@ -31,13 +31,13 @@ format_public_fields <- function(env, exclude=character(0))
             if(nchar(x) > maxwidth - nchar(n) - 10)
                 x <- paste0(substr(x, 1, maxwidth - nchar(n) - 10), " ...")
             x
-        }            
+        }
         else deparse(x)[[1]]
 
         paste0(strwrap(paste0(n, ": ", deparsed), width=maxwidth, indent=2, exdent=4),
                collapse="\n")
     }, simplify=FALSE)
-    
+
     empty <- sapply(objconts, is.null)
     objconts <- objconts[!empty]
 
