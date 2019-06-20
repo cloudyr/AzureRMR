@@ -1,3 +1,7 @@
+# AzureRMR 2.1.2.9000
+
+- Make setting tags more robust (some resources return a null tags field when no tags are present, rather than an empty object).
+
 # AzureRMR 2.1.2
 
 - Fix a bug in template deployment where null fields were not handled correctly.

@@ -263,7 +263,7 @@ public=list(
         })
         names(values) <- ifelse(unvalued, as.character(tags), names(tags))
 
-        if(keep_existing)
+        if(keep_existing && !is_empty(self$tags))
             values <- modifyList(self$tags, values)
 
         # delete tags specified to be null
