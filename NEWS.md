@@ -1,5 +1,6 @@
 # AzureRMR 2.1.2.9000
 
+- Fix a bug where failure to create a resource would not be detected.
 - Make setting tags more robust (some resources return a null tags field when no tags are present, rather than an empty object).
 
 # AzureRMR 2.1.2
