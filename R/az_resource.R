@@ -362,7 +362,7 @@ private=list(
                 state <- httr::content(res)$properties$provisioningState
 
                 success <- http_stat < 300 && state == "Succeeded"
-                failure <- http_stat < 300 && state %in% c("Error", "Failed")
+                failure <- http_stat >= 300 || state %in% c("Error", "Failed")
                 if(success || failure)
                     break
             }
