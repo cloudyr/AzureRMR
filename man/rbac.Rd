@@ -19,7 +19,7 @@ get_role_assignment(id)
 
 remove_role_assignment(id, confirm = TRUE)
 
-list_role_assignments(filter = "atScope()", as_data_frame = TRUE) 
+list_role_assignments(filter = "atScope()", as_data_frame = TRUE)
 
 get_role_definition(id)
 

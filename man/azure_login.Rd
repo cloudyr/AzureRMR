@@ -74,7 +74,7 @@ If you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtua
 \dontrun{
 
 # without any arguments, this will create a client using your AAD credentials
-az <- create_azure_login() 
+az <- create_azure_login()
 
 # retrieve the login in subsequent sessions
 az <- get_azure_login()

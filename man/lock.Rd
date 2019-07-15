@@ -17,7 +17,7 @@ get_lock(name)
 
 delete_lock(name)
 
-list_locks() 
+list_locks()
 }
 }
 
