@@ -44,7 +44,7 @@ call_azure_url <- function(token, url, ..., body=NULL, encode="json",
                            http_status_handler=c("stop", "warn", "message", "pass"),
                            auto_refresh=TRUE)
 {
-    headers <- process_headers(token, ..., auto_refresh=auto_refresh)
+    headers <- process_headers(token, auto_refresh)
 
     # if content-type is json, serialize it manually to ensure proper handling of nulls
     if(encode == "json")
@@ -61,7 +61,7 @@ call_azure_url <- function(token, url, ..., body=NULL, encode="json",
 }
 
 
-process_headers <- function(token, ..., auto_refresh)
+process_headers <- function(token, auto_refresh)
 {
     # if token has expired, renew it
     if(auto_refresh && !token$validate())
@@ -70,8 +70,8 @@ process_headers <- function(token, ..., auto_refresh)
         token$refresh()
     }
 
-    host <- httr::parse_url(if(token$version == 1) token$resource else token$scope[1])$hostname
     creds <- token$credentials
+    host <- httr::parse_url(AzureAuth::decode_jwt(creds$access_token)$payload$aud)$hostname
     headers <- c(
         Host=host,
         Authorization=paste(creds$token_type, creds$access_token),
