@@ -1,13 +1,12 @@
-# AzureRMR
+# AzureRMR <img src="man/figures/logo.png" align="right" width=150 />
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureRMR)](https://cran.r-project.org/package=AzureRMR)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureRMR)
-[![Travis Build Status](https://travis-ci.org/Azure/AzureRMR.png?branch=master)](https://travis-ci.org/Azure/AzureRMR)
+[![Travis Build Status](https://travis-ci.org/Azure/AzureRMR.svg?branch=master)](https://travis-ci.org/Azure/AzureRMR)
 
 AzureRMR is a package for interacting with Azure Resource Manager: list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed. Azure Active Directory OAuth tokens are obtained using the [AzureAuth](https://github.com/Azure/AzureAuth) package.
 
-You can install the development version from GitHub, via `devtools::install_github("Azure/AzureRMR")`.
-
+The primary repo for this package is at https://github.com/Azure/AzureRMR; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureRMR. You can install the development version of the package with `devtools::install_github("Azure/AzureRMR")`.
 
 ## Authentication
 
@@ -72,4 +71,4 @@ AzureRMR is meant to be a generic mechanism for working with Resource Manager. Y
 AzureRMR is inspired by the package AzureSMR, originally written by Alan Weaver and Andrie de Vries, and would not have been possible without their pioneering work. Thanks, guys!
 
 ---
-[![cloudyr project logo](https://i.imgur.com/JHS98Y7.png)](https://github.com/cloudyr)
+<p align="center"><a href="https://github.com/Azure/AzureR"><img src="https://github.com/Azure/AzureR/raw/master/images/logo2.png" width=800 /></a></p>
