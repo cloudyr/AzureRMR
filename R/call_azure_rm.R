@@ -29,7 +29,7 @@ call_azure_rm <- function(token, subscription, operation, ...,
                           options=list(),
                           api_version=getOption("azure_api_version"))
 {
-    url <- httr::parse_url(decode_jwt(token)$payload$aud)
+    url <- httr::parse_url(decode_jwt(token$credentials$access_token)$payload$aud)
     url$path <- construct_path("subscriptions", subscription, operation)
     url$query <- modifyList(list(`api-version`=api_version), options)
 
