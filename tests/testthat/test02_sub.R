@@ -8,11 +8,14 @@ subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Subscription method tests skipped: ARM credentials not set")
 
-az <- az_rm$new(tenant=tenant, app=app, password=password)
-
 
 test_that("Subscription methods work",
 {
+    az <- az_rm$new(tenant=tenant, app=app, password=password)
+
+    subs <- az$list_subscriptions()
+    expect_true(is.list(subs) && all(sapply(subs, is_subscription)))
+
     sub <- az$get_subscription(subscription)
     expect_is(sub, "az_subscription")
 
@@ -41,3 +44,15 @@ test_that("Subscription methods work",
     expect_true(is.list(locks))
 })
 
+test_that("Subscription methods work with AAD v2.0",
+{
+    token <- get_azure_token(c("https://management.azure.com/.default", "offline_access"),
+                             tenant=tenant, app=app, password=password, version=2)
+    az <- az_rm$new(token=token)
+
+    subs <- az$list_subscriptions()
+    expect_true(is.list(subs) && all(sapply(subs, is_subscription)))
+
+    sub <- az$get_subscription(subscription)
+    expect_is(sub, "az_subscription")
+})
