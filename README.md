@@ -2,7 +2,7 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureRMR)](https://cran.r-project.org/package=AzureRMR)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureRMR)
-[![Travis Build Status](https://travis-ci.org/Azure/AzureRMR.svg?branch=master)](https://travis-ci.org/Azure/AzureRMR)
+[![Build Status](https://asiadatascience.visualstudio.com/AzureR/_apis/build/status/Azure.AzureRMR?branchName=master)](https://asiadatascience.visualstudio.com/AzureR/_build/latest?definitionId=4&branchName=master)
 
 AzureRMR is a package for interacting with Azure Resource Manager: list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed. Azure Active Directory OAuth tokens are obtained using the [AzureAuth](https://github.com/Azure/AzureAuth) package.
 
