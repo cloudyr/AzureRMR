@@ -1,3 +1,7 @@
+# AzureRMR 2.1.3.9000
+
+- Fixes to allow use of Azure Active Directory v2.0 tokens for authenticating. Note that AAD v1.0 is still the default and recommended version.
+
 # AzureRMR 2.1.3
 
 - Fix a bug where failure to create a resource would not be detected.
