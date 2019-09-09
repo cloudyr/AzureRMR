@@ -9,7 +9,8 @@
 #' @param host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
-#' @param token Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments to `create_azure_login` will be ignored.
+#' @param token Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, the other arguments above to `create_azure_login` will be ignored.
+#' @param graph_host The Microsoft Graph endpoint. See 'Microsoft Graph integration' below.
 #' @param refresh For `get_azure_login`, whether to refresh the authentication token on loading the client.
 #' @param selection For `get_azure_login`, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, `get_azure_login` will print a menu and ask you to choose a login.
 #' @param confirm For `delete_azure_login`, whether to ask for confirmation before deleting.
@@ -24,6 +25,9 @@
 #'
 #' One difference between `create_azure_login` and `get_azure_login` is the former will delete any previously saved credentials that match the arguments it was given. You can use this to force AzureRMR to remove obsolete tokens that may be lying around.
 #'
+#' @section Microsoft Graph integration:
+#' If the AzureGraph package is installed and the `graph_host` argument is not `NULL`, `create_azure_login` will also create a login client for Microsoft Graph with the same credentials. This is to facilitate working with registered apps and service principals, eg when managing roles and permissions. Some Azure services also require creating service principals as part of creating a resource (eg Azure Kubernetes Service), and keeping the Graph credentials consistent with ARM helps ensure nothing breaks.
+#'
 #' @section Linux DSVM note:
 #' If you are using a Linux [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) in Azure, you may have problems running `create_azure_login()` (ie, without any arguments). In this case, try `create_azure_login(auth_type="device_code")`.
 #'
@@ -33,7 +37,7 @@
 #' If the AzureRMR data directory for saving credentials does not exist, `get_azure_login` will throw an error.
 #'
 #' @seealso
-#' [az_rm], [AzureAuth::get_azure_token] for more details on authentication methods
+#' [az_rm], [AzureAuth::get_azure_token] for more details on authentication methods, [AzureGraph::create_graph_login] for the corresponding function to create a Microsoft Graph login client
 #'
 #' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
 #' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
@@ -64,7 +68,7 @@
 create_azure_login <- function(tenant="common", app=.az_cli_app_id,
                                password=NULL, username=NULL, certificate=NULL, auth_type=NULL,
                                host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                               config_file=NULL, token=NULL, ...)
+                               config_file=NULL, token=NULL, graph_host="https://graph.microsoft.com/", ...)
 {
     if(!is_azure_token(token))
     {
@@ -109,6 +113,8 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
     arm_logins <- load_arm_logins()
     arm_logins[[tenant]] <- sort(unique(c(arm_logins[[tenant]], client$token$hash())))
     save_arm_logins(arm_logins)
+
+    make_graph_login_from_token(token, aad_host, graph_host)
 
     client
 }
