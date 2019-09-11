@@ -94,6 +94,14 @@ delete_confirmed <- function(confirm, name, type, quote_name=TRUE)
     msg <- if(quote_name)
         sprintf("Do you really want to delete the %s '%s'?", type, name)
     else sprintf("Do you really want to delete the %s %s?", type, name)
-    ok <- utils::askYesNo(msg, FALSE)
-    return(isTRUE(ok))
+    ok <- if(getRversion() < numeric_version("3.5.0"))
+    {
+        msg <- paste(msg, "(yes/No/cancel) ")
+        yn <- readline(msg)
+        if(nchar(yn) == 0)
+            FALSE
+        else tolower(substr(yn, 1, 1)) == "y"
+    }
+    else utils::askYesNo(msg, FALSE)
+    isTRUE(ok)
 }
