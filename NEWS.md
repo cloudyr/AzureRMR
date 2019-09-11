@@ -3,7 +3,7 @@
 - If the AzureGraph package is installed, `create_azure_login` can now create a login client for Microsoft Graph with the same credentials as the ARM client. This is to facilitate working with registered apps and service principals, eg when managing roles and permissions. Some Azure services also require creating service principals as part of creating a resource (eg Azure Kubernetes Service), and keeping the Graph credentials consistent with ARM helps ensure nothing breaks.
 - Fix a bug where `create_azure_login` still required the `tenant` argument when a token was supplied.
 - Fixes to allow use of Azure Active Directory v2.0 tokens for authenticating. Note that AAD v1.0 is still the default and recommended version.
-- Use `utils::askYesNo` for confirmation prompts, eg when deleting resources; this fixes a bug in reading the input. As a side-effect, Windows users who are using RGUI.exe will see a popup dialog box instead of a message in the terminal.
+- Use `utils::askYesNo` for confirmation prompts on R >= 3.5, eg when deleting resources; this fixes a bug in reading the input. As a side-effect, Windows users who are using RGUI.exe will see a popup dialog box instead of a message in the terminal.
 
 # AzureRMR 2.1.3
 
