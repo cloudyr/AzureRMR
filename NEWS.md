@@ -1,6 +1,7 @@
 # AzureRMR 2.2.1
 
 - Expose `do_operation` methods for subscription and resource group objects, similar to that for resources. This allows arbitrary operations on a sub or RG.
+- Update default Resource Manager API version to "2019-08-01".
 
 # AzureRMR 2.2.0
 

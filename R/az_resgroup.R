@@ -317,7 +317,7 @@ private=list(
     validate_parms=function(parms)
     {
         required_names <- c("location", "name")
-        optional_names <- c("id", "managedBy", "tags", "properties")
+        optional_names <- c("id", "managedBy", "tags", "properties", "type")
         validate_object_names(names(parms), required_names, optional_names)
     },
 
