@@ -1,3 +1,7 @@
+# AzureRMR 2.2.1
+
+- Expose `do_operation` methods for subscription and resource group objects, similar to that for resources. This allows arbitrary operations on a sub or RG.
+
 # AzureRMR 2.2.0
 
 - If the AzureGraph package is installed, `create_azure_login` can now create a login client for Microsoft Graph with the same credentials as the ARM client. This is to facilitate working with registered apps and service principals, eg when managing roles and permissions. Some Azure services also require creating service principals as part of creating a resource (eg Azure Kubernetes Service), and keeping the Graph credentials consistent with ARM helps ensure nothing breaks.

@@ -23,6 +23,7 @@ Class representing an Azure subscription.
 \item \code{list_resources()}: List all resources deployed under this subscription.
 \item \code{list_locations()}: List locations available.
 \item \code{get_provider_api_version(provider, type, which=1, stable_only=TRUE)}: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers. Set \code{stable_only=FALSE} to allow preview APIs to be returned. Set \code{which} to a number > 1 to return an API other than the most recent.
+\item \code{do_operation(...)}: Carry out an operation. See 'Operations' for more details.
 \item \code{create_lock(name, level)}: Create a management lock on this subscription (which will propagate to all resources within it).
 \item \code{get_lock(name}): Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
@@ -39,6 +40,19 @@ Class representing an Azure subscription.
 \section{Details}{
 
 Generally, the easiest way to create a subscription object is via the \code{get_subscription} or \code{list_subscriptions} methods of the \link{az_rm} class. To create a subscription object in isolation, call the \code{new()} method and supply an Oauth 2.0 token of class \link{AzureToken}, along with the ID of the subscription.
+}
+
+\section{Operations}{
+
+The \code{do_operation()} method allows you to carry out arbitrary operations on the subscription. It takes the following arguments:
+\itemize{
+\item \code{op}: The operation in question, which will be appended to the URL path of the request.
+\item \code{options}: A named list giving the URL query parameters.
+\item \code{...}: Other named arguments passed to \link{call_azure_rm}, and then to the appropriate call in httr. In particular, use \code{body} to supply the body of a PUT, POST or PATCH request, and \code{api_version} to set the API version.
+\item \code{http_verb}: The HTTP verb as a string, one of \code{GET}, \code{PUT}, \code{POST}, \code{DELETE}, \code{HEAD} or \code{PATCH}.
+}
+
+Consult the Azure documentation for what operations are supported.
 }
 
 \section{Role-based access control}{

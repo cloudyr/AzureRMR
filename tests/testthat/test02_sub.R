@@ -42,6 +42,9 @@ test_that("Subscription methods work",
     # locks (minimal testing at sub level right now)
     locks <- sub$list_locks()
     expect_true(is.list(locks))
+
+    res <- sub$do_operation("resourceGroups")
+    expect_true(is.list(res))
 })
 
 test_that("Subscription methods work with AAD v2.0",

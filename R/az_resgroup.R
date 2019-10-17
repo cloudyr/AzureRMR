@@ -16,6 +16,7 @@
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
 #' - `resource_exists(...)`: Check if a resource exists.
 #' - `list_resources()`: Return a list of resource group objects for this subscription.
+#' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
 #' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource.
 #' - `create_lock(name, level)`: Create a management lock on this resource group (which will propagate to all resources within it).
@@ -58,6 +59,15 @@
 #' Providing the `id` argument will fill in the values for all the other arguments. Similarly, providing the `type` argument will fill in the values for `provider` and `path`. Unless you provide `id`, you must also provide `name`.
 #'
 #' To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to `create_resource()`. Like `deploy_template()`, `create_resource()` also takes an optional `wait` argument that specifies whether to wait until resource creation is complete before returning.
+#'
+#' @section Operations:
+#' The `do_operation()` method allows you to carry out arbitrary operations on the resource group. It takes the following arguments:
+#' - `op`: The operation in question, which will be appended to the URL path of the request.
+#' - `options`: A named list giving the URL query parameters.
+#' - `...`: Other named arguments passed to [call_azure_rm], and then to the appropriate call in httr. In particular, use `body` to supply the body of a PUT, POST or PATCH request, and `api_version` to set the API version.
+#' - `http_verb`: The HTTP verb as a string, one of `GET`, `PUT`, `POST`, `DELETE`, `HEAD` or `PATCH`.
+#'
+#' Consult the Azure documentation for what operations are supported.
 #'
 #' @section Role-based access control:
 #' AzureRMR implements a subset of the full RBAC functionality within Azure Active Directory. You can retrieve role definitions and add and remove role assignments, at the subscription, resource group and resource levels. See [rbac] for more information.
@@ -263,6 +273,11 @@ public=list(
         if(is.null(self$tags))
             named_list()
         else self$tags
+    },
+
+    do_operation=function(..., options=list(), http_verb="GET")
+    {
+        private$rg_op(..., options=options, http_verb=http_verb)
     },
 
     print=function(...)

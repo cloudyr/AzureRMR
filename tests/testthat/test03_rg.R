@@ -26,6 +26,9 @@ test_that("Resource group methods work",
     expect_is(rgnew2, "az_resource_group")
     expect_equal(rgnew2$name, rgname)
 
+    res <- rgnew$do_operation("resources")
+    expect_true(is.list(res))
+
     # tagging
     rgnew$set_tags(tag1="value1")
     expect_identical(rgnew$get_tags(), list(tag1="value1"))

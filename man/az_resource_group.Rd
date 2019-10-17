@@ -26,6 +26,7 @@ Class representing an Azure resource group.
 \item \code{delete_resource(..., confirm=TRUE, wait=FALSE)}: Delete an existing resource. Optionally wait for the delete to finish.
 \item \code{resource_exists(...)}: Check if a resource exists.
 \item \code{list_resources()}: Return a list of resource group objects for this subscription.
+\item \code{do_operation(...)}: Carry out an operation. See 'Operations' for more details.
 \item \code{set_tags(..., keep_existing=TRUE)}: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to \code{NULL}.
 \item \code{get_tags()}: Get the tags on this resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource group (which will propagate to all resources within it).
@@ -81,6 +82,19 @@ There are a number of arguments to \code{get_resource()}, \code{create_resource(
 Providing the \code{id} argument will fill in the values for all the other arguments. Similarly, providing the \code{type} argument will fill in the values for \code{provider} and \code{path}. Unless you provide \code{id}, you must also provide \code{name}.
 
 To create/deploy a new resource, specify any extra parameters that the provider needs as named arguments to \code{create_resource()}. Like \code{deploy_template()}, \code{create_resource()} also takes an optional \code{wait} argument that specifies whether to wait until resource creation is complete before returning.
+}
+
+\section{Operations}{
+
+The \code{do_operation()} method allows you to carry out arbitrary operations on the resource group. It takes the following arguments:
+\itemize{
+\item \code{op}: The operation in question, which will be appended to the URL path of the request.
+\item \code{options}: A named list giving the URL query parameters.
+\item \code{...}: Other named arguments passed to \link{call_azure_rm}, and then to the appropriate call in httr. In particular, use \code{body} to supply the body of a PUT, POST or PATCH request, and \code{api_version} to set the API version.
+\item \code{http_verb}: The HTTP verb as a string, one of \code{GET}, \code{PUT}, \code{POST}, \code{DELETE}, \code{HEAD} or \code{PATCH}.
+}
+
+Consult the Azure documentation for what operations are supported.
 }
 
 \section{Role-based access control}{
