@@ -2,7 +2,7 @@
 #' @importFrom utils modifyList
 NULL
 
-utils::globalVariables(c("self", "private"))
+utils::globalVariables(c("self", "private", "pool"))
 
 .onLoad <- function(libname, pkgname)
 {
@@ -12,6 +12,12 @@ utils::globalVariables(c("self", "private"))
     options(azure_roleasn_api_version="2018-12-01-preview")
 
     invisible(NULL)
+}
+
+.onUnLoad <- function(libname, pkgname)
+{
+    if(exists("pool", envir=.AzureR))
+        try(parallel::stopCluster(.AzureR$pool), silent=TRUE)
 }
 
 
