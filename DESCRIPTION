@@ -24,6 +24,7 @@ Imports:
 Suggests:
     knitr,
     testthat,
-    httpuv
+    httpuv,
+    AzureStor
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1

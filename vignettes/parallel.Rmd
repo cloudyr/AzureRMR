@@ -1,0 +1,64 @@
+---
+title: "Parallel connections using a background process pool"
+author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parallel connections}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+AzureRMR provides the ability to parallelise communicating with Azure by utilising a pool of R processes in the background. This often leads to major speedups in scenarios like downloading large numbers of small files, or working with a cluster of virtual machines. This is intended for use by packages that extend AzureRMR (and was originally implemented as part of the AzureStor package), but can also be called directly by the end-user.
+
+This functionality was originally implemented independently in the AzureStor and AzureVM packages, but has now been moved into AzureRMR. This removes the code duplication, and also makes it available for other packages that may benefit.
+
+## Working with the pool
+
+A small API consisting of the following functions is currently provided for managing the pool. They pass their arguments down to the corresponding functions in the parallel package.
+
+- `init_pool` initialises the pool, creating it if necessary. The pool is created by calling `parallel::makeCluster` with the pool size and any additional arguments. If `init_pool` is called and the current pool is smaller than `size`, it is resized.
+- `delete_pool` shuts down the background processes and deletes the pool.
+- `pool_exists` checks for the existence of the pool, returning a TRUE/FALSE value.
+- `pool_size` returns the size of the pool, or zero if the pool does not exist.
+- `pool_export` exports variables to the pool nodes. It calls `parallel::clusterExport` with the given arguments.
+- `pool_lapply`, `pool_sapply` and `pool_map` carry out work on the pool. They call `parallel::parLapply`, `parallel::parSapply` and `parallel::clusterMap` with the given arguments.
+- `pool_call` and `pool_evalq` execute code on the pool nodes. They call `parallel::clusterCall` and `parallel::clusterEvalQ` with the given arguments.
+
+The pool is persistent for the session or until terminated by `delete_pool`. You should initialise the pool by calling `init_pool` before running any code on it. This restores the original state of the pool nodes by removing any objects that may be in memory, and resetting the working directory to the master working directory.
+
+Here is a simple example that shows how to initialise the pool, and then execute code on it.
+
+```r
+# create the pool
+# by default, it contains 10 nodes
+init_pool()
+
+# send some data to the nodes
+x <- 42
+pool_export("x")
+
+# run some code
+pool_sapply(1:10, function(y) x + y)
+
+#  [1] 43 44 45 46 47 48 49 50 51 52
+```
+
+Here is a more realistic example using the AzureStor package. We create a connection to an Azure storage account, and then upload a number of files in parallel to a blob container. This is basically what the `multiupload_blob` function does under the hood.
+
+```r
+init_pool()
+
+library(AzureStor)
+endp <- blob_endpoint("https://mystorageacct.blob.core.windows.net", key="key")
+cont <- blob_container(endp, "container")
+
+src_files <- c("file1.txt", "file2.txt", "file3.txt")
+dest_files <- src_files
+
+pool_export("cont")
+pool_map(
+    function(src, dest) AzureStor::upload_blob(cont, src, dest),
+    src=src_files,
+    dest=dest_files
+)
+```
