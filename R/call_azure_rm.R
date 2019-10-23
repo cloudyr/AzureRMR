@@ -106,14 +106,7 @@ error_message <- function(cont)
     msg <- if(is.character(cont))
         cont
     else if(is.list(cont))
-    {
-        if(is.character(cont$message))
-            cont$message
-        else if(is.list(cont$error) && is.character(cont$error$message))
-            cont$error$message
-        else if(is.list(cont$odata.error)) # OData
-            cont$odata.error$message$value
-    }
+        as.character(unlist(cont))
     else ""
 
     paste0(strwrap(msg), collapse="\n")

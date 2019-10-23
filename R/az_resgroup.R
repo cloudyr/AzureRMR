@@ -130,6 +130,7 @@ public=list(
     subscription=NULL,
     id=NULL,
     name=NULL,
+    type=NULL,
     location=NULL,
     managed_by=NULL,
     properties=NULL,
@@ -150,6 +151,7 @@ public=list(
         else private$init(name, parms)
 
         self$id <- parms$id
+        self$type <- parms$type
         self$location <- parms$location
         self$managed_by <- parms$managedBy
         self$properties <- parms$properties

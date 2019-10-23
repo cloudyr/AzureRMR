@@ -246,7 +246,16 @@ private=list(
             }
             if(status == "Succeeded")
                 message("\nDeployment successful")
-            else stop("\nUnable to deploy template", call.=FALSE)
+            else
+            {
+                err_details <- parms$properties$error$details
+                if(is.list(err_details))
+                {
+                    msgs <- lapply(err_details, function(x) error_message(jsonlite::fromJSON(x$message)))
+                    stop("\nUnable to deploy template. Message:\n", do.call(paste0, msgs))
+                }
+                else stop("\nUnable to deploy template", call.=FALSE)
+            }
         }
         parms
     },
