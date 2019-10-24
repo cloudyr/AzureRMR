@@ -38,7 +38,7 @@ pool_evalq(...)
 
 \item{restart}{For \code{init_pool}, whether to terminate an already running pool first.}
 
-\item{...}{Other arguments passed on to functions in the parallel package. See below.}
+\item{X, func, SIMPLIFY, ...}{Other arguments passed on to lower-level functions. See 'Details' below.}
 }
 \description{
 Manage parallel Azure connections
