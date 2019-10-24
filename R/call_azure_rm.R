@@ -70,11 +70,11 @@ process_headers <- function(token, auto_refresh)
         token$refresh()
     }
 
-    creds <- token$credentials
-    host <- httr::parse_url(AzureAuth::decode_jwt(creds$access_token)$payload$aud)$hostname
+    access_token <- extract_jwt(token)
+    host <- httr::parse_url(decode_jwt(access_token)$payload$aud)$hostname
     headers <- c(
         Host=host,
-        Authorization=paste(creds$token_type, creds$access_token),
+        Authorization=paste("Bearer", access_token),
         `Content-Type`="application/json"
     )
 
