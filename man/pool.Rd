@@ -23,13 +23,13 @@ pool_size()
 
 pool_export(...)
 
-pool_lapply(...)
+pool_lapply(X, func, ...)
 
-pool_sapply(...)
+pool_sapply(X, func, ...)
 
-pool_map(...)
+pool_map(func, ..., SIMPLIFY = FALSE)
 
-pool_call(...)
+pool_call(func, ...)
 
 pool_evalq(...)
 }
@@ -52,9 +52,9 @@ A small API consisting of the following functions is currently provided for mana
 \item \code{delete_pool} shuts down the background processes and deletes the pool.
 \item \code{pool_exists} checks for the existence of the pool, returning a TRUE/FALSE value.
 \item \code{pool_size} returns the size of the pool, or zero if the pool does not exist.
-\item \code{pool_export} exports variables to the pool nodes. It calls \code{parallel::clusterExport} with the given arguments.
-\item \code{pool_lapply}, \code{pool_sapply} and \code{pool_map} carry out work on the pool. They call \code{parallel::parLapply}, \code{parallel::parSapply} and \code{parallel::clusterMap} with the given arguments.
-\item \code{pool_call} and \code{pool_evalq} execute code on the pool nodes. They call \code{parallel::clusterCall} and \code{parallel::clusterEvalQ} with the given arguments.
+\item \code{pool_export} exports variables to the pool nodes. It calls \code{parallel::clusterExport} with the given arguments if the pool exists; otherwise it does nothing.
+\item \code{pool_lapply}, \code{pool_sapply} and \code{pool_map} carry out work on the pool. They call \code{parallel::parLapply}, \code{parallel::parSapply} and \code{parallel::clusterMap} respectively if the pool exists, or \code{lapply}, \code{sapply} and \code{mapply} otherwise.
+\item \code{pool_call} and \code{pool_evalq} execute code on the pool nodes. They call \code{parallel::clusterCall} and \code{parallel::clusterEvalQ} respectively if the pool exists, or the function \code{func} directly and \code{evalq} otherwise.
 }
 
 The pool is persistent for the session or until terminated by \code{delete_pool}. You should initialise the pool by calling \code{init_pool} before running any code on it. This restores the original state of the pool nodes by removing any objects that may be in memory, and resetting the working directory to the master working directory.
@@ -79,5 +79,5 @@ delete_pool()
 }
 }
 \seealso{
-\link[parallel:makeCluster]{parallel::makeCluster}, \link[parallel:clusterCall]{parallel::clusterCall}, \link[parallel:parLapply]{parallel::parLapply}
+\link[parallel:makeCluster]{parallel::makeCluster}, \link[parallel:clusterCall]{parallel::clusterCall}, \link[parallel:parLapply]{parallel::parLapply}, \link{lapply}, \link{mapply}
 }
