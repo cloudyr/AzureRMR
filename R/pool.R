@@ -1,6 +1,3 @@
-.AzureR <- new.env()
-
-
 #' Manage parallel Azure connections
 #'
 #' @param size For `init_pool`, the number of background R processes to create. Limit this is you are low on memory.
@@ -15,14 +12,14 @@
 #' - `delete_pool` shuts down the background processes and deletes the pool.
 #' - `pool_exists` checks for the existence of the pool, returning a TRUE/FALSE value.
 #' - `pool_size` returns the size of the pool, or zero if the pool does not exist.
-#' - `pool_export` exports variables to the pool nodes. It calls `parallel::clusterExport` with the given arguments if the pool exists; otherwise it does nothing.
-#' - `pool_lapply`, `pool_sapply` and `pool_map` carry out work on the pool. They call `parallel::parLapply`, `parallel::parSapply` and `parallel::clusterMap` respectively if the pool exists, or `lapply`, `sapply` and `mapply` otherwise.
-#' - `pool_call` and `pool_evalq` execute code on the pool nodes. They call `parallel::clusterCall` and `parallel::clusterEvalQ` respectively if the pool exists, or the function `func` directly and `evalq` otherwise.
+#' - `pool_export` exports variables to the pool nodes. It calls `parallel::clusterExport` with the given arguments.
+#' - `pool_lapply`, `pool_sapply` and `pool_map` carry out work on the pool. They call `parallel::parLapply`, `parallel::parSapply` and `parallel::clusterMap` with the given arguments.
+#' - `pool_call` and `pool_evalq` execute code on the pool nodes. They call `parallel::clusterCall` and `parallel::clusterEvalQ` with the given arguments.
 #'
 #' The pool is persistent for the session or until terminated by `delete_pool`. You should initialise the pool by calling `init_pool` before running any code on it. This restores the original state of the pool nodes by removing any objects that may be in memory, and resetting the working directory to the master working directory.
 #'
 #' @seealso
-#' [parallel::makeCluster], [parallel::clusterCall], [parallel::parLapply], [lapply], [mapply]
+#' [parallel::makeCluster], [parallel::clusterCall], [parallel::parLapply]
 #' @examples
 #' \dontrun{
 #'
@@ -91,9 +88,9 @@ pool_exists <- function()
 #' @export
 pool_size <- function()
 {
-    if(pool_exists())
-        length(.AzureR$pool)
-    else 0
+    if(!pool_exists())
+        return(0)
+    length(.AzureR$pool)
 }
 
 
@@ -101,49 +98,44 @@ pool_size <- function()
 #' @export
 pool_export <- function(...)
 {
-    if(pool_exists())
-        parallel::clusterExport(cl=.AzureR$pool, ...)
-    else invisible(NULL)
+    pool_check()
+    parallel::clusterExport(cl=.AzureR$pool, ...)
 }
 
 
 #' @rdname pool
 #' @export
-pool_lapply <- function(X, func, ...)
+pool_lapply <- function(...)
 {
-    if(pool_exists())
-        parallel::parLapply(cl=.AzureR$pool, X=X, fun=func, ...)
-    else lapply(X=X, FUN=func, ...)
+    pool_check()
+    parallel::parLapply(cl=.AzureR$pool, ...)
 }
 
 
 #' @rdname pool
 #' @export
-pool_sapply <- function(X, func, ...)
+pool_sapply <- function(...)
 {
-    if(pool_exists())
-        parallel::parSapply(cl=.AzureR$pool, X=X, FUN=func, ...)
-    else sapply(X=X, FUN=func, ...)
+    pool_check()
+    parallel::parSapply(cl=.AzureR$pool, ...)
 }
 
 
 #' @rdname pool
 #' @export
-pool_map <- function(func, ..., SIMPLIFY=FALSE)
+pool_map <- function(...)
 {
-    if(pool_exists())
-        parallel::clusterMap(cl=.AzureR$pool, func, ..., SIMPLIFY=SIMPLIFY)
-    else mapply(func, ..., SIMPLIFY=SIMPLIFY)
+    pool_check()
+    parallel::clusterMap(cl=.AzureR$pool, ...)
 }
 
 
 #' @rdname pool
 #' @export
-pool_call <- function(func, ...)
+pool_call <- function(...)
 {
-    if(pool_exists())
-        parallel::clusterCall(cl=.AzureR$pool, func, ...)
-    else func(...)
+    pool_check()
+    parallel::clusterCall(cl=.AzureR$pool, ...)
 }
 
 
@@ -151,7 +143,16 @@ pool_call <- function(func, ...)
 #' @export
 pool_evalq <- function(...)
 {
-    if(pool_exists())
-        parallel::clusterEvalQ(cl=.AzureR$pool, ...)
-    else evalq(..., envir=parent.frame())
+    pool_check()
+    parallel::clusterEvalQ(cl=.AzureR$pool, ...)
+}
+
+
+.AzureR <- new.env()
+
+
+pool_check <- function()
+{
+    if(!pool_exists())
+        stop("AzureR pool does not exist; call init_pool() to create it", call.=FALSE)
 }
