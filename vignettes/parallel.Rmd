@@ -26,6 +26,8 @@ A small API consisting of the following functions is currently provided for mana
 
 The pool is persistent for the session or until terminated by `delete_pool`. You should initialise the pool by calling `init_pool` before running any code on it. This restores the original state of the pool nodes by removing any objects that may be in memory, and resetting the working directory to the master working directory.
 
+The pool is a shared resource, and so packages that make use of it should not assume that they have sole control over its state. In particular, just because the pool exists at the end of one call doesn't mean it will still exist at the time of a subsequent call. 
+
 Here is a simple example that shows how to initialise the pool, and then execute code on it.
 
 ```r
@@ -40,24 +42,24 @@ pool_export("x")
 # run some code
 pool_sapply(1:10, function(y) x + y)
 
-#  [1] 43 44 45 46 47 48 49 50 51 52
+#> [1] 43 44 45 46 47 48 49 50 51 52
 ```
 
-Here is a more realistic example using the AzureStor package. We create a connection to an Azure storage account, and then upload a number of files in parallel to a blob container. This is basically what the `multiupload_blob` function does under the hood.
+Here is a more realistic example using the AzureStor package. We create a connection to an Azure storage account, and then upload a number of files in parallel to a blob container. This is basically what the `storage_multiupload` function does under the hood.
 
 ```r
 init_pool()
 
 library(AzureStor)
-endp <- blob_endpoint("https://mystorageacct.blob.core.windows.net", key="key")
-cont <- blob_container(endp, "container")
+endp <- storage_endpoint("https://mystorageacct.blob.core.windows.net", key="key")
+cont <- storage_container(endp, "container")
 
 src_files <- c("file1.txt", "file2.txt", "file3.txt")
 dest_files <- src_files
 
 pool_export("cont")
 pool_map(
-    function(src, dest) AzureStor::upload_blob(cont, src, dest),
+    function(src, dest) AzureStor::storage_upload(cont, src, dest),
     src=src_files,
     dest=dest_files
 )
