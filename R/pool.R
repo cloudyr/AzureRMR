@@ -5,7 +5,7 @@
 #'
 #' @param size For `init_pool`, the number of background R processes to create. Limit this is you are low on memory.
 #' @param restart For `init_pool`, whether to terminate an already running pool first.
-#' @param X,func,SIMPLIFY,... Other arguments passed on to lower-level functions. See 'Details' below.
+#' @param ... Other arguments passed on to functions in the parallel package. See below.
 #'
 #' @details
 #' AzureRMR provides the ability to parallelise communicating with Azure by utilizing a pool of R processes in the background. This often leads to major speedups in scenarios like downloading large numbers of small files, or working with a cluster of virtual machines. This functionality is intended for use by packages that extend AzureRMR (and was originally implemented as part of the AzureStor package), but can also be called directly by the end-user.
