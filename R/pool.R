@@ -17,7 +17,7 @@
 #' - `pool_size` returns the size of the pool, or zero if the pool does not exist.
 #' - `pool_export` exports variables to the pool nodes. It calls `parallel::clusterExport` with the given arguments if the pool exists; otherwise it does nothing.
 #' - `pool_lapply`, `pool_sapply` and `pool_map` carry out work on the pool. They call `parallel::parLapply`, `parallel::parSapply` and `parallel::clusterMap` respectively if the pool exists, or `lapply`, `sapply` and `mapply` otherwise.
-#' - `pool_call` and `pool_evalq` execute code on the pool nodes. They call `parallel::clusterCall` and `parallel::clusterEvalQ` respectively if the pool exists, or the supplied function and `evalq` otherwise.
+#' - `pool_call` and `pool_evalq` execute code on the pool nodes. They call `parallel::clusterCall` and `parallel::clusterEvalQ` respectively if the pool exists, or the function `func` directly and `evalq` otherwise.
 #'
 #' The pool is persistent for the session or until terminated by `delete_pool`. You should initialise the pool by calling `init_pool` before running any code on it. This restores the original state of the pool nodes by removing any objects that may be in memory, and resetting the working directory to the master working directory.
 #'
