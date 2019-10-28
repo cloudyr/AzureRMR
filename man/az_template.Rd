@@ -38,9 +38,9 @@ If you also supply the following arguments to \code{new()}, a new template will 
 \itemize{
 \item \code{template}: The template to deploy. This can be provided in a number of ways:
 \enumerate{
-\item A nested list of name-value pairs representing the parsed JSON
-\item The name of a template file
+\item A nested list of R objects, which will be converted to JSON via \code{jsonlite::toJSON}
 \item A vector of strings containing unparsed JSON
+\item The name of a template file
 \item A URL from which the host can download the template
 }
 \item \code{parameters}: The parameters for the template. This can be provided using any of the same methods as the \code{template} argument.

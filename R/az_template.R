@@ -21,9 +21,9 @@
 #'
 #' If you also supply the following arguments to `new()`, a new template will be deployed:
 #' - `template`: The template to deploy. This can be provided in a number of ways:
-#'   1. A nested list of name-value pairs representing the parsed JSON
-#'   2. The name of a template file
-#'   3. A vector of strings containing unparsed JSON
+#'   1. A nested list of R objects, which will be converted to JSON via `jsonlite::toJSON`
+#'   2. A vector of strings containing unparsed JSON
+#'   3. The name of a template file
 #'   4. A URL from which the host can download the template
 #' - `parameters`: The parameters for the template. This can be provided using any of the same methods as the `template` argument.
 #' - `wait`: Optionally, whether to wait until the deployment is complete. Defaults to FALSE, in which case the method will return immediately.

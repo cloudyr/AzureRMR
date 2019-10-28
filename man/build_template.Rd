@@ -38,7 +38,7 @@ Build the JSON for a template and its parameters
 \code{build_template_definition} is used to generate a template from its components. The arguments can be specified in various ways:
 \itemize{
 \item As character strings containing unparsed JSON text.
-\item As an R list of (nested) objects representing the parsed JSON.
+\item As an R list of (nested) objects, which will be converted to JSON via \code{jsonlite::toJSON}.
 \item A connection pointing to a JSON file or object.
 \item For the \code{parameters} argument, this can also be a character vector containing the types of each parameter.
 }
@@ -130,4 +130,7 @@ build_template_definition(
 build_template_parameters(name="myres_name", complex_type=file("myres_params.json"))
 }
 
+}
+\seealso{
+\link{az_template}, \link[jsonlite:toJSON]{jsonlite::toJSON}
 }

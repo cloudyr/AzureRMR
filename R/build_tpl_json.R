@@ -9,7 +9,7 @@
 #' @details
 #' `build_template_definition` is used to generate a template from its components. The arguments can be specified in various ways:
 #' - As character strings containing unparsed JSON text.
-#' - As an R list of (nested) objects representing the parsed JSON.
+#' - As an R list of (nested) objects, which will be converted to JSON via `jsonlite::toJSON`.
 #' - A connection pointing to a JSON file or object.
 #' - For the `parameters` argument, this can also be a character vector containing the types of each parameter.
 #'
@@ -20,6 +20,8 @@
 #' @return
 #' The JSON text for the template definition and its parameters.
 #'
+#' @seealso
+#' [az_template], [jsonlite::toJSON]
 #' @examples
 #' # dummy example
 #' # note that 'resources' arg should be a _list_ of resources

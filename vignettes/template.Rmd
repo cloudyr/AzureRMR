@@ -3,12 +3,20 @@ title: "Working with templates"
 author: Hong Ooi
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Templates}
+  %\VignetteIndexEntry{Working with templates}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{utf8}
 ---
 
-In a manner similar to resources, deploying a [template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/template-deployment-overview) is just a matter of calling the resource group object's `deploy_template` method. This takes two arguments, `template` and `parameters`. Both arguments should be in JSON format: either the name of a JSON file, a character vector containing the JSON data, or a list containing the parsed JSON (via `jsonlite::toJSON`).
+An Azure [template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/template-deployment-overview) is a JSON file that can be used to automate the deployment of a set of related resources. The template uses declarative syntax, which lets you state what you intend to deploy without having to write the sequence of programming commands to create it. In the template, you specify the resources to deploy and the properties for those resources.
+
+Deploying a template with AzureRMR is just a matter of calling a resource group object's `deploy_template` method. This takes two arguments, `template` and `parameters`. `deploy_template` is very flexible in how you can specify its arguments:
+
+- As character strings containing unparsed JSON text.
+- As a (nested) list of R objects, which will be converted to JSON via `jsonlite::toJSON`.
+- A filename or connection pointing to a JSON file.
+- A URL from which the template can be accessed.
+- For the `parameters` argument, this can also be a character vector containing the types of each parameter.
 
 ```r
 vm_tpl <- rg$deploy_template("myNewVirtualMachine",
@@ -31,14 +39,7 @@ vm_tpl$delete(free_resources=TRUE)
 
 AzureRMR also provides the `build_template_definition` and `build_template_parameters` functions to help you construct or modify a template. Both of these are generics and can be extended by other packages to handle specific deployment scenarios, eg virtual machines.
 
-`build_template_definition` is used to generate the template JSON. The default method has 4 arguments `parameters`, `variables`, `resources` and `outputs`, which are the components of a template. The arguments can be specified in various ways:
-
-- As character strings containing unparsed JSON text.
-- As an R list of (nested) objects representing the parsed JSON.
-- A connection pointing to a JSON file or object.
-- For the `parameters` argument, this can also be a character vector containing the types of each parameter.
-
-`build_template_parameters` is for creating the list of parameters to be passed along with the template. Its arguments should all be named, and contain either the JSON text or an R list giving the parsed JSON.
+`build_template_definition` is used to generate the template JSON. The default method has 4 arguments `parameters`, `variables`, `resources` and `outputs`, which are the components of a template; these should be either strings containing the unparsed JSON text, or lists to be converted into JSON. `build_template_parameters` is for creating the list of parameters to be passed along with the template. Its arguments should all be named, and contain either the JSON text or an R list giving the parsed JSON.
 
 ```r
 # a storage account template
@@ -76,7 +77,7 @@ storage_pars <- build_template_parameters(
 )
 ```
 
-Once created, the template defintion and parameters can be passed directly to `deploy_template()`:
+Once created, the template defintion and parameters can be passed directly to `deploy_template`:
 
 ```r
 # deploying
