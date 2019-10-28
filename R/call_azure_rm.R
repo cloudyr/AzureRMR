@@ -29,11 +29,11 @@ call_azure_rm <- function(token, subscription, operation, ...,
                           options=list(),
                           api_version=getOption("azure_api_version"))
 {
-    url <- httr::parse_url(decode_jwt(token$credentials$access_token)$payload$aud)
+    url <- find_resource_host(token)
     url$path <- construct_path("subscriptions", subscription, operation)
     url$query <- modifyList(list(`api-version`=api_version), options)
 
-    call_azure_url(token, httr::build_url(url), ...)
+    call_azure_url(token, url, ...)
 }
 
 
@@ -44,7 +44,7 @@ call_azure_url <- function(token, url, ..., body=NULL, encode="json",
                            http_status_handler=c("stop", "warn", "message", "pass"),
                            auto_refresh=TRUE)
 {
-    headers <- process_headers(token, auto_refresh)
+    headers <- process_headers(token, url, auto_refresh)
 
     # if content-type is json, serialize it manually to ensure proper handling of nulls
     if(encode == "json")
@@ -61,7 +61,7 @@ call_azure_url <- function(token, url, ..., body=NULL, encode="json",
 }
 
 
-process_headers <- function(token, auto_refresh)
+process_headers <- function(token, host, auto_refresh)
 {
     # if token has expired, renew it
     if(auto_refresh && !token$validate())
@@ -71,9 +71,8 @@ process_headers <- function(token, auto_refresh)
     }
 
     access_token <- extract_jwt(token)
-    host <- httr::parse_url(decode_jwt(access_token)$payload$aud)$hostname
     headers <- c(
-        Host=host,
+        Host=httr::parse_url(host)$hostname,
         Authorization=paste("Bearer", access_token),
         `Content-Type`="application/json"
     )
@@ -112,3 +111,24 @@ error_message <- function(cont)
     paste0(strwrap(msg), collapse="\n")
 }
 
+
+find_resource_host <- function(token)
+{
+    if(is_azure_v2_token(token))
+    {
+        # search the vector of scopes for the actual resource URL
+        url <- list()
+        i <- 1
+        while(is.null(url$scheme) && i <= length(token$scope))
+        {
+            url <- httr::parse_url(token$scope[i])
+            i <- i + 1
+        }
+    }
+    else url <- httr::parse_url(token$resource) # v1 token is the easy case
+
+    if(is.null(url$scheme))
+        stop("Could not find Graph host URL", call.=FALSE)
+    url$path <- NULL
+    url
+}

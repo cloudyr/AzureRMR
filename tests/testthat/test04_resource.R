@@ -31,7 +31,7 @@ test_that("Resource methods work",
     expect_true(rg$resource_exists(type=restype, name=resname))
     expect_is(res, "az_resource")
     expect_true(res$type == restype && res$name == resname && !is_empty(res$properties))
-    
+
     res1 <- rg$get_resource(type=restype, name=resname)
     expect_is(res1, "az_resource")
     expect_true(res1$type == restype && res1$name == resname && !is_empty(res1$properties))
