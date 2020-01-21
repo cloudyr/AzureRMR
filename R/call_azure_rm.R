@@ -128,7 +128,7 @@ find_resource_host <- function(token)
     else url <- httr::parse_url(token$resource) # v1 token is the easy case
 
     if(is.null(url$scheme))
-        stop("Could not find Graph host URL", call.=FALSE)
+        stop("Could not find Resource Manager host URL", call.=FALSE)
     url$path <- NULL
     url
 }
