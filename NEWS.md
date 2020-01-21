@@ -1,3 +1,7 @@
+# AzureRMR 2.3.0.9000
+
+- Update Resource Manager API version to "2019-10-01".
+
 # AzureRMR 2.3.0
 
 - New in this version is a facility for parallelising connections to Azure, using a pool of background processes. Some operations, such as downloading many small files or interacting with a cluster of VMs, can be sped up significantly by carrying them out in parallel rather than sequentially. The code for this is currently duplicated in multiple packages including AzureStor and AzureVM; putting it in AzureRMR removes the duplication and also makes it available to other packages that may benefit. See `?pool` for more details.
