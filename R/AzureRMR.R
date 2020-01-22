@@ -16,7 +16,7 @@ utils::globalVariables(c("self", "private", "pool"))
 
 .onUnLoad <- function(libname, pkgname)
 {
-    if(exists("pool", envir=.AzureR))
+    if(exists("pool", envir=.AzureR, inherits=FALSE))
         try(parallel::stopCluster(.AzureR$pool), silent=TRUE)
 }
 
