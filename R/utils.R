@@ -4,12 +4,18 @@
 #' @param name_fields The components of the objects in `lst`, to be used as names.
 #' @param x For `is_url` and `is_empty`, An R object.
 #' @param https_only For `is_url`, whether to allow only HTTPS URLs.
+#' @param token For `get_paged_list`, an Azure OAuth token, of class [AzureToken].
+#' @param next_link_name,value_name For `get_paged_list`, the names of the next link and value components in the `lst` argument. The default values are correct for Resource Manager.
 #'
 #' @details
 #' `named_list` extracts from each object in `lst`, the components named by `name_fields`. It then constructs names for `lst` from these components, separated by a `"/"`.
 #'
+#' `get_paged_list` reconstructs a complete list of objects from a paged response. Many Resource Manager list operations will return _paged_ output, that is, the response contains a subset of all items, along with a URL to query to retrieve the next subset. `get_paged_list` retrieves each subset and returns all items in a single list.
+#'
 #' @return
 #' For `named_list`, the list that was passed in but with names. An empty input results in a _named list_ output: a list of length 0, with a `names` attribute.
+#'
+#' For `get_paged_list`, a list.
 #'
 #' For `is_url`, whether the object appears to be a URL (is character of length 1, and starts with the string `"http"`). Optionally, restricts the check to HTTPS URLs only. For `is_empty`, whether the length of the object is zero (this includes the special case of `NULL`).
 #'
@@ -56,6 +62,21 @@ is_empty <- function(x)
 }
 
 
+# combine several pages of objects into a single list
+#' @rdname utils
+#' @export
+get_paged_list <- function(lst, token, next_link_name="nextLink", value_name="value")
+{
+    res <- lst[[value_name]]
+    while(!is_empty(lst[[next_link_name]]))
+    {
+        lst <- call_azure_url(token, lst[[next_link_name]])
+        res <- c(res, lst[[value_name]])
+    }
+    res
+}
+
+
 # check that 1) all required names are present; 2) optional names may be present; 3) no other names are present
 validate_object_names <- function(x, required, optional=character(0))
 {
@@ -69,19 +90,6 @@ validate_object_names <- function(x, required, optional=character(0))
 construct_path <- function(...)
 {
     sub("/$", "", file.path(..., fsep="/"))
-}
-
-
-# combine several pages of objects into a single list
-get_paged_list <- function(lst, token, next_link_name="nextLink", value_name="value")
-{
-    res <- lst[[value_name]]
-    while(!is_empty(lst[[next_link_name]]))
-    {
-        lst <- call_azure_url(token, lst[[next_link_name]])
-        res <- c(res, lst[[value_name]])
-    }
-    res
 }
 
 

@@ -1,6 +1,7 @@
 # AzureRMR 2.3.0.9000
 
 - Update Resource Manager API version to "2019-10-01".
+- Export `get_paged_list` utility function.
 
 # AzureRMR 2.3.0
 
