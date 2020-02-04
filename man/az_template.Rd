@@ -5,9 +5,6 @@
 \alias{az_template}
 \title{Azure template class}
 \format{An R6 object of class \code{az_template}.}
-\usage{
-az_template
-}
 \description{
 Class representing an Azure deployment template.
 }
@@ -75,4 +72,3 @@ tpl$delete(free_resources=TRUE)
 \href{https://docs.microsoft.com/en-us/azure/templates/}{Template overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/deployments}{Template API reference}
 }
-\keyword{datasets}

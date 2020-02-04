@@ -13,8 +13,7 @@ is_url(x, https_only = FALSE)
 
 is_empty(x)
 
-get_paged_list(lst, token, next_link_name = "nextLink",
-  value_name = "value")
+get_paged_list(lst, token, next_link_name = "nextLink", value_name = "value")
 }
 \arguments{
 \item{lst}{A named list of objects.}

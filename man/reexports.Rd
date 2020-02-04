@@ -18,6 +18,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{AzureAuth}{\code{\link[AzureAuth]{clean_token_directory}}, \code{\link[AzureAuth]{delete_azure_token}}, \code{\link[AzureAuth]{get_azure_token}}, \code{\link[AzureAuth]{is_azure_token}}, \code{\link[AzureAuth]{is_azure_v1_token}}, \code{\link[AzureAuth]{is_azure_v1_token}}, \code{\link[AzureAuth]{is_guid}}, \code{\link[AzureAuth]{list_azure_tokens}}, \code{\link[AzureAuth]{AzureR_dir}}}
+  \item{AzureAuth}{\code{\link[AzureAuth]{AzureR_dir}}, \code{\link[AzureAuth]{clean_token_directory}}, \code{\link[AzureAuth]{delete_azure_token}}, \code{\link[AzureAuth]{get_azure_token}}, \code{\link[AzureAuth]{is_azure_token}}, \code{\link[AzureAuth]{is_azure_v1_token}}, \code{\link[AzureAuth]{is_azure_v1_token}}, \code{\link[AzureAuth]{is_guid}}, \code{\link[AzureAuth]{list_azure_tokens}}}
 }}
 

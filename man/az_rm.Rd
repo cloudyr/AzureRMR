@@ -5,9 +5,6 @@
 \alias{az_rm}
 \title{Azure Resource Manager}
 \format{An R6 object of class \code{az_rm}.}
-\usage{
-az_rm
-}
 \description{
 Base class for interacting with Azure Resource Manager.
 }
@@ -33,8 +30,8 @@ To authenticate with the \code{az_rm} class directly, provide the following argu
 \item \code{username}: if \code{auth_type == "resource_owner"}, your username.
 \item \code{certificate}: If `auth_type == "client_credentials", a certificate to authenticate with. This is a more secure alternative to using an app secret.
 \item \code{auth_type}: The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". See \link{get_azure_token} for how the default method is chosen, along with some caveats.
-\item \code{host}: your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.
-\item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
+\item \code{host}: your ARM host. Defaults to \verb{https://management.azure.com/}. Change this if you are using a government or private cloud.
+\item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \verb{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
 \item \code{...}: Further arguments to pass to \code{get_azure_token}.
 \item \code{token}: Optionally, an OAuth 2.0 token, of class \link{AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 }
@@ -66,4 +63,3 @@ az$get_subscription("subscription_id")
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
 }
-\keyword{datasets}

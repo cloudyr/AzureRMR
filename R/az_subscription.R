@@ -17,7 +17,7 @@
 #' - `get_provider_api_version(provider, type, which=1, stable_only=TRUE)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers. Set `stable_only=FALSE` to allow preview APIs to be returned. Set `which` to a number > 1 to return an API other than the most recent.
 #' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
 #' - `create_lock(name, level)`: Create a management lock on this subscription (which will propagate to all resources within it).
-#' - `get_lock(name`): Returns a management lock object.
+#' - `get_lock(name)`: Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that exist in this subscription.
 #' - `add_role_assignment(name, ...)`: Adds a new role assignment. See 'Role-based access control' below.

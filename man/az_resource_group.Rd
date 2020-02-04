@@ -5,9 +5,6 @@
 \alias{az_resource_group}
 \title{Azure resource group class}
 \format{An R6 object of class \code{az_resource_group}.}
-\usage{
-az_resource_group
-}
 \description{
 Class representing an Azure resource group.
 }
@@ -30,7 +27,7 @@ Class representing an Azure resource group.
 \item \code{set_tags(..., keep_existing=TRUE)}: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to \code{NULL}.
 \item \code{get_tags()}: Get the tags on this resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource group (which will propagate to all resources within it).
-\item \code{get_lock(name}): Returns a management lock object.
+\item \code{get_lock(name)}: Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 \item \code{list_locks()}: List all locks that apply to this resource group. Note this includes locks created at the subscription level, and for any resources within the resource group.
 \item \code{add_role_assignment(name, ...)}: Adds a new role assignment. See 'Role-based access control' below.
@@ -46,7 +43,7 @@ Class representing an Azure resource group.
 
 Initializing a new object of this class can either retrieve an existing resource group, or create a new resource group on the host. Generally, the easiest way to create a resource group object is via the \code{get_resource_group}, \code{create_resource_group} or \code{list_resource_groups} methods of the \link{az_subscription} class, which handle this automatically.
 
-To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class \link{AzureToken}, the subscription ID, and the resource group name. If this object refers to a \emph{new} resource group, supply the location as well (use the \code{list_locations} method of the \code{az_subscription class} for possible locations). You can also pass any optional parameters for the resource group as named arguments to \code{new()}.
+To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class \link{AzureToken}, the subscription ID, and the resource group name. If this object refers to a \emph{new} resource group, supply the location as well (use the \code{list_locations} method of the \verb{az_subscription class} for possible locations). You can also pass any optional parameters for the resource group as named arguments to \code{new()}.
 }
 
 \section{Templates}{
@@ -153,4 +150,3 @@ For role-based access control methods, see \link{rbac}
 
 For management locks, see \link{lock}
 }
-\keyword{datasets}

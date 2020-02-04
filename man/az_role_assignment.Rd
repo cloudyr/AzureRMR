@@ -5,9 +5,6 @@
 \alias{az_role_assignment}
 \title{Azure role assignment class}
 \format{An R6 object of class \code{az_role_assignment}.}
-\usage{
-az_role_assignment
-}
 \description{
 Azure role assignment class
 }
@@ -42,4 +39,3 @@ Technically role assignments and role definitions are Azure \emph{resources}, an
 
 \href{https://docs.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
 }
-\keyword{datasets}

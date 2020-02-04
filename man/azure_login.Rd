@@ -32,17 +32,17 @@ list_azure_logins()
 
 \item{auth_type}{The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If \code{NULL}, this is chosen based on the presence of the \code{username} and \code{password} arguments.}
 
-\item{host}{Your ARM host. Defaults to \code{https://management.azure.com/}. Change this if you are using a government or private cloud.}
+\item{host}{Your ARM host. Defaults to \verb{https://management.azure.com/}. Change this if you are using a government or private cloud.}
 
-\item{aad_host}{Azure Active Directory host for authentication. Defaults to \code{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.}
+\item{aad_host}{Azure Active Directory host for authentication. Defaults to \verb{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.}
 
-\item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \code{az ad sp create-for-rbac} command.}
+\item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \verb{az ad sp create-for-rbac} command.}
 
 \item{token}{Optionally, an OAuth 2.0 token, of class \link{AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, the other arguments above to \code{create_azure_login} will be ignored.}
 
 \item{graph_host}{The Microsoft Graph endpoint. See 'Microsoft Graph integration' below.}
 
-\item{...}{For \code{create_azure_login, other arguments passed to }get_azure_token`.}
+\item{...}{For \code{create_azure_login}, other arguments passed to \code{get_azure_token}.}
 
 \item{selection}{For \code{get_azure_login}, if you have multiple logins for a given tenant, which one to use. This can be a number, or the input MD5 hash of the token used for the login. If not supplied, \code{get_azure_login} will print a menu and ask you to choose a login.}
 
@@ -61,7 +61,7 @@ Login to Azure Resource Manager
 \details{
 \code{create_azure_login} creates a login client to authenticate with Azure Resource Manager (ARM), using the supplied arguments. The Azure Active Directory (AAD) authentication token is obtained using \link{get_azure_token}, which automatically caches and reuses tokens for subsequent sessions. Note that credentials are only cached if you allowed AzureRMR to create a data directory at package startup.
 
-\code{create_azure_login()} without any arguments is roughly equivalent to the Azure CLI command \code{az login}.
+\code{create_azure_login()} without any arguments is roughly equivalent to the Azure CLI command \verb{az login}.
 
 \code{get_azure_login} returns a login client by retrieving previously saved credentials. It searches for saved credentials according to the supplied tenant; if multiple logins are found, it will prompt for you to choose one.
 

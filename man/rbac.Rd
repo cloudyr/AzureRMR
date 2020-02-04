@@ -31,7 +31,7 @@ list_role_definitions(filter=NULL, as_data_frame = TRUE)
 
 \itemize{
 \item \code{principal}: For \code{add_role_assignment}, the principal for which to assign a role. This can be a GUID, or an object of class \code{az_user}, \code{az_app} or \code{az_storage_principal} (from the AzureGraph package).
-\item \code{role}: For \code{add_role_assignment}, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class \code{[az_role_definition]}.
+\item \code{role}: For \code{add_role_assignment}, the role to assign the principal. This can be a GUID, a string giving the role name (eg "Contributor"), or an object of class \verb{[az_role_definition]}.
 \item \code{scope}: For \code{add_role_assignment}, an optional scope for the assignment.
 \item \code{id}: A role ID. For \code{get_role_assignment} and \code{remove_role_assignment}, this is a role assignment GUID. For \code{get_role_definition}, this can be a role definition GUID or a role name.
 \item \code{confirm}: For \code{remove_role_assignment}, whether to ask for confirmation before removing the role assignment.

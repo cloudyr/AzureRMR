@@ -14,7 +14,7 @@
 #' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource.
 #' - `create_lock(name, level)`: Create a management lock on this resource.
-#' - `get_lock(name`): Returns a management lock object.
+#' - `get_lock(name)`: Returns a management lock object.
 #' - `delete_lock(name)`: Deletes a management lock object.
 #' - `list_locks()`: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
 #' - `add_role_assignment(name, ...)`: Adds a new role assignment. See 'Role-based access control' below.

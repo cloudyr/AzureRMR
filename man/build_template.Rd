@@ -92,12 +92,12 @@ build_template_definition(
     parameters=c(name="string", location="string", sku="string"),
     resources='[
         {
-            "name": "[parameters(\\'name\\')]",
-            "location": "[parameters(\\'location\\')]",
+            "name": "[parameters(\'name\')]",
+            "location": "[parameters(\'location\')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2018-07-01",
             "sku": {
-                "name": "[parameters(\\'sku\\')]"
+                "name": "[parameters(\'sku\')]"
             },
             "kind": "Storage"
         }

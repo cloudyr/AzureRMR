@@ -5,9 +5,6 @@
 \alias{az_resource}
 \title{Azure resource class}
 \format{An R6 object of class \code{az_resource}.}
-\usage{
-az_resource
-}
 \description{
 Class representing a generic Azure resource.
 }
@@ -24,7 +21,7 @@ Class representing a generic Azure resource.
 \item \code{set_tags(..., keep_existing=TRUE)}: Set the tags on this resource. The tags can be either names or name-value pairs. To delete a tag, set it to \code{NULL}.
 \item \code{get_tags()}: Get the tags on this resource.
 \item \code{create_lock(name, level)}: Create a management lock on this resource.
-\item \code{get_lock(name}): Returns a management lock object.
+\item \code{get_lock(name)}: Returns a management lock object.
 \item \code{delete_lock(name)}: Deletes a management lock object.
 \item \code{list_locks()}: List all locks that apply to this resource. Note this includes locks created at the subscription or resource group level.
 \item \code{add_role_assignment(name, ...)}: Adds a new role assignment. See 'Role-based access control' below.
@@ -48,7 +45,7 @@ All of these initialization options have the following arguments in common.
 \item A set of \emph{identifying arguments}:
 \itemize{
 \item \code{resource_group}: The resource group containing the resource.
-\item \code{id}: The full ID of the resource. This is a string of the form \code{/subscriptions/{uuid}/resourceGroups/{resource-group-name}/provider/{resource-provider-name}/{resource-path}/{resource-name}}.
+\item \code{id}: The full ID of the resource. This is a string of the form \verb{/subscriptions/\{uuid\}/resourceGroups/\{resource-group-name\}/provider/\{resource-provider-name\}/\{resource-path\}/\{resource-name\}}.
 \item \code{provider}: The provider of the resource, eg \code{Microsoft.Compute}.
 \item \code{path}: The path to the resource, eg \code{virtualMachines}.
 \item \code{type}: The combination of provider and path, eg \code{Microsoft.Compute/virtualMachines}.
@@ -135,4 +132,3 @@ For role-based access control methods, see \link{rbac}
 
 For management locks, see \link{lock}
 }
-\keyword{datasets}
