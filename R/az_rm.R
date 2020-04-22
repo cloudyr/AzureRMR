@@ -10,6 +10,7 @@
 #' - `list_subscriptions()`: Returns a list of objects, one for each subscription associated with this app ID.
 #' - `get_subscription(id)`: Returns an object representing a subscription.
 #' - `get_subscription_by_name(name)`: Returns the subscription with the given name (as opposed to a GUID).
+#' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
 #'
 #' @section Authentication:
 #' The recommended way to authenticate with ARM is via the [get_azure_login] function, which creates a new instance of this class.
@@ -25,6 +26,15 @@
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' - `...`: Further arguments to pass to `get_azure_token`.
 #' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
+#'
+#' @section Operations:
+#' The `do_operation()` method allows you to carry out arbitrary operations on the Resource Manager endpoint. It takes the following arguments:
+#' - `op`: The operation in question, which will be appended to the URL path of the request.
+#' - `options`: A named list giving the URL query parameters.
+#' - `...`: Other named arguments passed to [call_azure_rm], and then to the appropriate call in httr. In particular, use `body` to supply the body of a PUT, POST or PATCH request, and `api_version` to set the API version.
+#' - `http_verb`: The HTTP verb as a string, one of `GET`, `PUT`, `POST`, `DELETE`, `HEAD` or `PATCH`.
+#'
+#' Consult the Azure documentation for what operations are supported.
 #'
 #' @seealso
 #' [create_azure_login], [get_azure_login]
@@ -119,6 +129,11 @@ public=list(
         named_list(lst, "id")
     },
 
+    do_operation=function(..., options=list(), http_verb="GET")
+    {
+        private$rm_op(..., options=options, http_verb=http_verb)
+    },
+
     print=function(...)
     {
         cat("<Azure Resource Manager client>\n")
@@ -128,6 +143,14 @@ public=list(
         cat("---\n")
         cat(format_public_methods(self))
         invisible(self)
+    }
+),
+
+private=list(
+
+    rm_op=function(op="", options=list(), ...)
+    {
+        call_azure_rm(self$token, subscription=NULL, op, ...)
     }
 ))
 
