@@ -1,4 +1,4 @@
-# AzureRMR 2.3.2.9000
+# AzureRMR 2.3.3
 
 - Allow for extra resource type-specific fields beyond those mentioned in the Resource Manager documentation. In particular, virtual machines and managed disks may have a `zones` field containing the availability zones.
 
