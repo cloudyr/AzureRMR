@@ -1,6 +1,7 @@
 # AzureRMR 2.3.4.9000
 
 - Fix a bug in printing the error message when a template deployment fails.
+- Use HTTPS for the template schema URL, if not otherwise provided by the user.
 
 # AzureRMR 2.3.4
 
