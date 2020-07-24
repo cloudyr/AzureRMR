@@ -357,17 +357,22 @@ private=list(
             for(i in 1:1000) # some resources can take a long time to provision (AKS, Kusto)
             {
                 message(".", appendLF=FALSE)
-                Sys.sleep(5)
 
                 # some resources return from creation before they can be retrieved, let http 404's through
                 res <- private$res_op(http_status_handler="pass")
                 http_stat <- httr::status_code(res)
                 state <- httr::content(res)$properties$provisioningState
 
+                # some resources don't have provisioning state (eg Microsoft.Compute/sshPublicKey)
+                if(is.null(state))
+                    state <- "Succeeded"
+
                 success <- http_stat < 300 && state == "Succeeded"
                 failure <- http_stat >= 300 || state %in% c("Error", "Failed")
                 if(success || failure)
                     break
+
+                Sys.sleep(5)
             }
             if(success)
                 message("\nDeployment successful")
