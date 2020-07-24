@@ -17,25 +17,22 @@ rg <- az_rm$
 
 test_that("Resource methods work",
 {
-    # storage account resource
-    restype <- "Microsoft.Storage/storageAccounts"
-    resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-
     expect_false(rg$resource_exists(type="foo/bar", name="randomname"))
     expect_false(rg$resource_exists(type=restype, name=resname))
 
-    res <- rg$create_resource(type=restype, name=resname,
-        kind="Storage",
-        sku=list(name="Standard_LRS", tier="Standard"),
-        wait=TRUE)
+    # public key resource (no wait required)
+    restype <- "Microsoft.Compute/sshPublicKeys"
+    resname <- paste(sample(letters, 20, replace=TRUE), collapse="")
+
+    res <- rg$create_resource(type=restype, name=resname)
 
     expect_true(rg$resource_exists(type=restype, name=resname))
     expect_is(res, "az_resource")
-    expect_true(res$type == restype && res$name == resname && !is_empty(res$properties))
+    expect_true(res$type == restype && res$name == resname)
 
     res1 <- rg$get_resource(type=restype, name=resname)
     expect_is(res1, "az_resource")
-    expect_true(res1$type == restype && res1$name == resname && !is_empty(res1$properties))
+    expect_true(res1$type == restype && res1$name == resname)
 
     reslst <- rg$list_resources()
     expect_true(is.list(reslst) && all(sapply(reslst, is_resource)))
@@ -67,7 +64,7 @@ test_that("Resource methods work",
 
     # wait arg
     resname2 <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    res2 <- rg$create_resource(type=restype, name=resname2,
+    res2 <- rg$create_resource(type="Microsoft.Storage/storageAccounts", name=resname2,
         kind="StorageV2",
         sku=list(name="Standard_LRS", tier="Standard"),
         properties=list(isHnsEnabled=TRUE),
@@ -92,6 +89,8 @@ test_that("Extended resource fields works",
         wait=TRUE
     )
 
+    Sys.sleep(30)  # let Azure catch up
+
     expect_true(rg$resource_exists(type=restype, name=resname))
     expect_is(res, "az_resource")
 
@@ -103,7 +102,6 @@ test_that("Extended resource fields works",
 
 test_that("List filters work",
 {
-    Sys.sleep(10)  # let Azure catch up
     reslst0 <- rg$list_resources()
     expect_identical(length(reslst0), 3L)
 
