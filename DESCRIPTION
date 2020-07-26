@@ -23,6 +23,7 @@ Imports:
     uuid
 Suggests:
     knitr,
+    rmarkdown,
     testthat,
     httpuv,
     AzureStor
