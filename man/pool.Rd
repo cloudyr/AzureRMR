@@ -79,5 +79,5 @@ delete_pool()
 }
 }
 \seealso{
-\link[parallel:makeCluster]{parallel::makeCluster}, \link[parallel:clusterCall]{parallel::clusterCall}, \link[parallel:parLapply]{parallel::parLapply}
+\link[parallel:makeCluster]{parallel::makeCluster}, \link[parallel:clusterApply]{parallel::clusterCall}, \link[parallel:clusterApply]{parallel::parLapply}
 }

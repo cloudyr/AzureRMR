@@ -132,5 +132,5 @@ build_template_parameters(name="myres_name", complex_type=file("myres_params.jso
 
 }
 \seealso{
-\link{az_template}, \link[jsonlite:toJSON]{jsonlite::toJSON}
+\link{az_template}, \link[jsonlite:fromJSON]{jsonlite::toJSON}
 }

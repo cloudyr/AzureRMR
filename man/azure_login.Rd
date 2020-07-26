@@ -96,7 +96,7 @@ az <- create_azure_login(config_file="~/creds.json")
 }
 }
 \seealso{
-\link{az_rm}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for more details on authentication methods, \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login} for the corresponding function to create a Microsoft Graph login client
+\link{az_rm}, \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for more details on authentication methods, \link[AzureGraph:graph_login]{AzureGraph::create_graph_login} for the corresponding function to create a Microsoft Graph login client
 
 \href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
 \href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
