@@ -3,11 +3,13 @@
 #' @param ... For `build_template_parameters`, named arguments giving the values of each template parameter. For `build_template_definition`, further arguments passed to class methods.
 #' @param parameters For `build_template_definition`, the parameter names and types for the template. See 'Details' below.
 #' @param variables Internal variables used by the template.
+#' @param functions User-defined functions used by the template.
 #' @param resources List of resources that the template should deploy.
 #' @param outputs The template outputs.
+#' @param schema,content_version,api_profile Less common arguments that can be used to customise the template. See the guide to template syntax on Microsoft Docs, linked below.
 #'
 #' @details
-#' `build_template_definition` is used to generate a template from its components. The arguments can be specified in various ways:
+#' `build_template_definition` is used to generate a template from its components. The main arguments are `parameters`, `variables`, `functions`, `resources` and `outputs`. Each of these can be specified in various ways:
 #' - As character strings containing unparsed JSON text.
 #' - As an R list of (nested) objects, which will be converted to JSON via `jsonlite::toJSON`.
 #' - A connection pointing to a JSON file or object.
@@ -22,6 +24,8 @@
 #'
 #' @seealso
 #' [az_template], [jsonlite::toJSON]
+#'
+#' [Guide to template syntax](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax)
 #' @examples
 #' # dummy example
 #' # note that 'resources' arg should be a _list_ of resources
@@ -34,6 +38,27 @@
 #' # specifying parameters as a vector
 #' build_template_definition(parameters=c(par1="string"),
 #'                           resources=list(list(name="resource here")))
+#'
+#' # a user-defined function
+#' build_template_definition(
+#'     parameters=c(name="string"),
+#'     functions=list(
+#'         list(
+#'             namespace="mynamespace",
+#'             members=list(
+#'                 prefixedName=list(
+#'                     parameters=list(
+#'                         list(name="name", type="string")
+#'                     ),
+#'                     output=list(
+#'                         type="string",
+#'                         value="[concat('AzureR', parameters('name'))]"
+#'                     )
+#'                 )
+#'             )
+#'         )
+#'     )
+#' )
 #'
 #' # realistic example: storage account
 #' build_template_definition(
@@ -116,14 +141,29 @@ build_template_definition <- function(...)
 
 #' @rdname build_template
 #' @export
-build_template_definition.default <- function(parameters=NULL, variables=NULL, resources=NULL, outputs=NULL, ...)
+build_template_definition.default <- function(
+    parameters=named_list(), variables=named_list(), functions=list(), resources=list(), outputs=named_list(),
+    schema="https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    content_version="1.0.0.0",
+    api_profile=NULL,
+    ...)
 {
     # special treatment for parameters arg: convert 'c(name="type")' to 'list(name=list(type="type"))'
     if(is.character(parameters))
         parameters <- sapply(parameters, function(type) list(type=type), simplify=FALSE)
 
     parts <- lapply(
-        list(parameters=parameters, variables=variables, resources=resources, outputs=outputs, ...),
+        list(
+            `$schema`=schema,
+            contentVersion=content_version,
+            apiProfile=api_profile,
+            parameters=parameters,
+            variables=variables,
+            functions=functions,
+            resources=resources,
+            outputs=outputs,
+            ...
+        ),
         function(x)
         {
             if(inherits(x, "connection"))
@@ -131,17 +171,16 @@ build_template_definition.default <- function(parameters=NULL, variables=NULL, r
                 on.exit(close(x))
                 readLines(x)
             }
-            else generate_json(if(is.null(x)) named_list() else x)
+            else generate_json(x)
         }
     )
-    json <- generate_json(list(
-        `$schema`="https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-        contentVersion="1.0.0.0"
-    ))
-    for(i in seq_along(parts))
-        json <- do.call(append_json, c(json, parts[i]))
+    parts <- parts[parts != "null"]
+    # json <- "{}"
+    # for(i in seq_along(parts))
+    #     if(parts[i] != "null")
+    #         json <- do.call(append_json, c(json, parts[i]))
 
-    jsonlite::prettify(json)
+    jsonlite::prettify(do.call(append_json, c(list("{}"), parts)))
 }
 
 
