@@ -1,4 +1,4 @@
-# AzureRMR 2.3.5.9000
+# AzureRMR 2.3.6
 
 - Add ability to specify user-defined functions in `build_template_definition`. Also allow changing the schema, content version and api profile.
 - Change maintainer email address.

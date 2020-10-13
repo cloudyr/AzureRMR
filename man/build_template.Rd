@@ -12,9 +12,8 @@ build_template_definition(...)
 
 \method{build_template_definition}{default}(parameters = named_list(),
   variables = named_list(), functions = list(), resources = list(),
-  outputs = named_list(),
-  schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  content_version = "1.0.0.0", api_profile = NULL, ...)
+  outputs = named_list(), schema = "2019-04-01", version = "1.0.0.0",
+  api_profile = NULL, ...)
 
 build_template_parameters(...)
 
@@ -33,7 +32,7 @@ build_template_parameters(...)
 
 \item{outputs}{The template outputs.}
 
-\item{schema, content_version, api_profile}{Less common arguments that can be used to customise the template. See the guide to template syntax on Microsoft Docs, linked below.}
+\item{schema, version, api_profile}{Less commonly used arguments that can be used to customise the template. See the guide to template syntax on Microsoft Docs, linked below.}
 }
 \value{
 The JSON text for the template definition and its parameters.

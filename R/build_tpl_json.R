@@ -6,7 +6,7 @@
 #' @param functions User-defined functions used by the template.
 #' @param resources List of resources that the template should deploy.
 #' @param outputs The template outputs.
-#' @param schema,content_version,api_profile Less common arguments that can be used to customise the template. See the guide to template syntax on Microsoft Docs, linked below.
+#' @param schema,version,api_profile Less commonly used arguments that can be used to customise the template. See the guide to template syntax on Microsoft Docs, linked below.
 #'
 #' @details
 #' `build_template_definition` is used to generate a template from its components. The main arguments are `parameters`, `variables`, `functions`, `resources` and `outputs`. Each of these can be specified in various ways:
@@ -143,8 +143,8 @@ build_template_definition <- function(...)
 #' @export
 build_template_definition.default <- function(
     parameters=named_list(), variables=named_list(), functions=list(), resources=list(), outputs=named_list(),
-    schema="https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    content_version="1.0.0.0",
+    schema="2019-04-01",
+    version="1.0.0.0",
     api_profile=NULL,
     ...)
 {
@@ -154,8 +154,8 @@ build_template_definition.default <- function(
 
     parts <- lapply(
         list(
-            `$schema`=schema,
-            contentVersion=content_version,
+            `$schema`=paste0("https://schema.management.azure.com/schemas/", schema, "/deploymentTemplate.json#"),
+            contentVersion=version,
             apiProfile=api_profile,
             parameters=parameters,
             variables=variables,
