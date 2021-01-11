@@ -8,6 +8,8 @@
 #' @param auth_type The OAuth authentication method to use, one of "client_credentials", "authorization_code", "device_code" or "resource_owner". If `NULL`, this is chosen based on the presence of the `username` and `password` arguments.
 #' @param host Your ARM host. Defaults to `https://management.azure.com/`. Change this if you are using a government or private cloud.
 #' @param aad_host Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
+#' @param version The Azure Active Directory version to use for authenticating.
+#' @param scopes The Azure Service Management scopes (permissions) to obtain for this login. Only for `version=2`.
 #' @param config_file Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI `az ad sp create-for-rbac` command.
 #' @param token Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, the other arguments above to `create_azure_login` will be ignored.
 #' @param graph_host The Microsoft Graph endpoint. See 'Microsoft Graph integration' below.
@@ -66,9 +68,10 @@
 #' @rdname azure_login
 #' @export
 create_azure_login <- function(tenant="common", app=.az_cli_app_id,
-                               password=NULL, username=NULL, certificate=NULL, auth_type=NULL,
+                               password=NULL, username=NULL, certificate=NULL, auth_type=NULL, version=2,
                                host="https://management.azure.com/", aad_host="https://login.microsoftonline.com/",
-                               config_file=NULL, token=NULL, graph_host="https://graph.microsoft.com/", ...)
+                               scopes=".default", config_file=NULL, token=NULL,
+                               graph_host="https://graph.microsoft.com/", ...)
 {
     if(!is_azure_token(token))
     {
@@ -84,7 +87,11 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
         tenant <- normalize_tenant(tenant)
         app <- normalize_guid(app)
 
-        token_args <- list(resource=host,
+        newhost <- if(version == 2)
+            c(paste0(host, scopes), "openid", "offline_access")
+        else host
+
+        token_args <- list(resource=newhost,
             tenant=tenant,
             app=app,
             password=password,
@@ -92,6 +99,7 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
             certificate=certificate,
             auth_type=auth_type,
             aad_host=aad_host,
+            version=version,
             ...)
 
         hash <- do.call(token_hash, token_args)
@@ -114,7 +122,7 @@ create_azure_login <- function(tenant="common", app=.az_cli_app_id,
     arm_logins[[tenant]] <- sort(unique(c(arm_logins[[tenant]], client$token$hash())))
     save_arm_logins(arm_logins)
 
-    make_graph_login_from_token(token, aad_host, graph_host)
+    make_graph_login_from_token(token, host, graph_host)
 
     client
 }
