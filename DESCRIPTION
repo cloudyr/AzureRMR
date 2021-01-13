@@ -1,6 +1,6 @@
 Package: AzureRMR
 Title: Interface to 'Azure Resource Manager'
-Version: 2.3.6.9000
+Version: 2.4.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi73@gmail.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -13,7 +13,7 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 3.3)
 Imports:
-    AzureGraph (>= 1.1.2.9000),
+    AzureGraph (>= 1.2.0),
     AzureAuth (>= 1.2.1),
     utils,
     parallel,
@@ -29,5 +29,3 @@ Suggests:
     AzureStor
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
 RoxygenNote: 7.1.1
-Remotes:
-    Azure/AzureGraph
