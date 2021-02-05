@@ -117,6 +117,23 @@ test_that("List filters work",
         function(r) is_resource(r) && r$type == "Microsoft.Storage/storageAccounts" && !is_empty(r$ext$createdTime))))
 })
 
+test_that("Tag creation inside a function works",
+{
+    reslst <- rg$list_resources()
+    expect_true(length(reslst) > 0)
+
+    res <- reslst[[1]]
+    expect_is(res, "az_resource")
+
+    func <- function(obj, value)
+    {
+        obj$set_tags(test_tag=value)
+    }
+    expect_silent(func(res, "test value"))
+    tags <- res$get_tags()
+    expect_true("test_tag" %in% names(tags) && "test value" == tags$test_tag)
+})
+
 test_that("Resource deletion works",
 {
     reslst <- rg$list_resources()

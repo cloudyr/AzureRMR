@@ -1,3 +1,7 @@
+# AzureRMR 2.4.0.9000
+
+- Fix the `set_tags` method to work when called inside a function (#18).
+
 # AzureRMR 2.4.0
 
 - Some utility functions moved to AzureGraph package. These are imported and then reexported by AzureRMR so that existing code should work unchanged.

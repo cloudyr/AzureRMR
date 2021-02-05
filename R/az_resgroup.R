@@ -265,7 +265,7 @@ public=list(
 
         values <- lapply(seq_along(unvalued), function(i)
         {
-            if(unvalued[i]) "" else as.character(eval.parent(tags[[i]]))
+            if(unvalued[i]) "" else as.character(eval(tags[[i]], parent.frame(3)))
         })
         names(values) <- ifelse(unvalued, as.character(tags), names(tags))
 
