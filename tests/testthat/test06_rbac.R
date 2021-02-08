@@ -42,7 +42,7 @@ test_that("Resource group RBAC works",
 {
     expect_false(sub$resource_group_exists(rgname))
 
-    rg <- sub$create_resource_group(rgname, location="westus")
+    rg <- sub$create_resource_group(rgname, location="australiaeast")
 
     defs <- rg$list_role_definitions()
     expect_is(defs, "data.frame")
@@ -71,8 +71,14 @@ test_that("Resource RBAC works",
 
     rg <- sub$get_resource_group(rgname)
     res <- rg$create_resource(type=restype, name=resname,
-        kind="Storage",
-        sku=list(name="Standard_LRS", tier="Standard"))
+        kind="StorageV2",
+        sku=list(name="Standard_LRS", tier="Standard"),
+        properties=list(
+            accessTier="hot",
+            supportsHttpsTrafficOnly=TRUE,
+            isHnsEnabled=FALSE
+        ),
+        wait=TRUE)
 
     defs <- res$list_role_definitions()
     expect_is(defs, "data.frame")
