@@ -1,7 +1,7 @@
 # AzureRMR 2.4.0.9000
 
 - Fix the `set_tags` method to work when called inside a function (#18).
-- `get_resource(*, api_version=NULL)` when there are no stable API versions will now warn and use the latest preview version, rather than throw an error (#17).
+- `get_resource(*, api_version=NULL)` when there are no stable API versions will now warn and use the latest preview version, rather than throw an error (#19).
 
 # AzureRMR 2.4.0
 
