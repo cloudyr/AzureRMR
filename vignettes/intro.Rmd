@@ -55,6 +55,8 @@ az <- get_azure_login()
 list_azure_logins()
 ```
 
+See the "Authentication basics" vignette for more details on how to authenticate with AzureRMR.
+
 
 ## Subscriptions and resource groups
 
@@ -296,6 +298,4 @@ Technically role definitions and assignments are _resources_ and could be manipu
 
 ## Conclusion
 
-This has been a quick introduction to the features of AzureRMR. Remember that this package is only meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/cloudyr/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/cloudyr/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/services/storage/). For more information, see the "Extending AzureRMR" vignette.
-
-
+This has been a quick introduction to the features of AzureRMR. Remember that this package is only meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/cloudyr/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/cloudyr/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/product-categories/storage/). For more information, see the "Extending AzureRMR" vignette.
