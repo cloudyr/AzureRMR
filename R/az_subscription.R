@@ -13,7 +13,7 @@
 #' - `delete_resource_group(name, confirm=TRUE)`: Delete a resource group, after asking for confirmation.
 #' - `resource_group_exists(name)`: Check if a resource group exists.
 #' - `list_resources(filter, expand, top)`: List all resources deployed under this subscription. `filter`, `expand` and `top` are optional arguments to filter the results; see the [Azure documentation](https://docs.microsoft.com/en-us/rest/api/resources/resources/list) for more details. If `top` is specified, the returned list will have a maximum of this many items.
-#' - `list_locations()`: List locations available.
+#' - `list_locations(info=c("partial", "all"))`: List locations available. The default `info="partial"` returns a subset of the information about each location; set `info="all"` to return everything.
 #' - `get_provider_api_version(provider, type, which=1, stable_only=TRUE)`: Get the current API version for the given resource provider and type. If no resource type is supplied, returns a vector of API versions, one for each resource type for the given provider. If neither provider nor type is supplied, returns the API versions for all resources and providers. Set `stable_only=FALSE` to allow preview APIs to be returned. Set `which` to a number > 1 to return an API other than the most recent.
 #' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
 #' - `create_lock(name, level)`: Create a management lock on this subscription (which will propagate to all resources within it).
@@ -105,16 +105,20 @@ public=list(
         NULL
     },
 
-    list_locations=function()
+    list_locations=function(info=c("partial", "all"))
     {
-        cont <- private$sub_op("locations")
-        locs <- do.call(rbind, lapply(cont$value, data.frame, stringsAsFactors=FALSE))
-        within(locs,
-        {
-            id <- NULL
-            longitude <- as.numeric(longitude)
-            latitude <- as.numeric(latitude)
-        })
+        info <- match.arg(info)
+        res <- self$do_operation("locations", http_status_handler="pass")
+        cont <- httr::content(res, simplifyVector=TRUE)
+        httr::stop_for_status(res, paste0("complete operation. Message:\n",
+            sub("\\.$", "", error_message(cont))))
+
+        locs <- cont$value
+        locs$metadata$longitude <- as.numeric(locs$metadata$longitude)
+        locs$metadata$latitude <- as.numeric(locs$metadata$latitude)
+        if(info == "partial")
+            cbind(locs[c("name", "displayName")], locs$metadata[c("longitude", "latitude", "regionType")])
+        else locs
     },
 
     # API versions vary across different providers; find the latest

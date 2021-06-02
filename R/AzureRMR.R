@@ -19,7 +19,7 @@ utils::globalVariables(c("self", "private", "pool"))
 
 .onLoad <- function(libname, pkgname)
 {
-    options(azure_api_version="2019-10-01")
+    options(azure_api_version="2021-04-01")
     options(azure_api_mgmt_version="2016-09-01")
     options(azure_roledef_api_version="2018-01-01-preview")
     options(azure_roleasn_api_version="2018-12-01-preview")
