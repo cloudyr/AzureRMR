@@ -1,3 +1,7 @@
+# AzureRMR 2.4.1.9000
+
+- Replace the old "Service principal" vignette with an "Authentication basics" vignette, which provides more information on common authentication flows.
+
 # AzureRMR 2.4.1
 
 - Fix the `set_tags` method to work when called inside a function (#18).
