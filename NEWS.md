@@ -1,3 +1,7 @@
+# AzureRMR 2.4.2.9000
+
+- Some tweaks to the logic for retrieving ARM login objects. Like with `AzureGraph::get_graph_login`, `get_azure_login` now has `app`, `scopes` and `auth_type` arguments to let you specify a particular login to retrieve.
+
 # AzureRMR 2.4.2
 
 - Replace the old "Service principal" vignette with an "Authentication basics" vignette, which provides more information on common authentication flows.
