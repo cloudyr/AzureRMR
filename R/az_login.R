@@ -195,11 +195,9 @@ list_azure_logins <- function()
     arm_logins <- load_arm_logins()
     logins <- sapply(arm_logins, function(tenant)
     {
-        sapply(tenant, function(hash)
-        {
-            file <- file.path(AzureR_dir(), hash)
-            az_rm$new(token=readRDS(file))
-        }, simplify=FALSE)
+        sapply(tenant,
+            function(hash) az_rm$new(token=load_azure_token(file)),
+            simplify=FALSE)
     }, simplify=FALSE)
 
     logins
