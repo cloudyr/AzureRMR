@@ -1,4 +1,4 @@
-# AzureRMR 2.4.2.9000
+# AzureRMR 2.4.3
 
 - Some tweaks to the logic for retrieving ARM login objects. Like with `AzureGraph::get_graph_login`, `get_azure_login` now has `app`, `scopes` and `auth_type` arguments to let you specify a particular login to retrieve.
 
