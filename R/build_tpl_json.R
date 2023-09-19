@@ -25,7 +25,7 @@
 #' @seealso
 #' [az_template], [jsonlite::toJSON]
 #'
-#' [Guide to template syntax](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax)
+#' [Guide to template syntax](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax)
 #' @examples
 #' # dummy example
 #' # note that 'resources' arg should be a _list_ of resources

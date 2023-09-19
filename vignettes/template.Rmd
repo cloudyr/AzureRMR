@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEncoding{utf8}
 ---
 
-An Azure [template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/template-deployment-overview) is a JSON file that can be used to automate the deployment of a set of related resources. The template uses declarative syntax, which lets you state what you intend to deploy without having to write the sequence of programming commands to create it. In the template, you specify the resources to deploy and the properties for those resources.
+An Azure [template](https://learn.microsoft.com/en-us/azure/azure-resource-manager/template-deployment-overview) is a JSON file that can be used to automate the deployment of a set of related resources. The template uses declarative syntax, which lets you state what you intend to deploy without having to write the sequence of programming commands to create it. In the template, you specify the resources to deploy and the properties for those resources.
 
 Deploying a template with AzureRMR is just a matter of calling a resource group object's `deploy_template` method. This takes two arguments, `template` and `parameters`. `deploy_template` is very flexible in how you can specify its arguments:
 

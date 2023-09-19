@@ -34,7 +34,7 @@
 #' @seealso
 #' [rbac]
 #'
-#' [Overview of management locks](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-lock-resources)
+#' [Overview of management locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-lock-resources)
 #'
 #' @examples
 #' \dontrun{

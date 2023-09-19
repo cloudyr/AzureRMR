@@ -40,7 +40,7 @@
 #' @seealso
 #' [az_rm], [az_role_definition], [az_role_assignment]
 #'
-#' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
+#' [Overview of role-based access control](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)
 #'
 #' @examples
 #' \dontrun{

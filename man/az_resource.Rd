@@ -82,8 +82,10 @@ Consult the Azure documentation for your resource to find out what operations ar
 
 Some resource types can have sub-resources: objects exposed by Resource Manager that make up a part of their parent's functionality. For example, a storage account (type \code{Microsoft.Storage/storageAccounts}) provides the blob storage service, which can be accessed via Resource Manager as a sub-resource of type \code{Microsoft.Storage/storageAccounts/blobServices/default}.
 
-To retrieve an existing sub-resource, use the \code{get_subresource()} method. You do not need to include the parent resource's type and name. For example, if \code{res} is a resource for a storage account, and you want to retrieve the sub-resource for the blob container "myblobs", call\preformatted{res$get_subresource(type="blobServices/default/containers", name="myblobs")
-}
+To retrieve an existing sub-resource, use the \code{get_subresource()} method. You do not need to include the parent resource's type and name. For example, if \code{res} is a resource for a storage account, and you want to retrieve the sub-resource for the blob container "myblobs", call
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{res$get_subresource(type="blobServices/default/containers", name="myblobs")
+}\if{html}{\out{</div>}}
 
 Notice that the storage account's resource type and name are omitted from the \code{get_subresource} arguments. Similarly, to create a new subresource, call the \code{create_subresource()} method with the same naming convention, passing any required fields as named arguments; and to delete it, call \code{delete_subresource()}.
 }
@@ -146,7 +148,7 @@ stor$delete()
 }
 \seealso{
 \link{az_resource_group}, \link{call_azure_rm}, \link{call_azure_url},
-\href{https://docs.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}
+\href{https://learn.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}
 
 For role-based access control methods, see \link{rbac}
 

@@ -87,7 +87,7 @@ You can create a new app registration using any of the usual methods. For exampl
 
 Once the app registration has been created, note the app ID and, if applicable, the client secret. The latter can't be viewed after app creation, so make sure you note its value now.
 
-It's also possible to authenticate with a **client certificate (public key)**, but this is more complex and we won't go into it here. For more details, see the [Azure Active Directory documentation](https://docs.microsoft.com/en-au/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) and the [AzureAuth intro vignette](https://cran.r-project.org/package=AzureAuth/vignettes/token.html).
+It's also possible to authenticate with a **client certificate (public key)**, but this is more complex and we won't go into it here. For more details, see the [Azure Active Directory documentation](https://learn.microsoft.com/en-au/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) and the [AzureAuth intro vignette](https://cran.r-project.org/package=AzureAuth/vignettes/token.html).
 
 ### Set the app role and scope
 

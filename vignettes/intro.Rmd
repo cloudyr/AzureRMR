@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEncoding{utf8}
 ---
 
-AzureRMR is a package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://docs.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed.
+AzureRMR is a package for interacting with Azure Resource Manager: authenticate, list subscriptions, manage resource groups, deploy and delete templates and resources. It calls the Resource Manager [REST API](https://learn.microsoft.com/en-us/rest/api/resources) directly, so you don't need to have PowerShell or Python installed.
 
 As a general-purpose interface to Azure Resource Manager (ARM), you can use AzureRMR to work with nearly any Azure object that ARM can handle: subscriptions, resource groups, resources, templates and so on. The things you can do include:
 
@@ -22,7 +22,7 @@ As a general-purpose interface to Azure Resource Manager (ARM), you can use Azur
 
 ## Authentication
 
-Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()`, which will log you into Azure. R will prompt you for permission to create a special data directory in which to save your credentials. Once this information is saved on your machine, it can be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
+Under the hood, AzureRMR uses a similar authentication process to the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/?view=azure-cli-latest). The first time you authenticate with a given Azure Active Directory tenant, you call `create_azure_login()`, which will log you into Azure. R will prompt you for permission to create a special data directory in which to save your credentials. Once this information is saved on your machine, it can be retrieved in subsequent R sessions with `get_azure_login()`. Your credentials will be automatically refreshed so you don't have to reauthenticate.
 
 Unless you have a good reason otherwise, you should allow this caching directory to be created. Note that many other cloud engineering tools save credentials in this way, including the Azure CLI itself. You can see the location of the caching directory with the function `AzureR_dir()`.
 
@@ -191,7 +191,7 @@ vm$do_operation("runCommand",
 vm$do_operation("powerOff", http_verb="POST")
 ```
 
-For the types of operations you can carry out on a resource, consult the [Azure REST API documentation](https://docs.microsoft.com/en-us/rest/api/?view=Azure).
+For the types of operations you can carry out on a resource, consult the [Azure REST API documentation](https://learn.microsoft.com/en-us/rest/api/?view=Azure).
 
 You can also interrogate the fields of a resource object; in particular the `properties` field can contain arbitrary information about an Azure resource. For example, a storage account's properties includes the endpoint URIs, and a virtual machine's properties includes its admin login details.
 
@@ -256,7 +256,7 @@ rg$delete_lock("mylock")
 
 ### Role-based access control
 
-As of version 2.1.0, AzureRMR includes limited support for [role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview) (RBAC). You can read role definitions, and read, add and remove role assignments. This applies to subscription, resource group and resource objects.
+As of version 2.1.0, AzureRMR includes limited support for [role-based access control](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview) (RBAC). You can read role definitions, and read, add and remove role assignments. This applies to subscription, resource group and resource objects.
 
 ```r
 rg$list_role_definitions()

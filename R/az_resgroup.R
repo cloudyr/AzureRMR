@@ -7,7 +7,7 @@
 #' - `new(token, subscription, id, ...)`: Initialize a resource group object. See 'Initialization' for more details.
 #' - `delete(confirm=TRUE)`: Delete this resource group, after a confirmation check. This is asynchronous: while the method returns immediately, the delete operation continues on the host in the background. For resource groups containing a large number of deployed resources, this may take some time to complete.
 #' - `sync_fields()`: Synchronise the R object with the resource group it represents in Azure.
-#' - `list_templates(filter, top)`: List deployed templates in this resource group. `filter` and `top` are optional arguments to filter the results; see the [Azure documentation](https://docs.microsoft.com/en-us/rest/api/resources/deployments/listbyresourcegroup) for more details. If `top` is specified, the returned list will have a maximum of this many items.
+#' - `list_templates(filter, top)`: List deployed templates in this resource group. `filter` and `top` are optional arguments to filter the results; see the [Azure documentation](https://learn.microsoft.com/en-us/rest/api/resources/deployments/listbyresourcegroup) for more details. If `top` is specified, the returned list will have a maximum of this many items.
 #' - `get_template(name)`: Return an object representing an existing template.
 #' - `deploy_template(...)`: Deploy a new template. See 'Templates' for more details. By default, AzureRMR will set the `createdBy` tag on a newly-deployed template to the value `AzureR/AzureRMR`.
 #' - `delete_template(name, confirm=TRUE, free_resources=FALSE)`: Delete a deployed template, and optionally free any resources that were created.
@@ -15,7 +15,7 @@
 #' - `create_resource(...)`: Create a new resource. By default, AzureRMR will set the `createdBy` tag on a newly-created resource to the value `AzureR/AzureRMR`.
 #' - `delete_resource(..., confirm=TRUE, wait=FALSE)`: Delete an existing resource. Optionally wait for the delete to finish.
 #' - `resource_exists(...)`: Check if a resource exists.
-#' - `list_resources(filter, expand, top)`: Return a list of resource group objects for this subscription. `filter`, `expand` and `top` are optional arguments to filter the results; see the [Azure documentation](https://docs.microsoft.com/en-us/rest/api/resources/resources/list) for more details. If `top` is specified, the returned list will have a maximum of this many items.
+#' - `list_resources(filter, expand, top)`: Return a list of resource group objects for this subscription. `filter`, `expand` and `top` are optional arguments to filter the results; see the [Azure documentation](https://learn.microsoft.com/en-us/rest/api/resources/resources/list) for more details. If `top` is specified, the returned list will have a maximum of this many items.
 #' - `do_operation(...)`: Carry out an operation. See 'Operations' for more details.
 #' - `set_tags(..., keep_existing=TRUE)`: Set the tags on this resource group. The tags can be either names or name-value pairs. To delete a tag, set it to `NULL`.
 #' - `get_tags()`: Get the tags on this resource group.
@@ -74,9 +74,9 @@
 #'
 #' @seealso
 #' [az_subscription], [az_template], [az_resource],
-#' [Azure resource group overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups),
-#' [Resources API reference](https://docs.microsoft.com/en-us/rest/api/resources/resources),
-#' [Template API reference](https://docs.microsoft.com/en-us/rest/api/resources/deployments)
+#' [Azure resource group overview](https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups),
+#' [Resources API reference](https://learn.microsoft.com/en-us/rest/api/resources/resources),
+#' [Template API reference](https://learn.microsoft.com/en-us/rest/api/resources/deployments)
 #'
 #' For role-based access control methods, see [rbac]
 #'

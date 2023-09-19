@@ -11,14 +11,16 @@
 Create, retrieve and delete locks. These are methods for the \code{az_subscription}, \code{az_resource_group} and \code{az_resource} classes.
 }
 \section{Usage}{
-\preformatted{create_lock(name, level = c("cannotdelete", "readonly"), notes = "")
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{create_lock(name, level = c("cannotdelete", "readonly"), notes = "")
 
 get_lock(name)
 
 delete_lock(name)
 
 list_locks()
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Arguments}{
@@ -74,5 +76,5 @@ res$delete()
 \seealso{
 \link{rbac}
 
-\href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-lock-resources}{Overview of management locks}
+\href{https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-lock-resources}{Overview of management locks}
 }

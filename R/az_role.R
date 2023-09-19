@@ -18,7 +18,7 @@
 #' @seealso
 #' [get_role_definition], [get_role_assignment], [az_role_assignment]
 #'
-#' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
+#' [Overview of role-based access control](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)
 #'
 #' @format An R6 object of class `az_role_definition`.
 #' @export
@@ -72,7 +72,7 @@ public=list(
 #' @seealso
 #' [add_role_assignment], [get_role_assignment], [get_role_definition], [az_role_definition]
 #'
-#' [Overview of role-based access control](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
+#' [Overview of role-based access control](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)
 #'
 #' @format An R6 object of class `az_role_assignment`.
 #' @export

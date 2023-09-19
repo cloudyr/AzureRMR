@@ -78,6 +78,6 @@ az$get_subscription("subscription_id")
 \seealso{
 \link{create_azure_login}, \link{get_azure_login}
 
-\href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
-\href{https://docs.microsoft.com/en-us/rest/api/resources/}{REST API reference}
+\href{https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview}{Azure Resource Manager overview},
+\href{https://learn.microsoft.com/en-us/rest/api/resources/}{REST API reference}
 }

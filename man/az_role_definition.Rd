@@ -35,5 +35,5 @@ Technically role assignments and role definitions are Azure \emph{resources}, an
 \seealso{
 \link{get_role_definition}, \link{get_role_assignment}, \link{az_role_assignment}
 
-\href{https://docs.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
+\href{https://learn.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
 }

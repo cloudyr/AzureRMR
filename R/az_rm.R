@@ -41,8 +41,8 @@
 #' @seealso
 #' [create_azure_login], [get_azure_login]
 #'
-#' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
-#' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
+#' [Azure Resource Manager overview](https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
+#' [REST API reference](https://learn.microsoft.com/en-us/rest/api/resources/)
 #'
 #' @examples
 #' \dontrun{

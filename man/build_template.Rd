@@ -161,5 +161,5 @@ build_template_parameters(name="myres_name", complex_type=file("myres_params.jso
 \seealso{
 \link{az_template}, \link[jsonlite:fromJSON]{jsonlite::toJSON}
 
-\href{https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax}{Guide to template syntax}
+\href{https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax}{Guide to template syntax}
 }

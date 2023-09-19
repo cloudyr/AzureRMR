@@ -41,12 +41,12 @@
 #' @seealso
 #' [az_rm], [AzureAuth::get_azure_token] for more details on authentication methods, [AzureGraph::create_graph_login] for the corresponding function to create a Microsoft Graph login client
 #'
-#' [Azure Resource Manager overview](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
-#' [REST API reference](https://docs.microsoft.com/en-us/rest/api/resources/)
+#' [Azure Resource Manager overview](https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview),
+#' [REST API reference](https://learn.microsoft.com/en-us/rest/api/resources/)
 #'
-#' [Authentication in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios)
+#' [Authentication in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/develop/authentication-scenarios)
 #'
-#' [Azure CLI documentation](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
+#' [Azure CLI documentation](https://learn.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
 #'
 #' @examples
 #' \dontrun{

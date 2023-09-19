@@ -13,7 +13,9 @@
 Basic methods for RBAC: manage role assignments and retrieve role definitions. These are methods for the \code{az_subscription}, \code{az_resource_group} and \code{az_resource} classes.
 }
 \section{Usage}{
-\preformatted{add_role_assignment(principal, role, scope = NULL)
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{add_role_assignment(principal, role, scope = NULL)
 
 get_role_assignment(id)
 
@@ -24,7 +26,7 @@ list_role_assignments(filter = "atScope()", as_data_frame = TRUE)
 get_role_definition(id)
 
 list_role_definitions(filter=NULL, as_data_frame = TRUE)
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Arguments}{
@@ -90,5 +92,5 @@ sub$remove_role_assignment(asn1$id)
 \seealso{
 \link{az_rm}, \link{az_role_definition}, \link{az_role_assignment}
 
-\href{https://docs.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
+\href{https://learn.microsoft.com/en-us/azure/role-based-access-control/overview}{Overview of role-based access control}
 }

@@ -73,7 +73,7 @@
 #'
 #' @seealso
 #' [az_resource_group], [call_azure_rm], [call_azure_url],
-#' [Resources API reference](https://docs.microsoft.com/en-us/rest/api/resources/resources)
+#' [Resources API reference](https://learn.microsoft.com/en-us/rest/api/resources/resources)
 #'
 #' For role-based access control methods, see [rbac]
 #'
