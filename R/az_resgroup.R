@@ -75,8 +75,7 @@
 #' @seealso
 #' [az_subscription], [az_template], [az_resource],
 #' [Azure resource group overview](https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups),
-#' [Resources API reference](https://learn.microsoft.com/en-us/rest/api/resources/resources),
-#' [Template API reference](https://learn.microsoft.com/en-us/rest/api/resources/deployments)
+#' [Resources API reference](https://learn.microsoft.com/en-us/rest/api/resources/resources)
 #'
 #' For role-based access control methods, see [rbac]
 #'

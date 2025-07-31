@@ -145,8 +145,7 @@ rg$delete()
 \seealso{
 \link{az_subscription}, \link{az_template}, \link{az_resource},
 \href{https://learn.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview#resource-groups}{Azure resource group overview},
-\href{https://learn.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference},
-\href{https://learn.microsoft.com/en-us/rest/api/resources/deployments}{Template API reference}
+\href{https://learn.microsoft.com/en-us/rest/api/resources/resources}{Resources API reference}
 
 For role-based access control methods, see \link{rbac}
 
