@@ -3,7 +3,7 @@
 #' @param lst A named list of objects.
 #' @param x For `is_url`, An R object.
 #' @param https_only For `is_url`, whether to allow only HTTPS URLs.
-#' @param token For `get_paged_list`, an Azure OAuth token, of class [AzureToken].
+#' @param token For `get_paged_list`, an Azure OAuth token, of class [AzureAuth::AzureToken].
 #' @param next_link_name,value_name For `get_paged_list`, the names of the next link and value components in the `lst` argument. The default values are correct for Resource Manager.
 #'
 #' @details

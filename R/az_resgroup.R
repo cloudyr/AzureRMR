@@ -33,7 +33,7 @@
 #' @section Initialization:
 #' Initializing a new object of this class can either retrieve an existing resource group, or create a new resource group on the host. Generally, the easiest way to create a resource group object is via the `get_resource_group`, `create_resource_group` or `list_resource_groups` methods of the [az_subscription] class, which handle this automatically.
 #'
-#' To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class [AzureToken], the subscription ID, and the resource group name. If this object refers to a _new_ resource group, supply the location as well (use the `list_locations` method of the `az_subscription class` for possible locations). You can also pass any optional parameters for the resource group as named arguments to `new()`.
+#' To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class [AzureAuth::AzureToken], the subscription ID, and the resource group name. If this object refers to a _new_ resource group, supply the location as well (use the `list_locations` method of the `az_subscription class` for possible locations). You can also pass any optional parameters for the resource group as named arguments to `new()`.
 #'
 #' @section Templates:
 #' To deploy a new template, pass the following arguments to `deploy_template()`:

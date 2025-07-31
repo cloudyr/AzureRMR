@@ -14,7 +14,7 @@ call_azure_url(token, url, ..., body = NULL, encode = "json",
   auto_refresh = TRUE)
 }
 \arguments{
-\item{token}{An Azure OAuth token, of class \link{AzureToken}.}
+\item{token}{An Azure OAuth token, of class \link[AzureAuth:AzureToken]{AzureAuth::AzureToken}.}
 
 \item{subscription}{For \code{call_azure_rm}, a subscription ID.}
 

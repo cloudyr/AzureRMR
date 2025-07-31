@@ -29,7 +29,7 @@
 #' - `get_tags()` Get the tags on this subscription.
 #'
 #' @section Details:
-#' Generally, the easiest way to create a subscription object is via the `get_subscription` or `list_subscriptions` methods of the [az_rm] class. To create a subscription object in isolation, call the `new()` method and supply an Oauth 2.0 token of class [AzureToken], along with the ID of the subscription.
+#' Generally, the easiest way to create a subscription object is via the `get_subscription` or `list_subscriptions` methods of the [az_rm] class. To create a subscription object in isolation, call the `new()` method and supply an Oauth 2.0 token of class [AzureAuth::AzureToken], along with the ID of the subscription.
 #'
 #' @section Operations:
 #' The `do_operation()` method allows you to carry out arbitrary operations on the subscription. It takes the following arguments:
@@ -158,7 +158,7 @@ public=list(
             else sapply(apis, select_version)
         }
     },
-    
+
     get_tags=function()
     {
         if(is.null(self$tags))

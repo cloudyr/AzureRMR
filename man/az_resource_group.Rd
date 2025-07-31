@@ -45,7 +45,7 @@ Class representing an Azure resource group.
 
 Initializing a new object of this class can either retrieve an existing resource group, or create a new resource group on the host. Generally, the easiest way to create a resource group object is via the \code{get_resource_group}, \code{create_resource_group} or \code{list_resource_groups} methods of the \link{az_subscription} class, which handle this automatically.
 
-To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class \link{AzureToken}, the subscription ID, and the resource group name. If this object refers to a \emph{new} resource group, supply the location as well (use the \code{list_locations} method of the \verb{az_subscription class} for possible locations). You can also pass any optional parameters for the resource group as named arguments to \code{new()}.
+To create a resource group object in isolation, supply (at least) an Oauth 2.0 token of class \link[AzureAuth:AzureToken]{AzureAuth::AzureToken}, the subscription ID, and the resource group name. If this object refers to a \emph{new} resource group, supply the location as well (use the \code{list_locations} method of the \verb{az_subscription class} for possible locations). You can also pass any optional parameters for the resource group as named arguments to \code{new()}.
 }
 
 \section{Templates}{

@@ -38,7 +38,7 @@ To authenticate with the \code{az_rm} class directly, provide the following argu
 \item \code{aad_host}: Azure Active Directory host for authentication. Defaults to \verb{https://login.microsoftonline.com/}. Change this if you are using a government or private cloud.
 \item \code{...}: Further arguments to pass to \code{get_azure_token}.
 \item \code{scopes}: The Azure Service Management scopes (permissions) to obtain for this login. Only for \code{version=2}.
-\item \code{token}: Optionally, an OAuth 2.0 token, of class \link{AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
+\item \code{token}: Optionally, an OAuth 2.0 token, of class \link[AzureAuth:AzureToken]{AzureAuth::AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 }
 }
 

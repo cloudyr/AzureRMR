@@ -17,7 +17,7 @@ get_paged_list(lst, token, next_link_name = "nextLink",
 
 \item{lst}{A named list of objects.}
 
-\item{token}{For \code{get_paged_list}, an Azure OAuth token, of class \link{AzureToken}.}
+\item{token}{For \code{get_paged_list}, an Azure OAuth token, of class \link[AzureAuth:AzureToken]{AzureAuth::AzureToken}.}
 
 \item{next_link_name, value_name}{For \code{get_paged_list}, the names of the next link and value components in the \code{lst} argument. The default values are correct for Resource Manager.}
 }

@@ -44,7 +44,7 @@ list_azure_logins()
 
 \item{config_file}{Optionally, a JSON file containing any of the arguments listed above. Arguments supplied in this file take priority over those supplied on the command line. You can also use the output from the Azure CLI \verb{az ad sp create-for-rbac} command.}
 
-\item{token}{Optionally, an OAuth 2.0 token, of class \link{AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, the other arguments above to \code{create_azure_login} will be ignored.}
+\item{token}{Optionally, an OAuth 2.0 token, of class \link[AzureAuth:AzureToken]{AzureAuth::AzureToken}. This allows you to reuse the authentication details for an existing session. If supplied, the other arguments above to \code{create_azure_login} will be ignored.}
 
 \item{graph_host}{The Microsoft Graph endpoint. See 'Microsoft Graph integration' below.}
 
