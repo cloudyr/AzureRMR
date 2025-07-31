@@ -1,6 +1,6 @@
 #' Call the Azure Resource Manager REST API
 #'
-#' @param token An Azure OAuth token, of class [AzureToken].
+#' @param token An Azure OAuth token, of class [AzureAuth::AzureToken].
 #' @param subscription For `call_azure_rm`, a subscription ID.
 #' @param operation The operation to perform, which will form part of the URL path.
 #' @param options A named list giving the URL query parameters.

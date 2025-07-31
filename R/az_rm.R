@@ -27,7 +27,7 @@
 #' - `aad_host`: Azure Active Directory host for authentication. Defaults to `https://login.microsoftonline.com/`. Change this if you are using a government or private cloud.
 #' - `...`: Further arguments to pass to `get_azure_token`.
 #' - `scopes`: The Azure Service Management scopes (permissions) to obtain for this login. Only for `version=2`.
-#' - `token`: Optionally, an OAuth 2.0 token, of class [AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
+#' - `token`: Optionally, an OAuth 2.0 token, of class [AzureAuth::AzureToken]. This allows you to reuse the authentication details for an existing session. If supplied, all other arguments will be ignored.
 #'
 #' @section Operations:
 #' The `do_operation()` method allows you to carry out arbitrary operations on the Resource Manager endpoint. It takes the following arguments:

@@ -39,7 +39,7 @@ Class representing an Azure subscription.
 
 \section{Details}{
 
-Generally, the easiest way to create a subscription object is via the \code{get_subscription} or \code{list_subscriptions} methods of the \link{az_rm} class. To create a subscription object in isolation, call the \code{new()} method and supply an Oauth 2.0 token of class \link{AzureToken}, along with the ID of the subscription.
+Generally, the easiest way to create a subscription object is via the \code{get_subscription} or \code{list_subscriptions} methods of the \link{az_rm} class. To create a subscription object in isolation, call the \code{new()} method and supply an Oauth 2.0 token of class \link[AzureAuth:AzureToken]{AzureAuth::AzureToken}, along with the ID of the subscription.
 }
 
 \section{Operations}{
