@@ -62,7 +62,7 @@ stor2$add_role_assignment("041ff2be-4eb0-11e9-8f38-394fbcd0b29d", "Storage blob 
 
 ## Extending
 
-AzureRMR is meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/Azure/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/services/virtual-machines/), and [AzureStor](https://github.com/Azure/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/product-categories/storage/). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).
+AzureRMR is meant to be a generic mechanism for working with Resource Manager. You can extend it to provide support for service-specific features; examples of packages that do this include [AzureVM](https://github.com/Azure/AzureVM) for [virtual machines](https://azure.microsoft.com/en-us/products/virtual-machines/), and [AzureStor](https://github.com/Azure/AzureStor) for [storage accounts](https://azure.microsoft.com/en-us/products/category/storage/). For more information, see the ["Extending AzureRMR" vignette](vignettes/extend.Rmd).
 
 ## Acknowledgements
 

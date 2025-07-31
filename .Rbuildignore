@@ -9,3 +9,4 @@ CONTRIBUTING.md
 drat.sh
 ^LICENSE\.md$
 ^\.github$
+^SECURITY\.md$

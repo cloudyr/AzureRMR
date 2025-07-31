@@ -80,7 +80,7 @@ If the AzureGraph package is installed and the \code{graph_host} argument is not
 
 \section{Linux DSVM note}{
 
-If you are using a Linux \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may have problems running \code{create_azure_login()} (ie, without any arguments). In this case, try \code{create_azure_login(auth_type="device_code")}.
+If you are using a Linux \href{https://azure.microsoft.com/en-us/products/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine} in Azure, you may have problems running \code{create_azure_login()} (ie, without any arguments). In this case, try \code{create_azure_login(auth_type="device_code")}.
 }
 
 \examples{
