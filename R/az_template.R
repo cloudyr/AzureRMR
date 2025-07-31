@@ -33,8 +33,7 @@
 #'
 #' @seealso
 #' [az_resource_group], [az_resource], [build_template_definition], [build_template_parameters]
-#' [Template overview](https://learn.microsoft.com/en-us/azure/templates/),
-#' [Template API reference](https://learn.microsoft.com/en-us/rest/api/resources/deployments)
+#' [Template overview](https://learn.microsoft.com/en-us/azure/templates/)
 #'
 #' @examples
 #' \dontrun{

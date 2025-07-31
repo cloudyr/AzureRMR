@@ -72,6 +72,5 @@ tpl$delete(free_resources=TRUE)
 }
 \seealso{
 \link{az_resource_group}, \link{az_resource}, \link{build_template_definition}, \link{build_template_parameters}
-\href{https://learn.microsoft.com/en-us/azure/templates/}{Template overview},
-\href{https://learn.microsoft.com/en-us/rest/api/resources/deployments}{Template API reference}
+\href{https://learn.microsoft.com/en-us/azure/templates/}{Template overview}
 }

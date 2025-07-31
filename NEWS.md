@@ -1,3 +1,7 @@
+# AzureRMR 2.4.5
+
+- Update documentation links for CRAN
+
 # AzureRMR 2.4.4
 
 - Fix broken `list_azure_logins` function. Thanks to Pedro Z (@pedrobtz).
